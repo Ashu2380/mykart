@@ -1,0 +1,36 @@
+/* Custom styles for Home page */
+.home-main {
+  overflow-x: hidden;
+  position: relative;
+  top: 70px;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%);
+}
+
+/* Enhanced Home Page for Large Screens */
+@media (min-width: 1440px) {
+  .home-main {
+    top: 80px;
+    height: calc(100vh - 80px);
+  }
+}
+
+@media (min-width: 1920px) {
+  .home-main {
+    top: 80px;
+    height: calc(100vh - 80px);
+  }
+}
+
+@media (max-width: 768px) {
+  .home-main {
+    height: 50vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-main {
+    height: 30vh;
+  }
+}
