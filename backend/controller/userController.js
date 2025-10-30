@@ -334,6 +334,11 @@ export const getAnalytics = async (req, res) => {
             { $group: { _id: "$status", count: { $sum: 1 } } }
         ]);
 
+        // Get completed orders count (orders that are delivered)
+        const completedOrders = await Order.countDocuments({
+            status: 'Delivered'
+        });
+
         // Get top selling products
         const topProducts = await Order.aggregate([
             { $unwind: "$items" },
@@ -370,6 +375,7 @@ export const getAnalytics = async (req, res) => {
             totalUsers,
             totalProducts,
             totalOrders,
+            completedOrders,
             monthlyRevenue: monthlyRevenue.slice(-6),
             categorySales: categorySales.slice(0, 5),
             userGrowth: userGrowthData.slice(-6),
@@ -388,4 +394,121 @@ export const getAnalytics = async (req, res) => {
         console.log(error);
         return res.status(500).json({ success: false, message: `Analytics error: ${error}` });
     }
+};
+
+// Get user notifications
+export const getNotifications = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+
+        const notifications = await Notification.find({ userId })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .populate('productId', 'name image1 price');
+
+        const totalNotifications = await Notification.countDocuments({ userId });
+        const unreadCount = await Notification.countDocuments({ userId, isRead: false });
+
+        // Transform notifications for frontend
+        const transformedNotifications = notifications.map(notification => ({
+            id: notification._id,
+            type: notification.type,
+            title: notification.title,
+            message: notification.message,
+            productId: notification.productId,
+            metadata: notification.metadata,
+            isRead: notification.isRead,
+            priority: notification.priority,
+            createdAt: notification.createdAt,
+            timeAgo: getTimeAgo(notification.createdAt)
+        }));
+
+        return res.status(200).json({
+            success: true,
+            notifications: transformedNotifications,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(totalNotifications / limit),
+                totalNotifications,
+                hasNextPage: page * limit < totalNotifications,
+                hasPrevPage: page > 1
+            },
+            unreadCount
+        });
+    } catch (error) {
+        console.log("Get notifications error", error);
+        return res.status(500).json({ success: false, message: `Get notifications error: ${error.message}` });
+    }
+};
+
+// Mark notification as read
+export const markNotificationAsRead = async (req, res) => {
+    try {
+        const { notificationId } = req.params;
+        const userId = req.userId;
+
+        const notification = await Notification.findOneAndUpdate(
+            { _id: notificationId, userId },
+            { isRead: true },
+            { new: true }
+        );
+
+        if (!notification) {
+            return res.status(404).json({ success: false, message: "Notification not found" });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Notification marked as read",
+            notification: {
+                id: notification._id,
+                isRead: notification.isRead
+            }
+        });
+    } catch (error) {
+        console.log("Mark notification as read error", error);
+        return res.status(500).json({ success: false, message: `Mark notification as read error: ${error.message}` });
+    }
+};
+
+// Delete notification
+export const deleteNotification = async (req, res) => {
+    try {
+        const { notificationId } = req.params;
+        const userId = req.userId;
+
+        const notification = await Notification.findOneAndDelete({
+            _id: notificationId,
+            userId
+        });
+
+        if (!notification) {
+            return res.status(404).json({ success: false, message: "Notification not found" });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Notification deleted successfully"
+        });
+    } catch (error) {
+        console.log("Delete notification error", error);
+        return res.status(500).json({ success: false, message: `Delete notification error: ${error.message}` });
+    }
+};
+
+// Helper function to get time ago
+const getTimeAgo = (date) => {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
+    return `${Math.floor(diffInSeconds / 2592000)} months ago`;
 };

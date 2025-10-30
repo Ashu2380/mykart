@@ -1,13 +1,12 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { FaBox, FaUndo, FaDownload, FaPrint, FaSearch, FaFilter } from 'react-icons/fa';
-import { userDataContext } from '../context/UserContext';
 import { authDataContext } from '../context/authContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Title from '../component/Title';
 
 function Returns() {
-  const { userData } = useContext(userDataContext);
+  // const { userData } = useContext(userDataContext);
   const { serverUrl } = useContext(authDataContext);
   const [orders, setOrders] = useState([]);
   const [returns, setReturns] = useState([]);
@@ -143,7 +142,7 @@ function Returns() {
   );
 
   return (
-    <div className='w-full min-h-screen bg-gradient-to-br from-[#7c3aed] via-[#a855f7] to-[#c084fc] pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
+    <div className='w-full min-h-screen bg-blue-50 pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
       <div className='max-w-6xl mx-auto'>
         <Title text1={'RETURNS &'} text2={'REFUNDS'} />
         
@@ -156,7 +155,7 @@ function Returns() {
               placeholder='Search by order ID or product name...'
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className='w-full pl-10 pr-4 py-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+              className='w-full pl-10 pr-4 py-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
             />
           </div>
         </div>
@@ -173,8 +172,8 @@ function Returns() {
               onClick={() => setActiveTab(tab.key)}
               className={`px-4 py-2 rounded-lg transition-all duration-300 ${
                 activeTab === tab.key 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
               }`}
             >
               {tab.label} ({tab.count})
@@ -185,9 +184,9 @@ function Returns() {
         {/* Eligible Orders Tab */}
         {activeTab === 'eligible' && (
           <div className='space-y-4'>
-            <div className='bg-blue-500/20 border border-blue-500 rounded-lg p-4 mb-6'>
-              <h3 className='text-blue-300 font-semibold mb-2'>Return Policy</h3>
-              <ul className='text-blue-200 text-sm space-y-1'>
+            <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6'>
+              <h3 className='text-blue-800 font-semibold mb-2'>Return Policy</h3>
+              <ul className='text-blue-700 text-sm space-y-1'>
                 <li>• Returns accepted within 30 days of delivery</li>
                 <li>• Items must be in original condition with tags</li>
                 <li>• Free return pickup for eligible items</li>
@@ -196,14 +195,14 @@ function Returns() {
             </div>
 
             {filteredOrders.map((order) => (
-              <div key={order._id} className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
+              <div key={order._id} className='bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-gray-200 shadow-sm'>
                 <div className='flex flex-col md:flex-row md:items-center justify-between mb-4'>
                   <div>
-                    <h3 className='text-white font-semibold'>Order #{order._id}</h3>
-                    <p className='text-gray-300 text-sm'>
+                    <h3 className='text-gray-800 font-semibold'>Order #{order._id}</h3>
+                    <p className='text-gray-600 text-sm'>
                       Delivered on {new Date(order.date).toLocaleDateString()}
                     </p>
-                    <p className='text-yellow-400 text-sm'>
+                    <p className='text-orange-600 text-sm'>
                       {getDaysLeft(order.date)} days left to return
                     </p>
                   </div>
@@ -220,17 +219,17 @@ function Returns() {
 
                 <div className='space-y-3'>
                   {order.items.map((item, index) => (
-                    <div key={index} className='flex items-center gap-4 bg-white/5 rounded-lg p-3'>
-                      <img 
-                        src={item.image1} 
+                    <div key={index} className='flex items-center gap-4 bg-gray-50 rounded-lg p-3'>
+                      <img
+                        src={item.image1}
                         alt={item.name}
                         className='w-16 h-16 object-cover rounded-lg'
                       />
                       <div className='flex-1'>
-                        <h4 className='text-white font-medium'>{item.name}</h4>
-                        <p className='text-gray-300 text-sm'>Size: {item.size}</p>
-                        <p className='text-gray-300 text-sm'>Quantity: {item.quantity}</p>
-                        <p className='text-green-400 font-semibold'>₹{item.price}</p>
+                        <h4 className='text-gray-800 font-medium'>{item.name}</h4>
+                        <p className='text-gray-600 text-sm'>Size: {item.size}</p>
+                        <p className='text-gray-600 text-sm'>Quantity: {item.quantity}</p>
+                        <p className='text-green-600 font-semibold'>₹{item.price}</p>
                       </div>
                     </div>
                   ))}
@@ -241,8 +240,8 @@ function Returns() {
             {filteredOrders.length === 0 && (
               <div className='text-center py-12'>
                 <FaBox className='text-6xl text-gray-500 mx-auto mb-4' />
-                <p className='text-white text-xl mb-4'>No orders eligible for return</p>
-                <p className='text-gray-400'>Orders are eligible for return within 30 days of delivery</p>
+                <p className='text-gray-800 text-xl mb-4'>No orders eligible for return</p>
+                <p className='text-gray-600'>Orders are eligible for return within 30 days of delivery</p>
               </div>
             )}
           </div>
@@ -252,11 +251,11 @@ function Returns() {
         {activeTab === 'requested' && (
           <div className='space-y-4'>
             {filteredReturns.filter(r => ['Requested', 'Approved', 'Picked Up'].includes(r.status)).map((returnItem) => (
-              <div key={returnItem._id} className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
+              <div key={returnItem._id} className='bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-gray-200 shadow-sm'>
                 <div className='flex flex-col md:flex-row md:items-center justify-between mb-4'>
                   <div>
-                    <h3 className='text-white font-semibold'>Return Request #{returnItem._id}</h3>
-                    <p className='text-gray-300 text-sm'>Order: {returnItem.orderId}</p>
+                    <h3 className='text-gray-800 font-semibold'>Return Request #{returnItem._id}</h3>
+                    <p className='text-gray-600 text-sm'>Order: {returnItem.orderId}</p>
                     <p className={`text-sm font-semibold ${getStatusColor(returnItem.status)}`}>
                       Status: {returnItem.status}
                     </p>
@@ -273,10 +272,10 @@ function Returns() {
                   )}
                 </div>
 
-                <div className='bg-white/5 rounded-lg p-4'>
-                  <p className='text-white mb-2'><strong>Reason:</strong> {returnItem.reason}</p>
-                  <p className='text-gray-300'><strong>Description:</strong> {returnItem.description}</p>
-                  <p className='text-gray-300 text-sm mt-2'>
+                <div className='bg-gray-50 rounded-lg p-4'>
+                  <p className='text-gray-800 mb-2'><strong>Reason:</strong> {returnItem.reason}</p>
+                  <p className='text-gray-600'><strong>Description:</strong> {returnItem.description}</p>
+                  <p className='text-gray-600 text-sm mt-2'>
                     Requested on: {new Date(returnItem.createdAt).toLocaleDateString()}
                   </p>
                 </div>
@@ -286,8 +285,8 @@ function Returns() {
             {filteredReturns.filter(r => ['Requested', 'Approved', 'Picked Up'].includes(r.status)).length === 0 && (
               <div className='text-center py-12'>
                 <FaUndo className='text-6xl text-gray-500 mx-auto mb-4' />
-                <p className='text-white text-xl mb-4'>No active return requests</p>
-                <p className='text-gray-400'>Your return requests will appear here</p>
+                <p className='text-gray-800 text-xl mb-4'>No active return requests</p>
+                <p className='text-gray-600'>Your return requests will appear here</p>
               </div>
             )}
           </div>
@@ -297,28 +296,28 @@ function Returns() {
         {activeTab === 'completed' && (
           <div className='space-y-4'>
             {filteredReturns.filter(r => ['Completed', 'Rejected'].includes(r.status)).map((returnItem) => (
-              <div key={returnItem._id} className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
+              <div key={returnItem._id} className='bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-gray-200 shadow-sm'>
                 <div className='flex flex-col md:flex-row md:items-center justify-between mb-4'>
                   <div>
-                    <h3 className='text-white font-semibold'>Return #{returnItem._id}</h3>
-                    <p className='text-gray-300 text-sm'>Order: {returnItem.orderId}</p>
+                    <h3 className='text-gray-800 font-semibold'>Return #{returnItem._id}</h3>
+                    <p className='text-gray-600 text-sm'>Order: {returnItem.orderId}</p>
                     <p className={`text-sm font-semibold ${getStatusColor(returnItem.status)}`}>
                       Status: {returnItem.status}
                     </p>
                   </div>
                   {returnItem.status === 'Completed' && returnItem.refundAmount && (
-                    <div className='bg-green-500/20 border border-green-500 rounded-lg p-3 mt-4 md:mt-0'>
-                      <p className='text-green-300 font-semibold'>
+                    <div className='bg-green-50 border border-green-200 rounded-lg p-3 mt-4 md:mt-0'>
+                      <p className='text-green-700 font-semibold'>
                         Refunded: ₹{returnItem.refundAmount}
                       </p>
                     </div>
                   )}
                 </div>
 
-                <div className='bg-white/5 rounded-lg p-4'>
-                  <p className='text-white mb-2'><strong>Reason:</strong> {returnItem.reason}</p>
-                  <p className='text-gray-300'><strong>Description:</strong> {returnItem.description}</p>
-                  <div className='flex flex-col md:flex-row gap-4 mt-3 text-sm text-gray-300'>
+                <div className='bg-gray-50 rounded-lg p-4'>
+                  <p className='text-gray-800 mb-2'><strong>Reason:</strong> {returnItem.reason}</p>
+                  <p className='text-gray-600'><strong>Description:</strong> {returnItem.description}</p>
+                  <div className='flex flex-col md:flex-row gap-4 mt-3 text-sm text-gray-600'>
                     <p>Requested: {new Date(returnItem.createdAt).toLocaleDateString()}</p>
                     {returnItem.completedAt && (
                       <p>Completed: {new Date(returnItem.completedAt).toLocaleDateString()}</p>
@@ -331,8 +330,8 @@ function Returns() {
             {filteredReturns.filter(r => ['Completed', 'Rejected'].includes(r.status)).length === 0 && (
               <div className='text-center py-12'>
                 <FaUndo className='text-6xl text-gray-500 mx-auto mb-4' />
-                <p className='text-white text-xl mb-4'>No completed returns</p>
-                <p className='text-gray-400'>Completed returns will appear here</p>
+                <p className='text-gray-800 text-xl mb-4'>No completed returns</p>
+                <p className='text-gray-600'>Completed returns will appear here</p>
               </div>
             )}
           </div>

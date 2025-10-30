@@ -97,14 +97,14 @@ function EmiCalculator() {
   const amortizationSchedule = generateAmortizationSchedule();
 
   return (
-    <div className='w-full min-h-screen bg-gradient-to-l from-[#141414] to-[#0c2025] pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
+    <div className='w-full min-h-screen bg-blue-50 pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
       <div className='max-w-7xl mx-auto'>
         <Title text1={'EMI'} text2={'CALCULATOR'} />
         
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
           {/* Input Section */}
-          <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
-            <h2 className='text-2xl font-semibold text-white mb-6 flex items-center gap-2'>
+          <div className='bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-gray-300'>
+            <h2 className='text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2'>
               <FaCalculator className='text-blue-400' />
               Loan Details
             </h2>
@@ -112,7 +112,7 @@ function EmiCalculator() {
             <div className='space-y-6'>
               {/* Loan Amount */}
               <div>
-                <label className='flex items-center gap-2 text-white mb-2 font-medium'>
+                <label className='flex items-center gap-2 text-gray-800 mb-2 font-medium'>
                   <FaRupeeSign className='text-green-400' />
                   Total Loan Amount
                 </label>
@@ -120,7 +120,7 @@ function EmiCalculator() {
                   type='number'
                   value={loanAmount}
                   onChange={(e) => setLoanAmount(Number(e.target.value))}
-                  className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                  className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='Enter loan amount'
                   min='0'
                 />
@@ -133,7 +133,7 @@ function EmiCalculator() {
                   onChange={(e) => setLoanAmount(Number(e.target.value))}
                   className='w-full mt-2 accent-blue-500'
                 />
-                <div className='flex justify-between text-xs text-gray-400 mt-1'>
+                <div className='flex justify-between text-xs text-gray-600 mt-1'>
                   <span>₹1L</span>
                   <span>{formatCurrency(loanAmount)}</span>
                   <span>₹1Cr</span>
@@ -142,7 +142,7 @@ function EmiCalculator() {
 
               {/* Down Payment */}
               <div>
-                <label className='flex items-center gap-2 text-white mb-2 font-medium'>
+                <label className='flex items-center gap-2 text-gray-800 mb-2 font-medium'>
                   <FaArrowDown className='text-orange-400' />
                   Down Payment
                 </label>
@@ -150,7 +150,7 @@ function EmiCalculator() {
                   type='number'
                   value={downPayment}
                   onChange={(e) => setDownPayment(Number(e.target.value))}
-                  className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                  className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='Enter down payment'
                   min='0'
                   max={loanAmount}
@@ -164,7 +164,7 @@ function EmiCalculator() {
                   onChange={(e) => setDownPayment(Number(e.target.value))}
                   className='w-full mt-2 accent-orange-500'
                 />
-                <div className='flex justify-between text-xs text-gray-400 mt-1'>
+                <div className='flex justify-between text-xs text-gray-600 mt-1'>
                   <span>₹0</span>
                   <span>{formatCurrency(downPayment)}</span>
                   <span>{formatCurrency(loanAmount)}</span>
@@ -173,7 +173,7 @@ function EmiCalculator() {
 
               {/* Interest Rate */}
               <div>
-                <label className='flex items-center gap-2 text-white mb-2 font-medium'>
+                <label className='flex items-center gap-2 text-gray-800 mb-2 font-medium'>
                   <FaPercentage className='text-purple-400' />
                   Rate of Interest (% per annum)
                 </label>
@@ -181,7 +181,7 @@ function EmiCalculator() {
                   type='number'
                   value={interestRate}
                   onChange={(e) => setInterestRate(Number(e.target.value))}
-                  className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                  className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='Enter interest rate'
                   min='0'
                   step='0.1'
@@ -195,7 +195,7 @@ function EmiCalculator() {
                   onChange={(e) => setInterestRate(Number(e.target.value))}
                   className='w-full mt-2 accent-purple-500'
                 />
-                <div className='flex justify-between text-xs text-gray-400 mt-1'>
+                <div className='flex justify-between text-xs text-gray-600 mt-1'>
                   <span>5%</span>
                   <span>{interestRate}%</span>
                   <span>20%</span>
@@ -204,7 +204,7 @@ function EmiCalculator() {
 
               {/* Loan Tenure */}
               <div>
-                <label className='flex items-center gap-2 text-white mb-2 font-medium'>
+                <label className='flex items-center gap-2 text-gray-800 mb-2 font-medium'>
                   <FaClock className='text-yellow-400' />
                   Loan Tenure
                 </label>
@@ -213,14 +213,14 @@ function EmiCalculator() {
                     type='number'
                     value={loanTenure}
                     onChange={(e) => setLoanTenure(Number(e.target.value))}
-                    className='flex-1 p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                    className='flex-1 p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                     placeholder='Enter tenure'
                     min='1'
                   />
                   <select
                     value={tenureType}
                     onChange={(e) => setTenureType(e.target.value)}
-                    className='p-3 rounded-lg bg-white/20 text-white border border-gray-600 focus:border-blue-500 focus:outline-none'
+                    className='p-3 rounded-lg bg-white text-gray-800 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   >
                     <option value='years' className='text-black'>Years</option>
                     <option value='months' className='text-black'>Months</option>
@@ -235,7 +235,7 @@ function EmiCalculator() {
                   onChange={(e) => setLoanTenure(Number(e.target.value))}
                   className='w-full mt-2 accent-yellow-500'
                 />
-                <div className='flex justify-between text-xs text-gray-400 mt-1'>
+                <div className='flex justify-between text-xs text-gray-600 mt-1'>
                   <span>1 {tenureType === 'years' ? 'Year' : 'Month'}</span>
                   <span>{loanTenure} {tenureType === 'years' ? 'Years' : 'Months'}</span>
                   <span>{tenureType === 'years' ? '30 Years' : '360 Months'}</span>
@@ -247,8 +247,8 @@ function EmiCalculator() {
           {/* Results Section */}
           <div className='space-y-6'>
             {/* EMI Result */}
-            <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
-              <h2 className='text-2xl font-semibold text-white mb-6 flex items-center gap-2'>
+            <div className='bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-gray-300'>
+              <h2 className='text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2'>
                 <MdAccountBalance className='text-green-400' />
                 EMI Breakdown
               </h2>
@@ -257,29 +257,29 @@ function EmiCalculator() {
                 <div className='space-y-4'>
                   <div className='bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-lg p-4 border border-green-500/30'>
                     <div className='text-center'>
-                      <p className='text-gray-300 text-sm mb-1'>Monthly EMI</p>
+                      <p className='text-gray-600 text-sm mb-1'>Monthly EMI</p>
                       <p className='text-3xl font-bold text-green-400'>{formatCurrency(emiResult.emi)}</p>
                     </div>
                   </div>
                   
                   <div className='grid grid-cols-2 gap-4'>
                     <div className='bg-white/5 rounded-lg p-4 text-center'>
-                      <p className='text-gray-300 text-sm mb-1'>Principal Amount</p>
+                      <p className='text-gray-600 text-sm mb-1'>Principal Amount</p>
                       <p className='text-lg font-semibold text-blue-400'>{formatCurrency(emiResult.principal)}</p>
                     </div>
                     <div className='bg-white/5 rounded-lg p-4 text-center'>
-                      <p className='text-gray-300 text-sm mb-1'>Total Interest</p>
+                      <p className='text-gray-600 text-sm mb-1'>Total Interest</p>
                       <p className='text-lg font-semibold text-orange-400'>{formatCurrency(emiResult.totalInterest)}</p>
                     </div>
                   </div>
                   
                   <div className='bg-white/5 rounded-lg p-4 text-center'>
-                    <p className='text-gray-300 text-sm mb-1'>Total Amount Payable</p>
-                    <p className='text-xl font-semibold text-white'>{formatCurrency(emiResult.totalAmount)}</p>
+                    <p className='text-gray-600 text-sm mb-1'>Total Amount Payable</p>
+                    <p className='text-xl font-semibold text-gray-800'>{formatCurrency(emiResult.totalAmount)}</p>
                   </div>
                   
                   <div className='bg-white/5 rounded-lg p-4'>
-                    <p className='text-gray-300 text-sm mb-2'>Loan Breakdown</p>
+                    <p className='text-gray-600 text-sm mb-2'>Loan Breakdown</p>
                     <div className='flex rounded-full overflow-hidden h-3 bg-gray-700'>
                       <div 
                         className='bg-blue-500' 
@@ -290,7 +290,7 @@ function EmiCalculator() {
                         style={{ width: `${(emiResult.totalInterest / emiResult.totalAmount) * 100}%` }}
                       ></div>
                     </div>
-                    <div className='flex justify-between text-xs text-gray-400 mt-2'>
+                    <div className='flex justify-between text-xs text-gray-600 mt-2'>
                       <span>Principal: {((emiResult.principal / emiResult.totalAmount) * 100).toFixed(1)}%</span>
                       <span>Interest: {((emiResult.totalInterest / emiResult.totalAmount) * 100).toFixed(1)}%</span>
                     </div>
@@ -304,12 +304,12 @@ function EmiCalculator() {
             </div>
 
             {/* Quick Tips */}
-            <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
-              <h3 className='text-lg font-semibold text-white mb-4 flex items-center gap-2'>
+            <div className='bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-gray-300'>
+              <h3 className='text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2'>
                 <MdTrendingUp className='text-yellow-400' />
                 EMI Tips
               </h3>
-              <div className='space-y-3 text-sm text-gray-300'>
+              <div className='space-y-3 text-sm text-gray-700'>
                 <div className='flex items-start gap-2'>
                   <span className='text-green-400 mt-1'>•</span>
                   <span>Higher down payment reduces your EMI and total interest paid</span>
@@ -333,8 +333,8 @@ function EmiCalculator() {
 
         {/* Amortization Schedule */}
         {amortizationSchedule.length > 0 && (
-          <div className='mt-8 bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
-            <h3 className='text-xl font-semibold text-white mb-4 flex items-center gap-2'>
+          <div className='mt-8 bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-gray-300'>
+            <h3 className='text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2'>
               <FaCalendarAlt className='text-blue-400' />
               Payment Schedule (First 12 Months)
             </h3>
@@ -343,21 +343,21 @@ function EmiCalculator() {
               <table className='w-full text-sm'>
                 <thead>
                   <tr className='border-b border-gray-600'>
-                    <th className='text-left py-2 px-3 text-gray-300'>Month</th>
-                    <th className='text-right py-2 px-3 text-gray-300'>EMI</th>
-                    <th className='text-right py-2 px-3 text-gray-300'>Principal</th>
-                    <th className='text-right py-2 px-3 text-gray-300'>Interest</th>
-                    <th className='text-right py-2 px-3 text-gray-300'>Balance</th>
+                    <th className='text-left py-2 px-3 text-gray-700'>Month</th>
+                    <th className='text-right py-2 px-3 text-gray-700'>EMI</th>
+                    <th className='text-right py-2 px-3 text-gray-700'>Principal</th>
+                    <th className='text-right py-2 px-3 text-gray-700'>Interest</th>
+                    <th className='text-right py-2 px-3 text-gray-700'>Balance</th>
                   </tr>
                 </thead>
                 <tbody>
                   {amortizationSchedule.map((row) => (
                     <tr key={row.month} className='border-b border-gray-700 hover:bg-white/5'>
-                      <td className='py-2 px-3 text-white'>{row.month}</td>
+                      <td className='py-2 px-3 text-gray-800'>{row.month}</td>
                       <td className='py-2 px-3 text-right text-green-400'>{formatCurrency(row.emi)}</td>
                       <td className='py-2 px-3 text-right text-blue-400'>{formatCurrency(row.principal)}</td>
                       <td className='py-2 px-3 text-right text-orange-400'>{formatCurrency(row.interest)}</td>
-                      <td className='py-2 px-3 text-right text-gray-300'>{formatCurrency(row.balance)}</td>
+                      <td className='py-2 px-3 text-right text-gray-700'>{formatCurrency(row.balance)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -365,7 +365,7 @@ function EmiCalculator() {
             </div>
             
             {emiResult.tenureInMonths > 12 && (
-              <p className='text-xs text-gray-400 mt-3 text-center'>
+              <p className='text-xs text-gray-600 mt-3 text-center'>
                 Showing first 12 months of {emiResult.tenureInMonths} months tenure
               </p>
             )}

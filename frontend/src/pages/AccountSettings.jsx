@@ -145,9 +145,9 @@ function AccountSettings() {
   };
 
   const ProfileField = ({ label, field, type = 'text', options = null }) => (
-    <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
+    <div className='bg-white rounded-lg p-6 border border-gray-300 shadow-sm'>
       <div className='flex items-center justify-between mb-4'>
-        <label className='text-white font-semibold'>{label}</label>
+        <label className='text-gray-800 font-semibold'>{label}</label>
         {editingField === field ? (
           <div className='flex gap-2'>
             <button
@@ -191,13 +191,13 @@ function AccountSettings() {
             type={type}
             value={tempValue}
             onChange={(e) => setTempValue(e.target.value)}
-            className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+            className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
             placeholder={`Enter ${label.toLowerCase()}`}
             autoFocus
           />
         )
       ) : (
-        <p className='text-gray-300'>
+        <p className='text-gray-700'>
           {profileData[field] || `No ${label.toLowerCase()} provided`}
         </p>
       )}
@@ -205,14 +205,14 @@ function AccountSettings() {
   );
 
   return (
-    <div className='w-full min-h-screen bg-gradient-to-br from-[#7c3aed] via-[#a855f7] to-[#c084fc] pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
+    <div className='w-full min-h-screen bg-blue-50 pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
       <div className='max-w-4xl mx-auto'>
         <Title text1={'ACCOUNT'} text2={'SETTINGS'} />
 
         {/* Profile Information Section */}
         <div className='mb-8'>
-          <h2 className='text-2xl font-semibold text-white mb-6 flex items-center gap-2'>
-            <FaUser className='text-blue-400' />
+          <h2 className='text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2'>
+            <FaUser className='text-blue-600' />
             Profile Information
           </h2>
           
@@ -237,20 +237,20 @@ function AccountSettings() {
 
         {/* Email Settings Section */}
         <div className='mb-8'>
-          <h2 className='text-2xl font-semibold text-white mb-6 flex items-center gap-2'>
-            <FaEnvelope className='text-green-400' />
+          <h2 className='text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2'>
+            <FaEnvelope className='text-green-600' />
             Email Settings
           </h2>
           
           <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
             <div className='flex items-center justify-between mb-4'>
-              <label className='text-white font-semibold'>Primary Email</label>
+              <label className='text-gray-800 font-semibold'>Primary Email</label>
               <span className='bg-blue-500 text-white text-xs px-2 py-1 rounded-full'>Primary</span>
             </div>
-            <p className='text-gray-300 mb-4'>{profileData.email}</p>
+            <p className='text-gray-700 mb-4'>{profileData.email}</p>
             <div className='bg-yellow-500/20 border border-yellow-500 rounded-lg p-4'>
-              <p className='text-yellow-300 text-sm'>
-                <strong>Note:</strong> To change your primary email address, please contact customer support 
+              <p className='text-amber-800 text-sm bg-amber-50 p-3 rounded-lg border border-amber-200'>
+                <strong>Note:</strong> To change your primary email address, please contact customer support
                 for security verification.
               </p>
             </div>
@@ -259,21 +259,21 @@ function AccountSettings() {
 
         {/* Password Settings Section */}
         <div className='mb-8'>
-          <h2 className='text-2xl font-semibold text-white mb-6 flex items-center gap-2'>
-            <FaLock className='text-red-400' />
+          <h2 className='text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2'>
+            <FaLock className='text-red-600' />
             Password & Security
           </h2>
           
           <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
             <form onSubmit={handlePasswordChange} className='space-y-4'>
               <div>
-                <label className='block text-white mb-2'>Current Password</label>
+                <label className='block text-gray-800 mb-2'>Current Password</label>
                 <div className='relative'>
                   <input
                     type={showCurrentPassword ? 'text' : 'password'}
                     value={passwordData.currentPassword}
                     onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
-                    className='w-full p-3 pr-12 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                    className='w-full p-3 pr-12 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                     placeholder='Enter current password'
                     required
                   />
@@ -288,13 +288,13 @@ function AccountSettings() {
               </div>
 
               <div>
-                <label className='block text-white mb-2'>New Password</label>
+                <label className='block text-gray-800 mb-2'>New Password</label>
                 <div className='relative'>
                   <input
                     type={showNewPassword ? 'text' : 'password'}
                     value={passwordData.newPassword}
                     onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                    className='w-full p-3 pr-12 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                    className='w-full p-3 pr-12 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                     placeholder='Enter new password'
                     minLength='6'
                     required
@@ -310,13 +310,13 @@ function AccountSettings() {
               </div>
 
               <div>
-                <label className='block text-white mb-2'>Confirm New Password</label>
+                <label className='block text-gray-800 mb-2'>Confirm New Password</label>
                 <div className='relative'>
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={passwordData.confirmPassword}
                     onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                    className='w-full p-3 pr-12 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                    className='w-full p-3 pr-12 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                     placeholder='Confirm new password'
                     minLength='6'
                     required
@@ -344,35 +344,41 @@ function AccountSettings() {
 
         {/* Account Actions Section */}
         <div className='mb-8'>
-          <h2 className='text-2xl font-semibold text-white mb-6'>Account Actions</h2>
+          <h2 className='text-2xl font-semibold text-gray-800 mb-6'>Account Actions</h2>
           
           <div className='space-y-4'>
             {/* Download Data */}
             <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
-              <h3 className='text-white font-semibold mb-2'>Download Your Data</h3>
-              <p className='text-gray-300 mb-4'>
+              <h3 className='text-gray-800 font-semibold mb-2'>Download Your Data</h3>
+              <p className='text-gray-600 mb-4'>
                 Download a copy of your account data including orders, addresses, and preferences.
               </p>
-              <button className='bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors duration-300'>
+              <button
+                onClick={() => toast.info('Data download feature coming soon!')}
+                className='bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors duration-300'
+              >
                 Request Data Download
               </button>
             </div>
 
             {/* Deactivate Account */}
             <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
-              <h3 className='text-white font-semibold mb-2'>Deactivate Account</h3>
-              <p className='text-gray-300 mb-4'>
+              <h3 className='text-gray-800 font-semibold mb-2'>Deactivate Account</h3>
+              <p className='text-gray-600 mb-4'>
                 Temporarily deactivate your account. You can reactivate it anytime by logging in.
               </p>
-              <button className='bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg transition-colors duration-300'>
+              <button
+                onClick={() => toast.info('Account deactivation feature coming soon!')}
+                className='bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg transition-colors duration-300'
+              >
                 Deactivate Account
               </button>
             </div>
 
             {/* Delete Account */}
-            <div className='bg-red-500/20 border border-red-500 rounded-lg p-6'>
-              <h3 className='text-red-300 font-semibold mb-2'>Delete Account</h3>
-              <p className='text-red-200 mb-4'>
+            <div className='bg-red-50 border border-red-200 rounded-lg p-6'>
+              <h3 className='text-red-800 font-semibold mb-2'>Delete Account</h3>
+              <p className='text-red-700 mb-4'>
                 Permanently delete your account and all associated data. This action cannot be undone.
               </p>
               <button 
@@ -388,14 +394,14 @@ function AccountSettings() {
 
         {/* Privacy Settings */}
         <div className='mb-8'>
-          <h2 className='text-2xl font-semibold text-white mb-6'>Privacy Settings</h2>
+          <h2 className='text-2xl font-semibold text-gray-800 mb-6'>Privacy Settings</h2>
           
           <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
             <div className='space-y-4'>
               <div className='flex items-center justify-between'>
                 <div>
-                  <h3 className='text-white font-semibold'>Email Notifications</h3>
-                  <p className='text-gray-300 text-sm'>Receive emails about orders, offers, and updates</p>
+                  <h3 className='text-gray-800 font-semibold'>Email Notifications</h3>
+                  <p className='text-gray-600 text-sm'>Receive emails about orders, offers, and updates</p>
                 </div>
                 <label className='relative inline-flex items-center cursor-pointer'>
                   <input type='checkbox' className='sr-only peer' defaultChecked />
@@ -405,8 +411,8 @@ function AccountSettings() {
 
               <div className='flex items-center justify-between'>
                 <div>
-                  <h3 className='text-white font-semibold'>SMS Notifications</h3>
-                  <p className='text-gray-300 text-sm'>Receive SMS updates about your orders</p>
+                  <h3 className='text-gray-800 font-semibold'>SMS Notifications</h3>
+                  <p className='text-gray-600 text-sm'>Receive SMS updates about your orders</p>
                 </div>
                 <label className='relative inline-flex items-center cursor-pointer'>
                   <input type='checkbox' className='sr-only peer' defaultChecked />
@@ -416,8 +422,8 @@ function AccountSettings() {
 
               <div className='flex items-center justify-between'>
                 <div>
-                  <h3 className='text-white font-semibold'>Marketing Communications</h3>
-                  <p className='text-gray-300 text-sm'>Receive promotional offers and recommendations</p>
+                  <h3 className='text-gray-800 font-semibold'>Marketing Communications</h3>
+                  <p className='text-gray-600 text-sm'>Receive promotional offers and recommendations</p>
                 </div>
                 <label className='relative inline-flex items-center cursor-pointer'>
                   <input type='checkbox' className='sr-only peer' />

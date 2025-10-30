@@ -31,7 +31,7 @@ const getProductRecommendations = (query, products) => {
 
 export const addProduct = async (req,res) => {
     try {
-        let {name,description,price,category,subCategory,sizes,bestseller} = req.body
+        let {name,description,price,category,subCategory,sizes,bestseller,discount} = req.body
 
         // Handle image uploads with proper checks
         let image1 = null, image2 = null, image3 = null, image4 = null;
@@ -57,7 +57,9 @@ export const addProduct = async (req,res) => {
             subCategory,
             sizes :JSON.parse(sizes),
             bestseller :bestseller === "true" ? true : false,
-            date :Date.now()
+            discount :Number(discount) || 0,
+            date :Date.now(),
+            isManual :true
         }
 
         // Only add image fields if they exist
@@ -106,13 +108,14 @@ export const removeProduct = async (req,res) => {
 export const getAIRecommendations = async (req, res) => {
     try {
         const { query, budget, category, preferences } = req.body;
+        const userId = req.userId; // From auth middleware
 
         if (!query) {
             return res.status(400).json({ message: "Query is required for recommendations" });
         }
 
-        // Get all products
-        const allProducts = await Product.find({});
+        // Get all manual products only (exclude AI-generated)
+        const allProducts = await Product.find({ isManual: true });
 
         // Get AI recommendations based on query
         let recommendations = getProductRecommendations(query, allProducts);
@@ -129,7 +132,7 @@ export const getAIRecommendations = async (req, res) => {
             );
         }
 
-        // Add personalized scoring based on preferences (can be enhanced with user history)
+        // Add personalized scoring based on preferences and user history
         if (preferences && preferences.length > 0) {
             recommendations = recommendations.map(product => {
                 let score = 0;
@@ -141,6 +144,27 @@ export const getAIRecommendations = async (req, res) => {
                 });
                 return { ...product.toObject(), recommendationScore: score };
             }).sort((a, b) => b.recommendationScore - a.recommendationScore);
+        }
+
+        // Create smart notification for search activity
+        if (userId && recommendations.length > 0) {
+            try {
+                const notification = new Notification({
+                    userId: userId,
+                    type: 'recommendation',
+                    title: 'Smart Recommendations Available!',
+                    message: `Based on your search for "${query}", we found ${recommendations.length} products you might like.`,
+                    metadata: {
+                        searchQuery: query,
+                        recommendationsCount: recommendations.length,
+                        category: category || 'General'
+                    }
+                });
+                await notification.save();
+            } catch (notificationError) {
+                console.log("Notification creation error:", notificationError);
+                // Don't fail the main request if notification fails
+            }
         }
 
         return res.status(200).json({
@@ -165,57 +189,47 @@ export const visualSearch = async (req, res) => {
 
         const uploadedImage = req.file;
 
-        // For now, return a mock response since database connection is failing
-        // In production, this would analyze the image and find similar products
+        // Get all manual products from database (exclude AI-generated)
+        const allProducts = await Product.find({ isManual: true });
 
-        // Mock similar products based on common categories
-        const mockSimilarProducts = [
-            {
-                _id: "mock1",
-                name: "Nike Men's Jacket",
-                image1: "https://loremflickr.com/800/800/clothes%2Cmen%2Cnike%2Cmens%2Cjacket?lock=4",
-                price: 4837,
-                category: "Clothes",
-                subCategory: "Men",
-                bestseller: true,
-                discount: 0
-            },
-            {
-                _id: "mock2",
-                name: "Adidas Men's Jacket",
-                image1: "https://loremflickr.com/800/800/clothes%2Cmen%2Cadidas%2Cmens%2Cjacket?lock=3",
-                price: 4746,
-                category: "Clothes",
-                subCategory: "Men",
-                bestseller: false,
-                discount: 0
-            },
-            {
-                _id: "mock3",
-                name: "Samsung Smartphone",
-                image1: "https://loremflickr.com/800/800/electronics%2Cphones%2Csamsung%2Csmartphone?lock=1",
-                price: 26631,
-                category: "Electronics",
-                subCategory: "Phones",
-                bestseller: false,
-                discount: 0
-            },
-            {
-                _id: "mock4",
-                name: "Apple Smartphone",
-                image1: "https://loremflickr.com/800/800/electronics%2Cphones%2Capple%2Csmartphone?lock=2",
-                price: 56467,
-                category: "Electronics",
-                subCategory: "Phones",
-                bestseller: false,
-                discount: 0
+        if (allProducts.length === 0) {
+            return res.status(200).json({
+                success: true,
+                similarProducts: [],
+                message: "No products found in database"
+            });
+        }
+
+        // Basic similarity matching based on category and subcategory patterns
+        // This is a simple implementation - in production, use AI/computer vision APIs
+        const { similarProducts, searchQuery } = findSimilarProducts(allProducts, uploadedImage);
+
+        // Create smart notification for visual search activity
+        if (req.userId) {
+            try {
+                const notification = new Notification({
+                    userId: req.userId,
+                    type: 'recommendation',
+                    title: 'Visual Search Results!',
+                    message: `Found ${similarProducts.length} products similar to your uploaded image.`,
+                    metadata: {
+                        searchType: 'visual',
+                        resultsCount: similarProducts.length,
+                        imageUploaded: true
+                    }
+                });
+                await notification.save();
+            } catch (notificationError) {
+                console.log("Visual search notification error:", notificationError);
+                // Don't fail the main request if notification fails
             }
-        ];
+        }
 
         return res.status(200).json({
             success: true,
-            similarProducts: mockSimilarProducts,
-            message: "Visual search completed successfully (using mock data due to database connection issues)"
+            similarProducts: similarProducts,
+            searchQuery: searchQuery || 'visual search',
+            message: "Visual search completed successfully"
         });
 
     } catch (error) {
@@ -223,6 +237,116 @@ export const visualSearch = async (req, res) => {
         return res.status(500).json({ message: `Visual search error: ${error.message}` });
     }
 };
+
+// Helper function to find similar products based on basic heuristics
+function findSimilarProducts(allProducts, uploadedImage) {
+    // For now, we'll use a simple approach based on filename patterns or random selection
+    // In a real implementation, this would analyze the image using AI
+
+    // Extract potential keywords from filename (if any)
+    const filename = uploadedImage.originalname.toLowerCase();
+    let categoryHints = [];
+    let subCategoryHints = [];
+    let searchQuery = '';
+
+    // Simple keyword matching from filename
+    if (filename.includes('shirt') || filename.includes('jacket') || filename.includes('clothes') || filename.includes('t-shirt') || filename.includes('top')) {
+        categoryHints.push('Clothes');
+        subCategoryHints.push('TopWear', 'WinterWear');
+        searchQuery = 'shirt jacket clothes top';
+    }
+    if (filename.includes('phone') || filename.includes('laptop') || filename.includes('electronics') || filename.includes('smartphone') || filename.includes('mobile')) {
+        categoryHints.push('Electronics');
+        subCategoryHints.push('Phones', 'Laptops', 'Accessories');
+        searchQuery = 'phone laptop electronics smartphone mobile';
+    }
+    if (filename.includes('book') || filename.includes('media') || filename.includes('movie') || filename.includes('fiction') || filename.includes('non-fiction')) {
+        categoryHints.push('Books & Media');
+        subCategoryHints.push('Fiction', 'Non-Fiction', 'Movies & TV');
+        searchQuery = 'book media movie fiction non-fiction';
+    }
+    if (filename.includes('beauty') || filename.includes('health') || filename.includes('skincare') || filename.includes('haircare') || filename.includes('wellness')) {
+        categoryHints.push('Beauty & Health');
+        subCategoryHints.push('Skincare', 'Haircare', 'Wellness');
+        searchQuery = 'beauty health skincare haircare wellness';
+    }
+    if (filename.includes('sports') || filename.includes('outdoor') || filename.includes('athletic') || filename.includes('camping') || filename.includes('fitness')) {
+        categoryHints.push('Sports & Outdoors');
+        subCategoryHints.push('Athletic Wear', 'Camping Gear', 'Fitness Equipment');
+        searchQuery = 'sports outdoor athletic camping fitness';
+    }
+    if (filename.includes('home') || filename.includes('kitchen') || filename.includes('furniture') || filename.includes('cookware') || filename.includes('storage')) {
+        categoryHints.push('Home & Kitchen');
+        subCategoryHints.push('Furniture', 'Cookware', 'Storage');
+        searchQuery = 'home kitchen furniture cookware storage';
+    }
+    if (filename.includes('toy') || filename.includes('game') || filename.includes('action') || filename.includes('board') || filename.includes('puzzle')) {
+        categoryHints.push('Toys & Games');
+        subCategoryHints.push('Action Figures', 'Board Games', 'Puzzles');
+        searchQuery = 'toy game action board puzzle';
+    }
+
+    // If we found category hints, filter products
+    let filteredProducts = allProducts;
+    if (categoryHints.length > 0) {
+        filteredProducts = allProducts.filter(product =>
+            categoryHints.some(hint =>
+                product.category.toLowerCase().includes(hint.toLowerCase())
+            )
+        );
+    }
+
+    // Further filter by subcategory if hints found
+    if (filteredProducts.length > 0 && subCategoryHints.length > 0) {
+        const subFiltered = filteredProducts.filter(product =>
+            subCategoryHints.some(hint =>
+                product.subCategory.toLowerCase().includes(hint.toLowerCase())
+            )
+        );
+        // If subcategory filtering gives results, use them; otherwise keep category filtered
+        if (subFiltered.length > 0) {
+            filteredProducts = subFiltered;
+        }
+    }
+
+    // If no category hints found, return random products
+    if (categoryHints.length === 0) {
+        const shuffledProducts = allProducts.sort(() => 0.5 - Math.random());
+        return {
+            similarProducts: shuffledProducts.slice(0, Math.min(8, shuffledProducts.length)),
+            searchQuery: searchQuery
+        };
+    }
+
+    // If no matches found after filtering, return random products from the category
+    if (filteredProducts.length === 0) {
+        const categoryProducts = allProducts.filter(product =>
+            categoryHints.some(hint =>
+                product.category.toLowerCase().includes(hint.toLowerCase())
+            )
+        );
+        if (categoryProducts.length > 0) {
+            const shuffledProducts = categoryProducts.sort(() => 0.5 - Math.random());
+            return {
+                similarProducts: shuffledProducts.slice(0, Math.min(8, shuffledProducts.length)),
+                searchQuery: searchQuery
+            };
+        }
+        // Fallback to random products
+        const shuffledProducts = allProducts.sort(() => 0.5 - Math.random());
+        return {
+            similarProducts: shuffledProducts.slice(0, Math.min(8, shuffledProducts.length)),
+            searchQuery: searchQuery
+        };
+    }
+
+    // Shuffle and return top matches
+    const shuffledProducts = filteredProducts.sort(() => 0.5 - Math.random());
+    return {
+        similarProducts: shuffledProducts.slice(0, Math.min(8, shuffledProducts.length)),
+        searchQuery: searchQuery
+    };
+}
 
 export const updateProduct = async (req,res) => {
     try {
@@ -265,6 +389,89 @@ export const updateProduct = async (req,res) => {
     }
 
 }
+
+// Personalized recommendations based on user behavior
+export const getPersonalizedRecommendations = async (req, res) => {
+    try {
+        const userId = req.userId; // From auth middleware
+
+        if (!userId) {
+            return res.status(401).json({ message: "User not authenticated" });
+        }
+
+        // Get user's browsing history
+        const browsingHistory = await BrowsingHistory.find({ userId }).sort({ timestamp: -1 }).limit(20);
+
+        // Get user's wishlist
+        const user = await User.findById(userId).populate('wishlist.productId');
+        const wishlistItems = user ? user.wishlist.map(item => item.productId).filter(Boolean) : [];
+
+        // Get user's order history for purchased items
+        const userOrders = await Order.find({ userId }).populate('items.productId');
+        const purchasedItems = [];
+        userOrders.forEach(order => {
+            order.items.forEach(item => {
+                if (item.productId) {
+                    purchasedItems.push(item.productId);
+                }
+            });
+        });
+
+        // Get all manual products only (exclude AI-generated)
+        const allProducts = await Product.find({ isManual: true });
+
+        // Generate recommendations based on user behavior
+        let recommendations = [];
+
+        // 1. Based on browsing history categories
+        if (browsingHistory.length > 0) {
+            const browsedCategories = browsingHistory.map(h => h.category).filter(Boolean);
+            const categoryRecommendations = allProducts.filter(product =>
+                browsedCategories.includes(product.category) &&
+                !purchasedItems.some(purchased => purchased._id.toString() === product._id.toString())
+            );
+            recommendations.push(...categoryRecommendations);
+        }
+
+        // 2. Based on wishlist categories
+        if (wishlistItems.length > 0) {
+            const wishlistCategories = wishlistItems.map(item => item.category).filter(Boolean);
+            const wishlistRecommendations = allProducts.filter(product =>
+                wishlistCategories.includes(product.category) &&
+                !wishlistItems.some(wishItem => wishItem._id.toString() === product._id.toString()) &&
+                !purchasedItems.some(purchased => purchased._id.toString() === product._id.toString())
+            );
+            recommendations.push(...wishlistRecommendations);
+        }
+
+        // 3. Based on purchased items categories
+        if (purchasedItems.length > 0) {
+            const purchasedCategories = purchasedItems.map(item => item.category).filter(Boolean);
+            const purchaseRecommendations = allProducts.filter(product =>
+                purchasedCategories.includes(product.category) &&
+                !purchasedItems.some(purchased => purchased._id.toString() === product._id.toString())
+            );
+            recommendations.push(...purchaseRecommendations);
+        }
+
+        // Remove duplicates and limit to 10 recommendations
+        const uniqueRecommendations = recommendations.filter((product, index, self) =>
+            index === self.findIndex(p => p._id.toString() === product._id.toString())
+        ).slice(0, 10);
+
+        // If no recommendations based on history, return popular/best-selling manual products
+        if (uniqueRecommendations.length === 0) {
+            const popularProducts = await Product.find({ bestseller: true, isManual: true }).limit(10);
+            return res.status(200).json(popularProducts);
+        }
+
+        return res.status(200).json(uniqueRecommendations);
+
+    } catch (error) {
+        console.log("Personalized recommendations error", error);
+        return res.status(500).json({ message: `Personalized recommendations error: ${error.message}` });
+    }
+};
 
 // Price drop alert system - check for price changes and notify users
 export const checkPriceDrops = async (req, res) => {

@@ -5,7 +5,7 @@ import back3 from "../assets/back3.jpg"
 import back4 from "../assets/back4.jpg"
 
 function Backgound({heroCount}) {
-  
+
     if(heroCount === 0){
         return  <img src={back2} alt="" className='w-[100%] h-[100%]  float-left overflow-auto  object-cover'/>
     }else if(heroCount === 1){
@@ -18,7 +18,7 @@ function Backgound({heroCount}) {
        return  <img src={back4} alt="" className='w-[100%] h-[100%] float-left overflow-auto  object-cover'/>
 
     }
-  
+
 }
 
 export default Backgound

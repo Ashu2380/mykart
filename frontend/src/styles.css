@@ -11,14 +11,14 @@
 .title-text1 {
   font-size: 40px;
   font-weight: 600;
-  color: white;
+  color: #333333;
   text-align: center;
 }
 
 .title-text2 {
   font-size: 40px;
   font-weight: 600;
-  color: #60a5fa;
+  color: #2563eb;
   text-align: center;
 }
 
@@ -60,7 +60,7 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%);
+  background: #fafafa;
   gap: 50px;
   padding-top: 100px;
 }
@@ -149,17 +149,17 @@
   flex-direction: column;
   gap: 20px;
   padding: 10px 40px;
-  color: white;
+  color: #333333;
   backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 15px;
   transition: all 0.3s ease;
 }
 
 .about-feature:hover {
   transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+  background: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 /* Enhanced About Features for Large Screens */
@@ -173,7 +173,7 @@
 
   .about-feature:hover {
     transform: translateY(-8px);
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -209,7 +209,7 @@
 .nav-main {
   width: 100vw;
   height: 70px;
-  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%);
+  background: #fafafa;
   z-index: 20;
   position: fixed;
   top: 0;
@@ -218,9 +218,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  color: white;
-  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  color: #333333;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Nav for Extra Large Screens */
@@ -354,7 +354,7 @@
   width: 300px;
   max-width: 90%;
   height: 400px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+  background: rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(15px);
   border-radius: 15px;
   display: flex;
@@ -363,15 +363,15 @@
   flex-direction: column;
   padding: 10px;
   cursor: pointer;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .card-container:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 15px 40px rgba(59, 130, 246, 0.3);
-  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 /* Enhanced Responsive Cards */
@@ -426,8 +426,8 @@
 /* TopNav Component */
 .top-nav {
   width: 100%;
-  background-color: #2563eb;
-  color: white;
+  background-color: #e5e7eb;
+  color: #333333;
   height: 40px;
   display: flex;
   align-items: center;

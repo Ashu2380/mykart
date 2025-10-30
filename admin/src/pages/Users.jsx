@@ -49,12 +49,11 @@ function Users() {
   }, [])
 
   return (
-    <div className='w-[100vw] min-h-[100vh] bg-gradient-to-br from-slate-900 via-blue-950 to-teal-900 text-[white]'>
+    <div className='w-[100vw] min-h-[100vh] bg-gradient-to-br from-slate-900 via-blue-950 to-teal-900 text-[white] overflow-x-hidden relative'>
       <Nav />
-      <div className='w-[100%] h-[100%] flex items-center justify-start'>
-        <Sidebar />
-
-        <div className='w-[82%] h-[100%] lg:ml-[320px] md:ml-[230px] mt-[70px] flex flex-col gap-[30px] overflow-x-hidden py-[50px] ml-[100px]'>
+      <Sidebar />
+      <div className='w-[82%] h-[100%] flex items-center justify-start overflow-x-hidden absolute right-0 bottom-[5%]'>
+        <div className='w-[100%] md:w-[90%] h-[100%] mt-[70px] flex flex-col gap-[30px] py-[90px] px-[30px] md:px-[60px]'>
           <div className='w-[400px] h-[50px] text-[28px] md:text-[40px] mb-[20px] text-white'>All Users</div>
 
           {/* Stats Cards */}
@@ -102,8 +101,8 @@ function Users() {
             </div>
           ) : users.length > 0 ? (
             <div className='space-y-4'>
-              {users.map((user, index) => (
-                <div key={user._id} className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600 hover:border-blue-500 transition-all duration-300'>
+              {users.map((user) => (
+                <div key={user._id} className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600 hover:border-blue-500 transition-all duration-300 h-auto'>
                   <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
                     <div className='flex items-center gap-4'>
                       <div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg'>
@@ -241,8 +240,8 @@ function Users() {
                   <div className='bg-white/5 rounded-lg p-4'>
                     <h3 className='text-lg font-semibold text-white mb-4'>Addresses ({selectedUser.addresses.length})</h3>
                     <div className='space-y-3'>
-                      {selectedUser.addresses.map((address, index) => (
-                        <div key={index} className='bg-white/10 rounded-lg p-3'>
+                      {selectedUser.addresses.map((address) => (
+                        <div key={address._id} className='bg-white/10 rounded-lg p-3'>
                           <div className='flex items-center justify-between mb-2'>
                             <span className='text-white font-medium'>{address.type}</span>
                             {address.isDefault && (

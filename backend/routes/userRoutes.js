@@ -11,7 +11,10 @@ import {
     deleteAddress,
     setDefaultAddress,
     changePassword,
-    getAnalytics
+    getAnalytics,
+    getNotifications,
+    markNotificationAsRead,
+    deleteNotification
 } from "../controller/userController.js"
 import adminAuth from "../middleware/adminAuth.js"
 
@@ -31,6 +34,12 @@ userRoutes.get("/addresses", isAuth, getAddresses)
 userRoutes.post("/addresses", isAuth, addAddress)
 userRoutes.put("/addresses/:addressId", isAuth, updateAddress)
 userRoutes.delete("/addresses/:addressId", isAuth, deleteAddress)
+userRoutes.put("/addresses/:addressId/default", isAuth, setDefaultAddress)
+
+// Notification routes
+userRoutes.get("/notifications", isAuth, getNotifications)
+userRoutes.put("/notifications/:notificationId/read", isAuth, markNotificationAsRead)
+userRoutes.delete("/notifications/:notificationId", isAuth, deleteNotification)
 userRoutes.put("/addresses/:addressId/default", isAuth, setDefaultAddress)
 
 export default userRoutes

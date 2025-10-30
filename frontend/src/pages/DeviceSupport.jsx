@@ -19,7 +19,7 @@ import Title from '../component/Title';
 function DeviceSupport() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDevice, setSelectedDevice] = useState(null);
+  // const [selectedDevice, setSelectedDevice] = useState(null);
 
   const deviceCategories = [
     { id: 'all', name: 'All Devices', icon: <FaTools /> },
@@ -152,7 +152,7 @@ function DeviceSupport() {
   };
 
   return (
-    <div className='w-full min-h-screen bg-slate-900 pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
+    <div className='w-full min-h-screen bg-blue-50 pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
       <div className='max-w-6xl mx-auto'>
         <Title text1={'DEVICE SUPPORT &'} text2={'HELP CENTER'} />
         
@@ -165,14 +165,14 @@ function DeviceSupport() {
               placeholder='Search for help articles, troubleshooting guides...'
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className='w-full pl-12 pr-4 py-4 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none text-lg'
+              className='w-full pl-12 pr-4 py-4 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none text-lg'
             />
           </div>
         </div>
 
         {/* Device Categories */}
         <div className='mb-8'>
-          <h2 className='text-2xl font-semibold text-white mb-4'>Device Categories</h2>
+          <h2 className='text-2xl font-semibold text-gray-800 mb-4'>Device Categories</h2>
           <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4'>
             {deviceCategories.map(category => (
               <button
@@ -184,7 +184,7 @@ function DeviceSupport() {
                     : 'border-gray-600 bg-white/5 hover:border-gray-500'
                 }`}
               >
-                <div className='flex flex-col items-center gap-2 text-white'>
+                <div className='flex flex-col items-center gap-2 text-gray-800'>
                   <div className='text-3xl'>{category.icon}</div>
                   <span className='text-sm text-center'>{category.name}</span>
                 </div>
@@ -195,12 +195,12 @@ function DeviceSupport() {
 
         {/* Quick Contact Options */}
         <div className='mb-8'>
-          <h2 className='text-2xl font-semibold text-white mb-4'>Need Immediate Help?</h2>
+          <h2 className='text-2xl font-semibold text-gray-800 mb-4'>Need Immediate Help?</h2>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600 text-center'>
               <FaPhone className='text-4xl text-blue-400 mx-auto mb-4' />
-              <h3 className='text-white font-semibold mb-2'>Call Support</h3>
-              <p className='text-gray-300 text-sm mb-4'>Talk to our technical experts</p>
+              <h3 className='text-gray-800 font-semibold mb-2'>Call Support</h3>
+              <p className='text-gray-600 text-sm mb-4'>Talk to our technical experts</p>
               <div className='space-y-2'>
                 <a
                   href="tel:+916350395820"
@@ -219,8 +219,8 @@ function DeviceSupport() {
 
             <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600 text-center'>
               <FaComments className='text-4xl text-green-400 mx-auto mb-4' />
-              <h3 className='text-white font-semibold mb-2'>Live Chat</h3>
-              <p className='text-gray-300 text-sm mb-4'>Chat with support agents</p>
+              <h3 className='text-gray-800 font-semibold mb-2'>Live Chat</h3>
+              <p className='text-gray-600 text-sm mb-4'>Chat with support agents</p>
               <button
                 onClick={() => window.location.href = '/chat-support'}
                 className='bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors duration-300'
@@ -231,8 +231,8 @@ function DeviceSupport() {
 
             <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600 text-center'>
               <FaVideo className='text-4xl text-purple-400 mx-auto mb-4' />
-              <h3 className='text-white font-semibold mb-2'>Video Support</h3>
-              <p className='text-gray-300 text-sm mb-4'>Screen sharing assistance</p>
+              <h3 className='text-gray-800 font-semibold mb-2'>Video Support</h3>
+              <p className='text-gray-600 text-sm mb-4'>Screen sharing assistance</p>
               <div className='space-y-2'>
                 <a
                   href="tel:+919509564164"
@@ -253,15 +253,15 @@ function DeviceSupport() {
 
         {/* Common Issues */}
         <div className='mb-8'>
-          <h2 className='text-2xl font-semibold text-white mb-4'>Common Issues & Quick Fixes</h2>
+          <h2 className='text-2xl font-semibold text-gray-800 mb-4'>Common Issues & Quick Fixes</h2>
           <div className='space-y-4'>
             {filteredIssues.map((item, index) => (
               <div key={index} className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
                 <div className='flex items-start gap-4'>
                   <FaExclamationTriangle className='text-yellow-400 text-xl mt-1 flex-shrink-0' />
                   <div className='flex-1'>
-                    <h3 className='text-white font-semibold mb-2'>{item.issue}</h3>
-                    <p className='text-gray-300 text-sm'>{item.solution}</p>
+                    <h3 className='text-gray-800 font-semibold mb-2'>{item.issue}</h3>
+                    <p className='text-gray-600 text-sm'>{item.solution}</p>
                   </div>
                 </div>
               </div>
@@ -271,7 +271,7 @@ function DeviceSupport() {
 
         {/* Help Articles */}
         <div className='mb-8'>
-          <h2 className='text-2xl font-semibold text-white mb-4'>Help Articles & Guides</h2>
+          <h2 className='text-2xl font-semibold text-gray-800 mb-4'>Help Articles & Guides</h2>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
             {filteredArticles.map(article => (
               <div key={article.id} className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600 hover:border-blue-500 transition-all duration-300 cursor-pointer'>
@@ -280,8 +280,8 @@ function DeviceSupport() {
                   <span className='text-xs text-gray-400 uppercase tracking-wide'>{article.type}</span>
                 </div>
                 
-                <h3 className='text-white font-semibold mb-3 line-clamp-2'>{article.title}</h3>
-                <p className='text-gray-300 text-sm mb-4 line-clamp-3'>{article.description}</p>
+                <h3 className='text-gray-800 font-semibold mb-3 line-clamp-2'>{article.title}</h3>
+                <p className='text-gray-600 text-sm mb-4 line-clamp-3'>{article.description}</p>
                 
                 <div className='flex items-center justify-between text-xs'>
                   <span className='text-gray-400'>{article.readTime}</span>
@@ -296,15 +296,15 @@ function DeviceSupport() {
           {filteredArticles.length === 0 && (
             <div className='text-center py-12'>
               <FaBook className='text-6xl text-gray-500 mx-auto mb-4' />
-              <p className='text-white text-xl mb-4'>No articles found</p>
-              <p className='text-gray-400'>Try adjusting your search or category filter</p>
+              <p className='text-gray-800 text-xl mb-4'>No articles found</p>
+              <p className='text-gray-600'>Try adjusting your search or category filter</p>
             </div>
           )}
         </div>
 
         {/* Downloads Section */}
         <div className='mb-8'>
-          <h2 className='text-2xl font-semibold text-white mb-4'>Downloads & Resources</h2>
+          <h2 className='text-2xl font-semibold text-gray-800 mb-4'>Downloads & Resources</h2>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
             {[
               { name: 'User Manuals', icon: <FaBook />, description: 'Device user guides and manuals' },
@@ -314,8 +314,8 @@ function DeviceSupport() {
             ].map((resource, index) => (
               <div key={index} className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600 text-center hover:border-blue-500 transition-all duration-300 cursor-pointer'>
                 <div className='text-3xl text-blue-400 mb-3'>{resource.icon}</div>
-                <h3 className='text-white font-semibold mb-2'>{resource.name}</h3>
-                <p className='text-gray-300 text-sm'>{resource.description}</p>
+                <h3 className='text-gray-800 font-semibold mb-2'>{resource.name}</h3>
+                <p className='text-gray-600 text-sm'>{resource.description}</p>
               </div>
             ))}
           </div>
@@ -323,11 +323,11 @@ function DeviceSupport() {
 
         {/* Warranty Information */}
         <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
-          <h2 className='text-2xl font-semibold text-white mb-4'>Warranty & Service Information</h2>
+          <h2 className='text-2xl font-semibold text-gray-800 mb-4'>Warranty & Service Information</h2>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             <div>
-              <h3 className='text-white font-semibold mb-3'>Check Warranty Status</h3>
-              <p className='text-gray-300 text-sm mb-4'>
+              <h3 className='text-gray-800 font-semibold mb-3'>Check Warranty Status</h3>
+              <p className='text-gray-600 text-sm mb-4'>
                 Enter your device serial number to check warranty coverage and service options.
               </p>
               <div className='flex gap-2'>
@@ -343,8 +343,8 @@ function DeviceSupport() {
             </div>
 
             <div>
-              <h3 className='text-white font-semibold mb-3'>Service Centers</h3>
-              <p className='text-gray-300 text-sm mb-4'>
+              <h3 className='text-gray-800 font-semibold mb-3'>Service Centers</h3>
+              <p className='text-gray-600 text-sm mb-4'>
                 Find authorized service centers near you for repairs and maintenance.
               </p>
               <div className='space-y-2 mb-4'>

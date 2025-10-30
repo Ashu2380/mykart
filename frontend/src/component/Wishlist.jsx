@@ -40,7 +40,7 @@ const Wishlist = () => {
     }
 
     return (
-        <div className="border-t pt-16 bg-gradient-to-br from-[#7c3aed] via-[#a855f7] to-[#c084fc]">
+        <div className="border-t pt-16 bg-blue-50">
             <div className="text-2xl mb-3">
                 <Title text1="Your" text2="Wishlist" />
             </div>

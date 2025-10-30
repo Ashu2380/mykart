@@ -5,6 +5,7 @@ import axios from 'axios'
 export const userDataContext = createContext()
 function UserContext({children}) {
     let [userData,setUserData] = useState("")
+    let [token,setToken] = useState("")
     let {serverUrl} = useContext(authDataContext)
 
 
@@ -21,14 +22,28 @@ function UserContext({children}) {
         }
     }
 
+    // Get token from cookies
+    const getToken = () => {
+        const cookies = document.cookie.split(';')
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=')
+            if (name === 'token') {
+                setToken(value)
+                return value
+            }
+        }
+        return null
+    }
+
     useEffect(()=>{
      getCurrentUser()
+     getToken()
     },[])
 
 
 
     let value = {
-     userData,setUserData,getCurrentUser
+     userData,setUserData,getCurrentUser,token,setToken
     }
     
    

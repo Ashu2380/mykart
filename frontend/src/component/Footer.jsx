@@ -3,7 +3,7 @@ import logo from "../assets/logo.png"
 function Footer() {
   return (
     <div className='w-[100%] md:h-[36vh] h-[21vh] mb-[77px] md:mb-[0px]'>
-        <div className='w-[100%] md:h-[30vh] h-[15vh]  md:mb-[0px] bg-[#dbfcfcec] flex items-center justify-center md:px-[50px] px-[5px]'>
+        <div className='w-[100%] md:h-[30vh] h-[15vh]  md:mb-[0px] bg-blue-50 flex items-center justify-center md:px-[50px] px-[5px]'>
             <div className='md:w-[30%] w-[35%] h-[100%] flex items-start justify-center flex-col gap-[5px]  '>
                 <div className='flex items-start justify-start gap-[5px] mt-[10px] md:mt-[40px]'>
                     <img src={logo} alt=""  className='md:w-[40px] md:h-[40px] w-[30px] h-[30px]'/>
@@ -43,7 +43,7 @@ function Footer() {
 
         </div>
         <div className='w-[100%] h-[1px] bg-slate-400'></div>
-        <div className='w-[100%] h-[5vh] bg-[#dbfcfcec] flex items-center justify-center'>Copyright 2025@Mykart.com-All Rights Reserved</div>
+        <div className='w-[100%] h-[5vh] bg-blue-50 flex items-center justify-center'>Copyright 2025@Mykart.com-All Rights Reserved</div>
       
     </div>
   )

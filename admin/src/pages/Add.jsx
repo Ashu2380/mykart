@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import Nav from '../component/Nav';
 import Sidebar from '../component/Sidebar';
 import upload from '../assets/upload image.jpg';
@@ -20,6 +20,7 @@ function Add() {
   const [subCategory, setSubCategory] = useState("");
   const [bestseller, setBestSeller] = useState(false);
   const [sizes, setSizes] = useState([]);
+  const [discount, setDiscount] = useState(0);
   const [loading, setLoading] = useState(false);
   let { serverUrl } = useContext(authDataContext);
   let { adminData } = useContext(adminDataContext);
@@ -56,7 +57,7 @@ function Add() {
     } else if (category === 'Beauty & Health') {
       return [] // No sizes for beauty products
     } else if (category === 'Sports & Outdoors') {
-      return ['S', 'M', 'L', 'XL', 'XXL']
+      return [] // No sizes for sports & outdoors
     } else if (category === 'Books & Media') {
       return [] // No sizes for books
     } else if (category === 'Toys & Games') {
@@ -101,6 +102,7 @@ function Add() {
       formData.append("subCategory", subCategory);
       formData.append("bestseller", bestseller);
       formData.append("sizes", JSON.stringify(sizes));
+      formData.append("discount", discount);
       formData.append("image1", image1);
       formData.append("image2", image2);
       formData.append("image3", image3);
@@ -131,6 +133,7 @@ function Add() {
       setCategory("Clothes");
       setSubCategory("");
       setSizes([]);
+      setDiscount(0);
 
     } catch (error) {
       console.error('Error adding product:', error);
@@ -214,9 +217,15 @@ function Add() {
               </select>
             </div>
           </div>
-          <div className='w-[80%] h-[100px] flex items-start justify-center flex-col gap-[10px]'>
-            <p className='text-[20px] md:text-[25px] font-semibold'>Product Price</p>
-            <input type="number" placeholder='₹ 2000' className='w-[600px] max-w-[98%] h-[40px] rounded-lg hover:border-[#46d1f7] border-[2px] cursor-pointer bg-slate-600 px-[20px] text-[18px] placeholder:text-[#ffffffc2]' onChange={(e) => setPrice(e.target.value)} value={price} required />
+          <div className='w-[80%] flex items-center gap-[10px] flex-wrap'>
+            <div className='md:w-[30%] w-[100%] flex items-start justify-center flex-col gap-[10px]'>
+              <p className='text-[20px] md:text-[25px] font-semibold'>Product Price</p>
+              <input type="number" placeholder='₹ 2000' className='w-[100%] h-[40px] rounded-lg hover:border-[#46d1f7] border-[2px] cursor-pointer bg-slate-600 px-[20px] text-[18px] placeholder:text-[#ffffffc2]' onChange={(e) => setPrice(e.target.value)} value={price} required />
+            </div>
+            <div className='md:w-[30%] w-[100%] flex items-start justify-center flex-col gap-[10px]'>
+              <p className='text-[20px] md:text-[25px] font-semibold'>Discount (%)</p>
+              <input type="number" placeholder='0' min="0" max="100" className='w-[100%] h-[40px] rounded-lg hover:border-[#46d1f7] border-[2px] cursor-pointer bg-slate-600 px-[20px] text-[18px] placeholder:text-[#ffffffc2]' onChange={(e) => setDiscount(e.target.value)} value={discount} />
+            </div>
           </div>
           {getSizeOptions(category).length > 0 && (
             <div className='w-[80%] h-[220px] md:h-[100px] flex items-start justify-center flex-col gap-[10px] py-[10px] md:py-[0px]'>

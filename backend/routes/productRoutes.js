@@ -1,7 +1,8 @@
 import express from 'express'
-import { addProduct, listProduct, removeProduct, updateProduct, getAIRecommendations, visualSearch, checkPriceDrops } from '../controller/productController.js'
+import { addProduct, listProduct, removeProduct, updateProduct, getAIRecommendations, visualSearch, checkPriceDrops, getPersonalizedRecommendations } from '../controller/productController.js'
 import upload from '../middleware/multer.js'
 import adminAuth from "../middleware/adminAuth.js"
+import isAuth from "../middleware/isAuth.js"
 
 
 let productRoutes = express.Router()
@@ -23,5 +24,6 @@ productRoutes.put("/update/:id",adminAuth,upload.fields([
     {name:"image4",maxCount:1}]),updateProduct)
 
 productRoutes.post("/check-price-drops", adminAuth, checkPriceDrops)
+productRoutes.get("/personalized", isAuth, getPersonalizedRecommendations)
 
 export default productRoutes

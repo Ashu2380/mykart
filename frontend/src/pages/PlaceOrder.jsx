@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react'
 import Title from '../component/Title'
 import CartTotal from '../component/CartTotal'
 import razorpay from '../assets/Razorpay.jpg'
-import qrImage from '../assets/qr.jpg'
 import { shopDataContext } from '../context/ShopContext'
 import { authDataContext } from '../context/authContext'
 import axios from 'axios'
@@ -142,8 +141,10 @@ function PlaceOrder() {
          break;
 
          case 'qr':
-         // QR payment redirects to separate page, no need to process here
-         break;
+         {
+           // QR payment redirects to separate page, no need to process here
+           break;
+         }
 
          case 'razorpay':
         try {
@@ -179,7 +180,7 @@ function PlaceOrder() {
     }
      }
   return (
-    <div className='w-[100vw] min-h-[100vh] bg-gradient-to-br from-[#667eea] via-[#764ba2] to-[#f093fb] flex items-center justify-center flex-col md:flex-row gap-[50px] pt-32 md:pt-28 lg:pt-32 relative'>
+    <div className='w-[100vw] min-h-[100vh] bg-blue-50 flex items-center justify-center flex-col md:flex-row gap-[50px] pt-32 md:pt-28 lg:pt-32 relative'>
         <div className='lg:w-[50%] w-[100%] h-[100%] flex items-center justify-center  lg:mt-[0px] mt-[90px] '>
             <form action="" onSubmit={onSubmitHandler} className='lg:w-[80%] w-[95%] lg:h-[80%] h-[100%]'>
         <div className='py-[10px]'>
@@ -187,33 +188,33 @@ function PlaceOrder() {
         </div>
         <div className='w-[100%] h-[70px] flex items-center justify-between px-[10px]'>
 
-         <input type="text" placeholder='First name' className='w-[48%] h-[50px] rounded-md bg-white/20 backdrop-blur-sm placeholder:text-white/70 text-white text-[18px] px-[20px] border border-white/30 focus:border-purple-400 focus:outline-none transition-all duration-300'required  onChange={onChangeHandler} name='firstName' value={formData.firstName}/>
+         <input type="text" placeholder='First name' className='w-[48%] h-[50px] rounded-md bg-white placeholder:text-gray-500 text-gray-800 text-[18px] px-[20px] border border-gray-300 focus:border-blue-500 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='firstName' value={formData.firstName}/>
 
-          <input type="text" placeholder='Last name' className='w-[48%] h-[50px] rounded-md bg-white/20 backdrop-blur-sm placeholder:text-white/70 text-white text-[18px] px-[20px] border border-white/30 focus:border-purple-400 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='lastName' value={formData.lastName} />
+          <input type="text" placeholder='Last name' className='w-[48%] h-[50px] rounded-md bg-white placeholder:text-gray-500 text-gray-800 text-[18px] px-[20px] border border-gray-300 focus:border-blue-500 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='lastName' value={formData.lastName} />
         </div>
 
         <div className='w-[100%] h-[70px] flex items-center justify-between px-[10px]'>
-          <input type="email" placeholder='Email address' className='w-[100%] h-[50px] rounded-md bg-white/20 backdrop-blur-sm placeholder:text-white/70 text-white text-[18px] px-[20px] border border-white/30 focus:border-purple-400 focus:outline-none transition-all duration-300'required onChange={onChangeHandler} name='email' value={formData.email} />
+          <input type="email" placeholder='Email address' className='w-[100%] h-[50px] rounded-md bg-white placeholder:text-gray-500 text-gray-800 text-[18px] px-[20px] border border-gray-300 focus:border-blue-500 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='email' value={formData.email} />
          
         </div>
         <div className='w-[100%] h-[70px] flex items-center justify-between px-[10px]'>
-          <input type="text" placeholder='Street' className='w-[100%] h-[50px] rounded-md bg-white/20 backdrop-blur-sm placeholder:text-white/70 text-white text-[18px] px-[20px] border border-white/30 focus:border-purple-400 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='street' value={formData.street} />
+          <input type="text" placeholder='Street' className='w-[100%] h-[50px] rounded-md bg-white placeholder:text-gray-500 text-gray-800 text-[18px] px-[20px] border border-gray-300 focus:border-blue-500 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='street' value={formData.street} />
          
         </div>
         <div className='w-[100%] h-[70px] flex items-center justify-between px-[10px]'>
-          <input type="text" placeholder='City' className='w-[48%] h-[50px] rounded-md bg-white/20 backdrop-blur-sm placeholder:text-white/70 text-white text-[18px] px-[20px] border border-white/30 focus:border-purple-400 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='city' value={formData.city} />
-          <input type="text" placeholder='State' className='w-[48%] h-[50px] rounded-md bg-white/20 backdrop-blur-sm placeholder:text-white/70 text-white text-[18px] px-[20px] border border-white/30 focus:border-purple-400 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='state' value={formData.state} />
+          <input type="text" placeholder='City' className='w-[48%] h-[50px] rounded-md bg-white placeholder:text-gray-500 text-gray-800 text-[18px] px-[20px] border border-gray-300 focus:border-blue-500 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='city' value={formData.city} />
+          <input type="text" placeholder='State' className='w-[48%] h-[50px] rounded-md bg-white placeholder:text-gray-500 text-gray-800 text-[18px] px-[20px] border border-gray-300 focus:border-blue-500 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='state' value={formData.state} />
         </div>
         <div className='w-[100%] h-[70px] flex items-center justify-between px-[10px]'>
-          <input type="text" placeholder='Pincode' className='w-[48%] h-[50px] rounded-md bg-white/20 backdrop-blur-sm placeholder:text-white/70 text-white text-[18px] px-[20px] border border-white/30 focus:border-purple-400 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='pinCode' value={formData.pinCode} />
-          <input type="text" placeholder='Country' className='w-[48%] h-[50px] rounded-md bg-white/20 backdrop-blur-sm placeholder:text-white/70 text-white text-[18px] px-[20px] border border-white/30 focus:border-purple-400 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='country' value={formData.country} />
+          <input type="text" placeholder='Pincode' className='w-[48%] h-[50px] rounded-md bg-white placeholder:text-gray-500 text-gray-800 text-[18px] px-[20px] border border-gray-300 focus:border-blue-500 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='pinCode' value={formData.pinCode} />
+          <input type="text" placeholder='Country' className='w-[48%] h-[50px] rounded-md bg-white placeholder:text-gray-500 text-gray-800 text-[18px] px-[20px] border border-gray-300 focus:border-blue-500 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='country' value={formData.country} />
         </div>
          <div className='w-[100%] h-[70px] flex items-center justify-between px-[10px]'>
-          <input type="text" placeholder='Phone' className='w-[100%] h-[50px] rounded-md bg-white/20 backdrop-blur-sm placeholder:text-white/70 text-white text-[18px] px-[20px] border border-white/30 focus:border-purple-400 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='phone' value={formData.phone} />
+          <input type="text" placeholder='Phone' className='w-[100%] h-[50px] rounded-md bg-white placeholder:text-gray-500 text-gray-800 text-[18px] px-[20px] border border-gray-300 focus:border-blue-500 focus:outline-none transition-all duration-300' required onChange={onChangeHandler} name='phone' value={formData.phone} />
          
         </div>
         <div className='flex justify-center mt-8'>
-           <button type='submit' className='text-[18px] cursor-pointer bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 py-[12px] px-[60px] rounded-2xl text-white flex items-center justify-center gap-[20px] border-2 border-white/30 shadow-lg hover:shadow-xl transition-all duration-300' >{loading? <Loading/> : "PLACE ORDER"}</button>
+           <button type='submit' className='text-[18px] cursor-pointer bg-blue-600 hover:bg-blue-700 py-[12px] px-[60px] rounded-2xl text-white flex items-center justify-center gap-[20px] border-2 border-blue-300 shadow-lg hover:shadow-xl transition-all duration-300' >{loading? <Loading/> : "PLACE ORDER"}</button>
           </div>
 
 
@@ -229,10 +230,10 @@ function PlaceOrder() {
                 <div className='py-[10px]'>
        <Title text1={'DELIVERY'} text2={'SLOT'} className='text-[20px] md:text-[24px]'/>
        </div>
-        <div className='w-[100%] bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 mb-4'>
+        <div className='w-[100%] bg-white rounded-lg p-4 border border-gray-300 mb-4'>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div>
-                    <label className='text-white text-sm block mb-1'>Preferred Date:</label>
+                    <label className='text-gray-800 text-sm block mb-1'>Preferred Date:</label>
                     <input
                         type="date"
                         value={deliverySlot.date}
@@ -242,7 +243,7 @@ function PlaceOrder() {
                     />
                 </div>
                 <div>
-                    <label className='text-white text-sm block mb-1'>Preferred Time:</label>
+                    <label className='text-gray-800 text-sm block mb-1'>Preferred Time:</label>
                     <select
                         value={deliverySlot.time}
                         onChange={(e) => setDeliverySlot(prev => ({ ...prev, time: e.target.value }))}
@@ -264,7 +265,7 @@ function PlaceOrder() {
                         onChange={(e) => setDeliverySlot(prev => ({ ...prev, ecoMode: e.target.checked }))}
                         className='w-4 h-4'
                     />
-                    <span>🌱 Eco-Friendly Delivery (Less Packaging)</span>
+                    <span className='text-gray-800'>🌱 Eco-Friendly Delivery (Less Packaging)</span>
                 </label>
             </div>
             {deliverySlot.date && deliverySlot.time && (
@@ -312,7 +313,7 @@ function PlaceOrder() {
             {(method === 'razorpay' || method === 'qr') && (
                 <div className='w-full mt-4'>
                     <div className='flex items-center justify-center gap-4 mb-3'>
-                        <label className='text-white text-sm'>Split Payment:</label>
+                        <label className='text-gray-800 text-sm'>Split Payment:</label>
                         <input
                             type="checkbox"
                             checked={splitPayment}
@@ -322,11 +323,11 @@ function PlaceOrder() {
                     </div>
 
                     {splitPayment && (
-                        <div className='bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20'>
-                            <h4 className='text-white text-center mb-3 font-semibold'>Split Payment Details</h4>
+                        <div className='bg-white rounded-lg p-4 border border-gray-300'>
+                            <h4 className='text-gray-800 text-center mb-3 font-semibold'>Split Payment Details</h4>
                             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                                 <div>
-                                    <label className='text-white text-sm block mb-1'>Payer 1 Name:</label>
+                                    <label className='text-gray-800 text-sm block mb-1'>Payer 1 Name:</label>
                                     <input
                                         type="text"
                                         value={splitData.payer1.name}
@@ -337,7 +338,7 @@ function PlaceOrder() {
                                         className='w-full h-8 rounded px-2 text-black'
                                         placeholder="Enter name"
                                     />
-                                    <label className='text-white text-sm block mb-1 mt-2'>Payer 1 Email:</label>
+                                    <label className='text-gray-800 text-sm block mb-1 mt-2'>Payer 1 Email:</label>
                                     <input
                                         type="email"
                                         value={splitData.payer1.email}
@@ -348,7 +349,7 @@ function PlaceOrder() {
                                         className='w-full h-8 rounded px-2 text-black'
                                         placeholder="Enter email"
                                     />
-                                    <label className='text-white text-sm block mb-1 mt-2'>Amount (₹):</label>
+                                    <label className='text-gray-800 text-sm block mb-1 mt-2'>Amount (₹):</label>
                                     <input
                                         type="number"
                                         value={splitData.payer1.amount}
@@ -362,7 +363,7 @@ function PlaceOrder() {
                                     />
                                 </div>
                                 <div>
-                                    <label className='text-white text-sm block mb-1'>Payer 2 Name:</label>
+                                    <label className='text-gray-800 text-sm block mb-1'>Payer 2 Name:</label>
                                     <input
                                         type="text"
                                         value={splitData.payer2.name}
@@ -373,7 +374,7 @@ function PlaceOrder() {
                                         className='w-full h-8 rounded px-2 text-black'
                                         placeholder="Enter name"
                                     />
-                                    <label className='text-white text-sm block mb-1 mt-2'>Payer 2 Email:</label>
+                                    <label className='text-gray-800 text-sm block mb-1 mt-2'>Payer 2 Email:</label>
                                     <input
                                         type="email"
                                         value={splitData.payer2.email}
@@ -384,7 +385,7 @@ function PlaceOrder() {
                                         className='w-full h-8 rounded px-2 text-black'
                                         placeholder="Enter email"
                                     />
-                                    <label className='text-white text-sm block mb-1 mt-2'>Amount (₹):</label>
+                                    <label className='text-gray-800 text-sm block mb-1 mt-2'>Amount (₹):</label>
                                     <input
                                         type="number"
                                         value={splitData.payer2.amount}
@@ -399,7 +400,7 @@ function PlaceOrder() {
                                 </div>
                             </div>
                             <div className='text-center mt-3'>
-                                <p className='text-white text-sm'>
+                                <p className='text-gray-800 text-sm'>
                                     Total: ₹{getCartAmount() + delivery_fee} |
                                     Split: ₹{splitData.payer1.amount + splitData.payer2.amount}
                                 </p>

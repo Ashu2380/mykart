@@ -1,13 +1,12 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { FaCreditCard, FaUniversity, FaWallet, FaPlus, FaEdit, FaTrash, FaCheck } from 'react-icons/fa';
-import { userDataContext } from '../context/UserContext';
 import { authDataContext } from '../context/authContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Title from '../component/Title';
 
 function PaymentSettings() {
-  const { userData } = useContext(userDataContext);
+  // const { userData } = useContext(userDataContext);
   const { serverUrl } = useContext(authDataContext);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -43,7 +42,7 @@ function PaymentSettings() {
       setPaymentMethods(response.data.paymentMethods || []);
     } catch (error) {
       console.error('Error loading payment methods:', error);
-      toast.error('Failed to load payment methods');
+      // toast.error('Failed to load payment methods'); // Removed error popup
     } finally {
       setLoading(false);
     }
@@ -186,7 +185,7 @@ function PaymentSettings() {
   };
 
   return (
-    <div className='w-full min-h-screen bg-gradient-to-br from-[#7c3aed] via-[#a855f7] to-[#c084fc] pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
+    <div className='w-full min-h-screen bg-blue-50 pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
       <div className='max-w-6xl mx-auto'>
         <Title text1={'PAYMENT'} text2={'SETTINGS'} />
         
@@ -202,14 +201,14 @@ function PaymentSettings() {
 
         {/* Add/Edit Payment Method Form */}
         {showAddForm && (
-          <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-6'>
-            <h3 className='text-xl font-semibold text-white mb-4'>
+          <div className='bg-white/80 backdrop-blur-sm rounded-lg p-6 mb-6 border border-gray-300'>
+            <h3 className='text-xl font-semibold text-gray-800 mb-4'>
               {editingMethod ? 'Edit Payment Method' : 'Add New Payment Method'}
             </h3>
             
             {/* Payment Type Selection */}
             <div className='mb-6'>
-              <label className='block text-white mb-3'>Payment Type</label>
+              <label className='block text-gray-700 mb-3'>Payment Type</label>
               <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
                 {[
                   { type: 'card', label: 'Credit/Debit Card', icon: <FaCreditCard /> },
@@ -230,7 +229,7 @@ function PaymentSettings() {
                         : 'border-gray-600 bg-white/5 hover:border-gray-500'
                     }`}
                   >
-                    <div className='flex flex-col items-center gap-2 text-white'>
+                    <div className='flex flex-col items-center gap-2 text-gray-700'>
                       <div className='text-2xl'>{icon}</div>
                       <span className='text-sm text-center'>{label}</span>
                     </div>
@@ -242,13 +241,13 @@ function PaymentSettings() {
             <form onSubmit={handleSubmit} className='space-y-4'>
               {/* Nickname */}
               <div>
-                <label className='block text-white mb-2'>Nickname (Optional)</label>
+                <label className='block text-gray-700 mb-2'>Nickname (Optional)</label>
                 <input
                   type='text'
                   name='nickname'
                   value={formData.nickname}
                   onChange={handleInputChange}
-                  className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                  className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='e.g., Personal Card, Work Account'
                 />
               </div>
@@ -257,26 +256,26 @@ function PaymentSettings() {
               {selectedType === 'card' && (
                 <>
                   <div>
-                    <label className='block text-white mb-2'>Card Holder Name *</label>
+                    <label className='block text-gray-700 mb-2'>Card Holder Name *</label>
                     <input
                       type='text'
                       name='cardHolderName'
                       value={formData.cardHolderName}
                       onChange={handleInputChange}
-                      className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                      className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                       placeholder='Enter cardholder name'
                       required
                     />
                   </div>
                   
                   <div>
-                    <label className='block text-white mb-2'>Card Number *</label>
+                    <label className='block text-gray-700 mb-2'>Card Number *</label>
                     <input
                       type='text'
                       name='cardNumber'
                       value={formData.cardNumber}
                       onChange={handleInputChange}
-                      className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                      className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                       placeholder='1234 5678 9012 3456'
                       maxLength='19'
                       required
@@ -285,12 +284,12 @@ function PaymentSettings() {
                   
                   <div className='grid grid-cols-3 gap-4'>
                     <div>
-                      <label className='block text-white mb-2'>Expiry Month *</label>
+                      <label className='block text-gray-700 mb-2'>Expiry Month *</label>
                       <select
                         name='expiryMonth'
                         value={formData.expiryMonth}
                         onChange={handleInputChange}
-                        className='w-full p-3 rounded-lg bg-white/20 text-white border border-gray-600 focus:border-blue-500 focus:outline-none'
+                        className='w-full p-3 rounded-lg bg-white text-gray-800 border border-gray-300 focus:border-blue-500 focus:outline-none'
                         required
                       >
                         <option value=''>Month</option>
@@ -303,12 +302,12 @@ function PaymentSettings() {
                     </div>
                     
                     <div>
-                      <label className='block text-white mb-2'>Expiry Year *</label>
+                      <label className='block text-gray-700 mb-2'>Expiry Year *</label>
                       <select
                         name='expiryYear'
                         value={formData.expiryYear}
                         onChange={handleInputChange}
-                        className='w-full p-3 rounded-lg bg-white/20 text-white border border-gray-600 focus:border-blue-500 focus:outline-none'
+                        className='w-full p-3 rounded-lg bg-white text-gray-800 border border-gray-300 focus:border-blue-500 focus:outline-none'
                         required
                       >
                         <option value=''>Year</option>
@@ -324,13 +323,13 @@ function PaymentSettings() {
                     </div>
                     
                     <div>
-                      <label className='block text-white mb-2'>CVV *</label>
+                      <label className='block text-gray-700 mb-2'>CVV *</label>
                       <input
                         type='password'
                         name='cvv'
                         value={formData.cvv}
                         onChange={handleInputChange}
-                        className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                        className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                         placeholder='123'
                         maxLength='4'
                         required
@@ -343,13 +342,13 @@ function PaymentSettings() {
               {/* UPI Details */}
               {selectedType === 'upi' && (
                 <div>
-                  <label className='block text-white mb-2'>UPI ID *</label>
+                  <label className='block text-gray-700 mb-2'>UPI ID *</label>
                   <input
                     type='text'
                     name='upiId'
                     value={formData.upiId}
                     onChange={handleInputChange}
-                    className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                    className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                     placeholder='yourname@paytm'
                     required
                   />
@@ -360,39 +359,39 @@ function PaymentSettings() {
               {selectedType === 'netbanking' && (
                 <>
                   <div>
-                    <label className='block text-white mb-2'>Bank Name *</label>
+                    <label className='block text-gray-700 mb-2'>Bank Name *</label>
                     <input
                       type='text'
                       name='bankName'
                       value={formData.bankName}
                       onChange={handleInputChange}
-                      className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                      className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                       placeholder='Enter bank name'
                       required
                     />
                   </div>
                   
                   <div>
-                    <label className='block text-white mb-2'>Account Number *</label>
+                    <label className='block text-gray-700 mb-2'>Account Number *</label>
                     <input
                       type='text'
                       name='accountNumber'
                       value={formData.accountNumber}
                       onChange={handleInputChange}
-                      className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                      className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                       placeholder='Enter account number'
                       required
                     />
                   </div>
                   
                   <div>
-                    <label className='block text-white mb-2'>IFSC Code *</label>
+                    <label className='block text-gray-700 mb-2'>IFSC Code *</label>
                     <input
                       type='text'
                       name='ifscCode'
                       value={formData.ifscCode}
                       onChange={handleInputChange}
-                      className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                      className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                       placeholder='Enter IFSC code'
                       required
                     />
@@ -404,12 +403,12 @@ function PaymentSettings() {
               {selectedType === 'wallet' && (
                 <>
                   <div>
-                    <label className='block text-white mb-2'>Wallet Type *</label>
+                    <label className='block text-gray-700 mb-2'>Wallet Type *</label>
                     <select
                       name='walletType'
                       value={formData.walletType}
                       onChange={handleInputChange}
-                      className='w-full p-3 rounded-lg bg-white/20 text-white border border-gray-600 focus:border-blue-500 focus:outline-none'
+                      className='w-full p-3 rounded-lg bg-white text-gray-800 border border-gray-300 focus:border-blue-500 focus:outline-none'
                       required
                     >
                       <option value='paytm' className='text-black'>Paytm</option>
@@ -420,13 +419,13 @@ function PaymentSettings() {
                   </div>
                   
                   <div>
-                    <label className='block text-white mb-2'>Wallet Number *</label>
+                    <label className='block text-gray-700 mb-2'>Wallet Number *</label>
                     <input
                       type='text'
                       name='walletNumber'
                       value={formData.walletNumber}
                       onChange={handleInputChange}
-                      className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                      className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                       placeholder='Enter wallet number'
                       required
                     />
@@ -436,7 +435,7 @@ function PaymentSettings() {
 
               {/* Default Payment Method Checkbox */}
               <div>
-                <label className='flex items-center gap-2 text-white cursor-pointer'>
+                <label className='flex items-center gap-2 text-gray-700 cursor-pointer'>
                   <input
                     type='checkbox'
                     name='isDefault'
@@ -472,11 +471,11 @@ function PaymentSettings() {
         {/* Payment Methods List */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           {paymentMethods.map((method) => (
-            <div key={method._id} className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
+            <div key={method._id} className='bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-gray-200 shadow-sm'>
               <div className='flex items-center justify-between mb-4'>
                 <div className='flex items-center gap-2'>
                   {getPaymentIcon(method.type)}
-                  <span className='text-white font-semibold capitalize'>{method.type}</span>
+                  <span className='text-gray-800 font-semibold capitalize'>{method.type}</span>
                   {method.isDefault && (
                     <span className='bg-green-500 text-white text-xs px-2 py-1 rounded-full'>Default</span>
                   )}
@@ -497,35 +496,35 @@ function PaymentSettings() {
                 </div>
               </div>
 
-              <div className='text-white space-y-2'>
+              <div className='text-gray-800 space-y-2'>
                 {method.nickname && (
-                  <p className='font-semibold text-blue-300'>{method.nickname}</p>
+                  <p className='font-semibold text-blue-600'>{method.nickname}</p>
                 )}
                 
                 {method.type === 'card' && (
                   <>
-                    <p className='text-sm text-gray-300'>{method.cardHolderName}</p>
-                    <p className='text-sm text-gray-300'>{maskCardNumber(method.cardNumber)}</p>
-                    <p className='text-sm text-gray-300'>Expires: {method.expiryMonth}/{method.expiryYear}</p>
+                    <p className='text-sm text-gray-600'>{method.cardHolderName}</p>
+                    <p className='text-sm text-gray-600'>{maskCardNumber(method.cardNumber)}</p>
+                    <p className='text-sm text-gray-600'>Expires: {method.expiryMonth}/{method.expiryYear}</p>
                   </>
                 )}
                 
                 {method.type === 'upi' && (
-                  <p className='text-sm text-gray-300'>{method.upiId}</p>
+                  <p className='text-sm text-gray-600'>{method.upiId}</p>
                 )}
                 
                 {method.type === 'netbanking' && (
                   <>
-                    <p className='text-sm text-gray-300'>{method.bankName}</p>
-                    <p className='text-sm text-gray-300'>Account: {maskAccountNumber(method.accountNumber)}</p>
-                    <p className='text-sm text-gray-300'>IFSC: {method.ifscCode}</p>
+                    <p className='text-sm text-gray-600'>{method.bankName}</p>
+                    <p className='text-sm text-gray-600'>Account: {maskAccountNumber(method.accountNumber)}</p>
+                    <p className='text-sm text-gray-600'>IFSC: {method.ifscCode}</p>
                   </>
                 )}
                 
                 {method.type === 'wallet' && (
                   <>
-                    <p className='text-sm text-gray-300 capitalize'>{method.walletType}</p>
-                    <p className='text-sm text-gray-300'>{method.walletNumber}</p>
+                    <p className='text-sm text-gray-600 capitalize'>{method.walletType}</p>
+                    <p className='text-sm text-gray-600'>{method.walletNumber}</p>
                   </>
                 )}
               </div>
@@ -545,8 +544,8 @@ function PaymentSettings() {
         {paymentMethods.length === 0 && !loading && (
           <div className='text-center py-12'>
             <FaCreditCard className='text-6xl text-gray-500 mx-auto mb-4' />
-            <p className='text-white text-xl mb-4'>No payment methods found</p>
-            <p className='text-gray-400 mb-6'>Add your first payment method to get started</p>
+            <p className='text-gray-800 text-xl mb-4'>No payment methods found</p>
+            <p className='text-gray-600 mb-6'>Add your first payment method to get started</p>
             <button
               onClick={() => setShowAddForm(true)}
               className='bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors duration-300'
@@ -557,16 +556,16 @@ function PaymentSettings() {
         )}
 
         {/* Cash on Delivery Option */}
-        <div className='mt-8 bg-white/10 backdrop-blur-sm rounded-lg p-6'>
+        <div className='mt-8 bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-gray-200 shadow-sm'>
           <div className='flex items-center gap-3 mb-4'>
             <FaCheck className='text-green-500 text-xl' />
-            <h3 className='text-xl font-semibold text-white'>Cash on Delivery</h3>
+            <h3 className='text-xl font-semibold text-gray-800'>Cash on Delivery</h3>
           </div>
-          <p className='text-gray-300 mb-4'>
+          <p className='text-gray-600 mb-4'>
             Pay with cash when your order is delivered. Available for orders up to ₹50,000.
           </p>
-          <div className='bg-green-500/20 border border-green-500 rounded-lg p-4'>
-            <p className='text-green-300 text-sm'>
+          <div className='bg-green-50 border border-green-200 rounded-lg p-4'>
+            <p className='text-green-700 text-sm'>
               ✓ Cash on Delivery is always available as a payment option during checkout.
             </p>
           </div>

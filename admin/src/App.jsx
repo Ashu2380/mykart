@@ -5,9 +5,10 @@ import Add from './pages/Add'
 import Lists from './pages/Lists'
 import Orders from './pages/Orders'
 import Users from './pages/Users'
+import Reviews from './pages/Reviews'
 import Login from './pages/Login'
 import { adminDataContext } from './context/AdminContext'
-  import { ToastContainer, toast } from 'react-toastify';
+  import { ToastContainer } from 'react-toastify';
 
 function App() {
   let {adminData} = useContext(adminDataContext)
@@ -30,6 +31,7 @@ function App() {
           <Route path='/lists' element={<Lists/>}/>
           <Route path='/orders' element={<Orders/>}/>
           <Route path='/users' element={<Users/>}/>
+          <Route path='/reviews' element={<Reviews/>}/>
           <Route path='/login' element={<Login/>}/>
         </Routes>
       </>

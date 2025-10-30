@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import VisualSearch from '../component/VisualSearch';
 import Card from '../component/Card';
 import Title from '../component/Title';
-import { useNavigate } from 'react-router-dom';
 
 function VisualSearchPage() {
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const handleSearchResults = (results) => {
         setSearchResults(results);
@@ -20,19 +19,19 @@ function VisualSearchPage() {
     };
 
     return (
-        <div className='w-[100vw] min-h-[100vh] bg-gradient-to-l from-[#141414] to-[#0c2025] flex flex-col items-center py-[20px]'>
+        <div className='w-[100vw] min-h-[100vh] bg-blue-50 flex flex-col items-center pt-20 md:pt-16 lg:pt-20 py-[20px]'>
             <div className='w-[90%] max-w-[1200px]'>
                 {/* Header */}
                 <div className='text-center mb-[50px]'>
                     <Title text1={"VISUAL"} text2={"SEARCH"}/>
-                    <p className='text-[16px] md:text-[20px] text-blue-100 mt-[10px]'>
+                    <p className='text-[16px] md:text-[20px] text-gray-600 mt-[10px]'>
                         Upload a photo to find similar products instantly!
                     </p>
                 </div>
 
                 {/* Visual Search Component */}
                 <div className='flex justify-center mb-[50px]'>
-                    <div className='bg-white/10 backdrop-blur-sm rounded-lg p-[30px] border border-white/20'>
+                    <div className='bg-white/80 backdrop-blur-sm rounded-lg p-[30px] border border-gray-300'>
                         <VisualSearch onResults={handleSearchResults} onSearchStart={handleSearchStart} />
                     </div>
                 </div>
@@ -41,14 +40,14 @@ function VisualSearchPage() {
                 {isSearching && (
                     <div className='text-center py-[50px]'>
                         <div className='inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500'></div>
-                        <p className='text-blue-100 mt-[20px]'>Searching for similar products...</p>
+                        <p className='text-gray-600 mt-[20px]'>Searching for similar products...</p>
                     </div>
                 )}
 
                 {searchResults.length > 0 && (
                     <div>
                         <div className='text-center mb-[30px]'>
-                            <h3 className='text-[24px] font-bold text-white'>
+                            <h3 className='text-[24px] font-bold text-gray-800'>
                                 Found {searchResults.length} Similar Products
                             </h3>
                         </div>
@@ -71,9 +70,9 @@ function VisualSearchPage() {
 
                 {searchResults.length === 0 && !isSearching && (
                     <div className='text-center py-[50px]'>
-                        <div className='text-blue-200 text-[18px]'>
+                        <div className='text-gray-600 text-[18px]'>
                             <p>👆 Upload an image above to start visual search</p>
-                            <p className='text-[14px] mt-[10px] text-blue-300'>
+                            <p className='text-[14px] mt-[10px] text-gray-500'>
                                 Find products by uploading photos of items you like
                             </p>
                         </div>
@@ -81,11 +80,11 @@ function VisualSearchPage() {
                 )}
 
                 {/* Tips Section */}
-                <div className='mt-[50px] bg-white/5 backdrop-blur-sm rounded-lg p-[30px] border border-white/10'>
-                    <h4 className='text-[20px] font-semibold text-white mb-[20px] text-center'>
+                <div className='mt-[50px] bg-white/80 backdrop-blur-sm rounded-lg p-[30px] border border-gray-300'>
+                    <h4 className='text-[20px] font-semibold text-gray-800 mb-[20px] text-center'>
                         💡 Visual Search Tips
                     </h4>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-[20px] text-blue-100'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-[20px] text-gray-700'>
                         <div className='flex items-start space-x-[10px]'>
                             <span className='text-blue-400 text-[20px]'>📸</span>
                             <div>

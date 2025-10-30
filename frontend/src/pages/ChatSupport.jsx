@@ -92,7 +92,7 @@ function ChatSupport() {
   };
 
   return (
-    <div className='w-full min-h-screen bg-slate-900 pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
+    <div className='w-full min-h-screen bg-gray-50 pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
       <div className='max-w-4xl mx-auto'>
         <div className='bg-white/10 backdrop-blur-sm rounded-lg shadow-xl overflow-hidden'>
           {/* Chat Header */}

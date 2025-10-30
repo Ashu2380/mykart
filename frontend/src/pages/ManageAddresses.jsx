@@ -1,13 +1,12 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaHome, FaBuilding, FaMapMarkerAlt } from 'react-icons/fa';
-import { userDataContext } from '../context/UserContext';
 import { authDataContext } from '../context/authContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Title from '../component/Title';
 
 function ManageAddresses() {
-  const { userData } = useContext(userDataContext);
+  // const { userData } = useContext(userDataContext);
   const { serverUrl } = useContext(authDataContext);
   const [addresses, setAddresses] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -151,7 +150,7 @@ function ManageAddresses() {
   };
 
   return (
-    <div className='w-full min-h-screen bg-gradient-to-br from-[#7c3aed] via-[#a855f7] to-[#c084fc] pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
+    <div className='w-full min-h-screen bg-blue-50 pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
       <div className='max-w-6xl mx-auto'>
         <Title text1={'MANAGE'} text2={'ADDRESSES'} />
         
@@ -167,18 +166,18 @@ function ManageAddresses() {
 
         {/* Add/Edit Address Form */}
         {showAddForm && (
-          <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-6'>
-            <h3 className='text-xl font-semibold text-white mb-4'>
+          <div className='bg-white/80 backdrop-blur-sm rounded-lg p-6 mb-6 border border-gray-300'>
+            <h3 className='text-xl font-semibold text-gray-800 mb-4'>
               {editingAddress ? 'Edit Address' : 'Add New Address'}
             </h3>
             
             <form onSubmit={handleSubmit} className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               {/* Address Type */}
               <div className='md:col-span-2'>
-                <label className='block text-white mb-2'>Address Type</label>
+                <label className='block text-gray-700 mb-2'>Address Type</label>
                 <div className='flex gap-4'>
                   {['home', 'office', 'other'].map(type => (
-                    <label key={type} className='flex items-center gap-2 text-white cursor-pointer'>
+                    <label key={type} className='flex items-center gap-2 text-gray-700 cursor-pointer'>
                       <input
                         type='radio'
                         name='type'
@@ -195,26 +194,26 @@ function ManageAddresses() {
 
               {/* Name Fields */}
               <div>
-                <label className='block text-white mb-2'>First Name *</label>
+                <label className='block text-gray-700 mb-2'>First Name *</label>
                 <input
                   type='text'
                   name='firstName'
                   value={formData.firstName}
                   onChange={handleInputChange}
-                  className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                  className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='Enter first name'
                   required
                 />
               </div>
 
               <div>
-                <label className='block text-white mb-2'>Last Name *</label>
+                <label className='block text-gray-700 mb-2'>Last Name *</label>
                 <input
                   type='text'
                   name='lastName'
                   value={formData.lastName}
                   onChange={handleInputChange}
-                  className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                  className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='Enter last name'
                   required
                 />
@@ -222,52 +221,52 @@ function ManageAddresses() {
 
               {/* Address Fields */}
               <div className='md:col-span-2'>
-                <label className='block text-white mb-2'>Street Address *</label>
+                <label className='block text-gray-700 mb-2'>Street Address *</label>
                 <input
                   type='text'
                   name='street'
                   value={formData.street}
                   onChange={handleInputChange}
-                  className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                  className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='House no, Building name, Street name'
                   required
                 />
               </div>
 
               <div>
-                <label className='block text-white mb-2'>City *</label>
+                <label className='block text-gray-700 mb-2'>City *</label>
                 <input
                   type='text'
                   name='city'
                   value={formData.city}
                   onChange={handleInputChange}
-                  className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                  className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='Enter city'
                   required
                 />
               </div>
 
               <div>
-                <label className='block text-white mb-2'>State *</label>
+                <label className='block text-gray-700 mb-2'>State *</label>
                 <input
                   type='text'
                   name='state'
                   value={formData.state}
                   onChange={handleInputChange}
-                  className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                  className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='Enter state'
                   required
                 />
               </div>
 
               <div>
-                <label className='block text-white mb-2'>PIN Code *</label>
+                <label className='block text-gray-700 mb-2'>PIN Code *</label>
                 <input
                   type='text'
                   name='pinCode'
                   value={formData.pinCode}
                   onChange={handleInputChange}
-                  className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                  className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='Enter PIN code'
                   pattern='[0-9]{6}'
                   required
@@ -275,13 +274,13 @@ function ManageAddresses() {
               </div>
 
               <div>
-                <label className='block text-white mb-2'>Phone Number *</label>
+                <label className='block text-gray-700 mb-2'>Phone Number *</label>
                 <input
                   type='tel'
                   name='phone'
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                  className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='Enter phone number'
                   pattern='[0-9]{10}'
                   required
@@ -289,20 +288,20 @@ function ManageAddresses() {
               </div>
 
               <div className='md:col-span-2'>
-                <label className='block text-white mb-2'>Landmark (Optional)</label>
+                <label className='block text-gray-700 mb-2'>Landmark (Optional)</label>
                 <input
                   type='text'
                   name='landmark'
                   value={formData.landmark}
                   onChange={handleInputChange}
-                  className='w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-gray-600 focus:border-blue-500 focus:outline-none'
+                  className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='Nearby landmark'
                 />
               </div>
 
               {/* Default Address Checkbox */}
               <div className='md:col-span-2'>
-                <label className='flex items-center gap-2 text-white cursor-pointer'>
+                <label className='flex items-center gap-2 text-gray-700 cursor-pointer'>
                   <input
                     type='checkbox'
                     name='isDefault'
@@ -338,11 +337,11 @@ function ManageAddresses() {
         {/* Addresses List */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           {addresses.map((address) => (
-            <div key={address._id} className='bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-gray-600'>
+            <div key={address._id} className='bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-gray-300 shadow-sm'>
               <div className='flex items-center justify-between mb-4'>
                 <div className='flex items-center gap-2'>
                   {getAddressIcon(address.type)}
-                  <span className='text-white font-semibold capitalize'>{address.type}</span>
+                  <span className='text-gray-800 font-semibold capitalize'>{address.type}</span>
                   {address.isDefault && (
                     <span className='bg-green-500 text-white text-xs px-2 py-1 rounded-full'>Default</span>
                   )}
@@ -363,12 +362,12 @@ function ManageAddresses() {
                 </div>
               </div>
 
-              <div className='text-white space-y-1'>
+              <div className='text-gray-800 space-y-1'>
                 <p className='font-semibold'>{address.firstName} {address.lastName}</p>
-                <p className='text-sm text-gray-300'>{address.street}</p>
-                <p className='text-sm text-gray-300'>{address.city}, {address.state} - {address.pinCode}</p>
-                {address.landmark && <p className='text-sm text-gray-400'>Near: {address.landmark}</p>}
-                <p className='text-sm text-gray-300'>Phone: {address.phone}</p>
+                <p className='text-sm text-gray-600'>{address.street}</p>
+                <p className='text-sm text-gray-600'>{address.city}, {address.state} - {address.pinCode}</p>
+                {address.landmark && <p className='text-sm text-gray-500'>Near: {address.landmark}</p>}
+                <p className='text-sm text-gray-600'>Phone: {address.phone}</p>
               </div>
 
               {!address.isDefault && (
@@ -386,8 +385,8 @@ function ManageAddresses() {
         {addresses.length === 0 && !loading && (
           <div className='text-center py-12'>
             <FaMapMarkerAlt className='text-6xl text-gray-500 mx-auto mb-4' />
-            <p className='text-white text-xl mb-4'>No addresses found</p>
-            <p className='text-gray-400 mb-6'>Add your first address to get started</p>
+            <p className='text-gray-800 text-xl mb-4'>No addresses found</p>
+            <p className='text-gray-600 mb-6'>Add your first address to get started</p>
             <button
               onClick={() => setShowAddForm(true)}
               className='bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors duration-300'

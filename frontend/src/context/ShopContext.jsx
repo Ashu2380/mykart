@@ -17,11 +17,13 @@ function ShopContext({children}) {
     let currency = '₹';
     let delivery_fee = 40;
 
-    // AI-powered personalized recommendations
-    let [personalizedProducts, setPersonalizedProducts] = useState([])
+
 
     // Wishlist functionality
     let [wishlist, setWishlist] = useState([])
+
+    // Personalized recommendations
+    let [personalizedProducts, setPersonalizedProducts] = useState([])
 
     const getProducts = async () => {
         try {
@@ -34,45 +36,7 @@ function ShopContext({children}) {
 
     }
 
-    // Get personalized recommendations based on user behavior
-    const getPersonalizedRecommendations = async () => {
-        if (!userData) return;
 
-        try {
-            // Analyze user's cart and browsing history to determine preferences
-            const cartCategories = Object.keys(cartItem).map(productId => {
-                const product = products.find(p => p._id === productId);
-                return product ? product.category : null;
-            }).filter(Boolean);
-
-            const preferences = [...new Set(cartCategories)]; // Remove duplicates
-
-            if (preferences.length === 0) {
-                // If no cart data, show trending/best selling items
-                const trending = products.filter(p => p.bestseller).slice(0, 8);
-                setPersonalizedProducts(trending);
-                return;
-            }
-
-            // Get AI recommendations based on preferences
-            const response = await axios.post(serverUrl + "/api/product/ai-recommendations", {
-                query: preferences.join(' '),
-                preferences: preferences
-            });
-
-            if (response.data.success) {
-                setPersonalizedProducts(response.data.recommendations.slice(0, 8));
-            } else {
-                // Fallback to bestseller if AI fails
-                const trending = products.filter(p => p.bestseller).slice(0, 8);
-                setPersonalizedProducts(trending);
-            }
-        } catch (error) {
-            console.log("Error getting personalized recommendations:", error);
-            // Fallback to latest products
-            setPersonalizedProducts(products.slice(0, 8));
-        }
-    }
 
 
     const addtoCart = async (itemId , size) => {
@@ -201,12 +165,7 @@ function ShopContext({children}) {
     getUserCart()
   },[])
 
-    // Update personalized recommendations when products or cart changes
-    useEffect(() => {
-        if (products.length > 0 && userData) {
-            getPersonalizedRecommendations();
-        }
-    }, [products, cartItem, userData]);
+
 
     // Wishlist functions
     const addToWishlist = async (productId) => {
@@ -279,14 +238,43 @@ function ShopContext({children}) {
         }
     }, [userData]);
 
+    // Fetch products on component mount
+    useEffect(() => {
+        getProducts();
+    }, []);
+
+    // Fetch personalized recommendations
+    const getPersonalizedRecommendations = async () => {
+        if (!userData) {
+            setPersonalizedProducts([]);
+            return;
+        }
+        try {
+            const response = await axios.get(serverUrl + "/api/product/personalized", { withCredentials: true });
+            if (response.data && Array.isArray(response.data)) {
+                setPersonalizedProducts(response.data);
+            } else {
+                setPersonalizedProducts([]);
+            }
+        } catch (error) {
+            console.log("Error fetching personalized recommendations:", error);
+            setPersonalizedProducts([]);
+        }
+    };
+
+    useEffect(() => {
+        getPersonalizedRecommendations();
+    }, [userData]);
+
 
 
 
 
 
     let value = {
-      products, currency , delivery_fee,getProducts,search,setSearch,showSearch,setShowSearch,cartItem, addtoCart, getCartCount, setCartItem ,updateQuantity,getCartAmount,loading, personalizedProducts,
-      wishlist, addToWishlist, removeFromWishlist, updateWishlistItem, checkWishlistStatus
+      products, currency , delivery_fee,getProducts,search,setSearch,showSearch,setShowSearch,cartItem, addtoCart, getCartCount, setCartItem ,updateQuantity,getCartAmount,loading,
+      wishlist, addToWishlist, removeFromWishlist, updateWishlistItem, checkWishlistStatus,
+      personalizedProducts
     }
   return (
     <div>

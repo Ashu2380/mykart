@@ -93,11 +93,11 @@ function CustomerSupport() {
   ];
 
   return (
-    <div className='w-full min-h-screen bg-gradient-to-br from-[#7c3aed] via-[#a855f7] to-[#c084fc] pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
+    <div className='w-full min-h-screen bg-blue-50 pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
       <div className='max-w-6xl mx-auto'>
         {/* Header */}
         <div className='mb-8'>
-          <h1 className='text-3xl md:text-4xl font-bold text-white mb-2'>
+          <h1 className='text-3xl md:text-4xl font-bold text-gray-800 mb-2'>
             Some things you can do here
           </h1>
         </div>
@@ -130,8 +130,8 @@ function CustomerSupport() {
         </div>
 
         {/* Additional Help Section */}
-        <div className='mt-12 bg-white/10 backdrop-blur-sm rounded-lg p-6'>
-          <h2 className='text-2xl font-bold text-white mb-4'>Need More Help?</h2>
+        <div className='mt-12 bg-white/80 backdrop-blur-sm rounded-lg p-6'>
+          <h2 className='text-2xl font-bold text-gray-800 mb-4'>Need More Help?</h2>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <button
               className='bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors duration-300'
@@ -155,30 +155,30 @@ function CustomerSupport() {
           </div>
 
           {/* Customer Service Phone Numbers */}
-          <div className='mt-6 pt-6 border-t border-white/20'>
-            <h3 className='text-lg font-semibold text-white mb-3'>Call Customer Service</h3>
+          <div className='mt-6 pt-6 border-t border-gray-300'>
+            <h3 className='text-lg font-semibold text-gray-800 mb-3'>Call Customer Service</h3>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
               <a
                 href="tel:+916350395820"
-                className='bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2'
+                className='bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2'
               >
                 📞 +91 6350395820
               </a>
               <a
                 href="tel:+918003588721"
-                className='bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2'
+                className='bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2'
               >
                 📞 +91 8003588721
               </a>
               <a
                 href="tel:+919509564164"
-                className='bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2'
+                className='bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2'
               >
                 📞 +91 9509564164
               </a>
               <a
                 href="tel:+917357082882"
-                className='bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2'
+                className='bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2'
               >
                 📞 +91 73570 82882
               </a>
@@ -187,17 +187,17 @@ function CustomerSupport() {
         </div>
 
         {/* FAQ Section */}
-        <div className='mt-8 bg-white/5 backdrop-blur-sm rounded-lg p-6'>
-          <h3 className='text-xl font-semibold text-white mb-4'>Frequently Asked Questions</h3>
+        <div className='mt-8 bg-white/80 backdrop-blur-sm rounded-lg p-6'>
+          <h3 className='text-xl font-semibold text-gray-800 mb-4'>Frequently Asked Questions</h3>
           <div className='space-y-3'>
             {faqs.map((faq) => (
-              <div key={faq.id} className='border-b border-white/10 last:border-b-0'>
+              <div key={faq.id} className='border-b border-gray-300 last:border-b-0'>
                 <button
                   onClick={() => toggleFAQ(faq.id)}
-                  className='w-full text-left py-3 px-2 text-gray-300 hover:text-white transition-colors duration-300 flex items-center justify-between'
+                  className='w-full text-left py-3 px-2 text-gray-700 hover:text-gray-600 transition-colors duration-300 flex items-center justify-between'
                 >
                   <span className='flex items-center gap-2'>
-                    <span className='text-blue-400'>•</span>
+                    <span className='text-blue-600'>•</span>
                     {faq.question}
                   </span>
                   <span className={`transform transition-transform duration-300 ${expandedFAQ === faq.id ? 'rotate-180' : ''}`}>
@@ -205,7 +205,7 @@ function CustomerSupport() {
                   </span>
                 </button>
                 {expandedFAQ === faq.id && (
-                  <div className='px-6 pb-4 text-gray-400 text-sm leading-relaxed transition-all duration-300 ease-in-out'>
+                  <div className='px-6 pb-4 text-gray-600 text-sm leading-relaxed transition-all duration-300 ease-in-out'>
                     {faq.answer}
                   </div>
                 )}

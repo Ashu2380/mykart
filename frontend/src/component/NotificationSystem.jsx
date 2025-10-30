@@ -1,66 +1,118 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { FaBell, FaTimes, FaMapMarkerAlt, FaCloudRain, FaTag, FaTruck } from 'react-icons/fa'
+import { FaBell, FaTimes, FaMapMarkerAlt, FaCloudRain, FaTag, FaTruck, FaSearch, FaHeart, FaShoppingCart } from 'react-icons/fa'
 import { userDataContext } from '../context/UserContext'
+import { toast } from 'react-toastify'
 
 function NotificationSystem() {
   const [notifications, setNotifications] = useState([])
   const [showPanel, setShowPanel] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
-  const { userData } = useContext(userDataContext)
+  const [loading, setLoading] = useState(false)
+  const { userData, token } = useContext(userDataContext)
 
-  // Mock notifications - in real app, these would come from backend
-  useEffect(() => {
-    if (userData) {
-      const mockNotifications = [
-        {
-          id: 1,
-          type: 'location',
-          title: 'Rainy Day Offer!',
-          message: 'Get 20% off on raincoats in your area. Perfect weather for shopping!',
-          icon: <FaCloudRain className='text-blue-400' />,
-          time: '2 hours ago',
-          read: false
-        },
-        {
-          id: 2,
-          type: 'interest',
-          title: 'New Electronics Arrivals',
-          message: 'Check out the latest smartphones and laptops that match your interests!',
-          icon: <FaTag className='text-green-400' />,
-          time: '5 hours ago',
-          read: false
-        },
-        {
-          id: 3,
-          type: 'delivery',
-          title: 'Order Update',
-          message: 'Your recent order is out for delivery. Track it now!',
-          icon: <FaTruck className='text-purple-400' />,
-          time: '1 day ago',
-          read: true
-        },
-        {
-          id: 4,
-          type: 'location',
-          title: 'Local Store Event',
-          message: 'Fashion show at the mall near you! 30% off on featured items.',
-          icon: <FaMapMarkerAlt className='text-red-400' />,
-          time: '2 days ago',
-          read: true
+  // Fetch notifications from backend
+  const fetchNotifications = async () => {
+    if (!userData || !token) return
+
+    try {
+      setLoading(true)
+      const response = await fetch('http://localhost:4000/api/user/notifications', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      ]
-      setNotifications(mockNotifications)
-      setUnreadCount(mockNotifications.filter(n => !n.read).length)
-    }
-  }, [userData])
+      })
 
-  const markAsRead = (id) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === id ? { ...notif, read: true } : notif
-      )
-    )
-    setUnreadCount(prev => Math.max(0, prev - 1))
+      const data = await response.json()
+
+      if (data.success) {
+        // Transform backend notifications to frontend format
+        const transformedNotifications = data.notifications.map(notification => ({
+          id: notification.id,
+          type: notification.type,
+          title: notification.title,
+          message: notification.message,
+          productId: notification.productId,
+          metadata: notification.metadata,
+          time: notification.timeAgo,
+          read: notification.isRead,
+          icon: getNotificationIcon(notification.type)
+        }))
+
+        setNotifications(transformedNotifications)
+        setUnreadCount(data.unreadCount)
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error)
+      toast.error('Failed to load notifications')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Get appropriate icon based on notification type
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case 'price_alert':
+        return <FaTag className='text-green-400' />
+      case 'restock':
+        return <FaShoppingCart className='text-blue-400' />
+      case 'deal':
+        return <FaTag className='text-red-400' />
+      case 'recommendation':
+        return <FaSearch className='text-purple-400' />
+      case 'order_update':
+        return <FaTruck className='text-orange-400' />
+      case 'system':
+        return <FaBell className='text-gray-400' />
+      default:
+        return <FaBell className='text-gray-400' />
+    }
+  }
+
+  useEffect(() => {
+    if (userData && token) {
+      fetchNotifications()
+    }
+  }, [userData, token])
+
+  // Auto-refresh notifications every 30 seconds
+  useEffect(() => {
+    if (!userData || !token) return
+
+    const interval = setInterval(() => {
+      fetchNotifications()
+    }, 30000) // 30 seconds
+
+    return () => clearInterval(interval)
+  }, [userData, token])
+
+  const markAsRead = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:4000/api/user/notifications/${id}/read`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setNotifications(prev =>
+          prev.map(notif =>
+            notif.id === id ? { ...notif, read: true } : notif
+          )
+        )
+        setUnreadCount(prev => Math.max(0, prev - 1))
+      } else {
+        toast.error('Failed to mark notification as read')
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error)
+      toast.error('Failed to mark notification as read')
+    }
   }
 
   const markAllAsRead = () => {
@@ -70,11 +122,31 @@ function NotificationSystem() {
     setUnreadCount(0)
   }
 
-  const deleteNotification = (id) => {
-    const notification = notifications.find(n => n.id === id)
-    setNotifications(prev => prev.filter(n => n.id !== id))
-    if (!notification.read) {
-      setUnreadCount(prev => Math.max(0, prev - 1))
+  const deleteNotification = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:4000/api/user/notifications/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        const notification = notifications.find(n => n.id === id)
+        setNotifications(prev => prev.filter(n => n.id !== id))
+        if (!notification.read) {
+          setUnreadCount(prev => Math.max(0, prev - 1))
+        }
+        toast.success('Notification deleted')
+      } else {
+        toast.error('Failed to delete notification')
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error)
+      toast.error('Failed to delete notification')
     }
   }
 
@@ -86,7 +158,7 @@ function NotificationSystem() {
       <div className='relative'>
         <button
           onClick={() => setShowPanel(!showPanel)}
-          className='relative p-2 text-white hover:text-purple-300 transition-colors duration-300'
+          className='relative p-2 text-gray-700 hover:text-blue-600 transition-colors duration-300'
           title="Notifications"
         >
           <FaBell className='text-xl' />
@@ -130,7 +202,12 @@ function NotificationSystem() {
 
           {/* Notifications List */}
           <div className='max-h-80 overflow-y-auto'>
-            {notifications.length === 0 ? (
+            {loading ? (
+              <div className='p-6 text-center text-gray-500'>
+                <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2'></div>
+                <p>Loading notifications...</p>
+              </div>
+            ) : notifications.length === 0 ? (
               <div className='p-6 text-center text-gray-500'>
                 <FaBell className='text-3xl mx-auto mb-2 text-gray-300' />
                 <p>No notifications yet</p>

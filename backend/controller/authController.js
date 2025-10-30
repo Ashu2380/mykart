@@ -1,12 +1,14 @@
 import User from "../model/userModel.js";
+import Referral from "../model/referralModel.js";
 import validator from "validator"
 import bcrypt from "bcryptjs"
 import { genToken, genToken1 } from "../config/token.js";
+import { validateReferralCode } from "./referralController.js";
 
 
 export const registration = async (req,res) => {
    try {
-     const {name , email, password} = req.body;
+     const {name , email, password, referralCode} = req.body;
      const existUser = await User.findOne({email})
      if(existUser){
          return res.status(400).json({message:"User already exist"})
@@ -19,7 +21,45 @@ export const registration = async (req,res) => {
      }
      let hashPassword = await bcrypt.hash(password,10)
 
-     const user = await User.create({name,email,password:hashPassword})
+     // Handle referral code if provided
+     let referredBy = null;
+     if (referralCode) {
+         const referralValidation = await validateReferralCode({ body: { referralCode } }, {
+             json: (data) => data
+         });
+         if (referralValidation.valid) {
+             referredBy = referralValidation.referrer.id;
+
+             // Create referral record
+             await Referral.create({
+                 referrerId: referredBy,
+                 referredUserId: null, // Will be set after user creation
+                 referralCode: referralCode.toUpperCase(),
+                 status: 'pending'
+             });
+         }
+     }
+
+     const user = await User.create({
+         name,
+         email,
+         password: hashPassword,
+         referredBy
+     });
+
+     // Update referral record with new user ID
+     if (referredBy) {
+         await Referral.findOneAndUpdate(
+             { referrerId: referredBy, referralCode: referralCode.toUpperCase() },
+             { referredUserId: user._id }
+         );
+
+         // Update referrer stats
+         await User.findByIdAndUpdate(referredBy, {
+             $inc: { 'referralStats.totalReferrals': 1 }
+         });
+     }
+
      let token = await genToken(user._id)
      res.cookie("token",token,{
          httpOnly:true,
@@ -79,7 +119,7 @@ try {
 export const googleLogin = async (req,res) => {
      try {
          console.log("Google login request received:", req.body);
-         let {name , email} = req.body;
+         let {name , email, referralCode} = req.body;
          if (!email) {
              console.error("No email provided in request");
              return res.status(400).json({message: "Email is required"});
@@ -88,9 +128,45 @@ export const googleLogin = async (req,res) => {
          let user = await User.findOne({email})
          if(!user){
              console.log("User not found, creating new user");
+
+             // Handle referral code for Google login
+             let referredBy = null;
+             if (referralCode) {
+                 const referralValidation = await validateReferralCode({ body: { referralCode } }, {
+                     json: (data) => data
+                 });
+                 if (referralValidation.valid) {
+                     referredBy = referralValidation.referrer.id;
+
+                     // Create referral record
+                     await Referral.create({
+                         referrerId: referredBy,
+                         referredUserId: null, // Will be set after user creation
+                         referralCode: referralCode.toUpperCase(),
+                         status: 'pending'
+                     });
+                 }
+             }
+
              user = await User.create({
-                 name,email
-             })
+                 name,
+                 email,
+                 referredBy
+             });
+
+             // Update referral record with new user ID
+             if (referredBy) {
+                 await Referral.findOneAndUpdate(
+                     { referrerId: referredBy, referralCode: referralCode.toUpperCase() },
+                     { referredUserId: user._id }
+                 );
+
+                 // Update referrer stats
+                 await User.findByIdAndUpdate(referredBy, {
+                     $inc: { 'referralStats.totalReferrals': 1 }
+                 });
+             }
+
              console.log("New user created:", user._id);
          } else {
              console.log("Existing user found:", user._id);

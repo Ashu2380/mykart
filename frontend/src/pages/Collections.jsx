@@ -1,29 +1,38 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { FaChevronRight, FaChevronDown } from "react-icons/fa";
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Title from '../component/Title';
 import { shopDataContext } from '../context/ShopContext';
 import Card from '../component/Card';
 
 function Collections() {
     let [showFilter, setShowFilter] = useState(false);
-    let { products, search, showSearch } = useContext(shopDataContext);
+    let { products, search, showSearch, setSearch, setShowSearch } = useContext(shopDataContext);
+    // let { userData } = useContext(userDataContext);
     let [filterProduct, setFilterProduct] = useState([]);
     let [category, setCategory] = useState([]);
     let [subCategory, setSubCategory] = useState([]);
     let [sortType, setSortType] = useState("relevant");
     let [searchParams] = useSearchParams();
-    let location = useLocation();
+    // let location = useLocation();
 
-    // Handle URL category parameter
+    // Handle URL category parameter and search parameter
     useEffect(() => {
         const urlCategory = searchParams.get('category');
+        const urlSearch = searchParams.get('search');
+
         if (urlCategory) {
             setCategory([urlCategory]);
         } else {
             setCategory([]);
         }
-    }, [searchParams]);
+
+        // If there's a search parameter from visual search, set it in context
+        if (urlSearch) {
+            setSearch(urlSearch);
+            setShowSearch(true);
+        }
+    }, [searchParams, setSearch, setShowSearch]);
 
     const clearFilters = () => {
         setCategory([]);
@@ -62,7 +71,7 @@ function Collections() {
         setFilterProduct(productCopy);
     }
 
-    const sortProducts = (e) => {
+    const sortProducts = () => {
         let fbCopy = filterProduct.slice();
 
         switch (sortType) {
@@ -90,17 +99,19 @@ function Collections() {
         applyFilter();
     }, [category, subCategory, search, showSearch]);
 
+
+
     return (
-        <div className='w-[99vw] min-h-[100vh] bg-gradient-to-br from-[#7c3aed] via-[#a855f7] to-[#c084fc] flex items-start flex-col md:flex-row justify-start overflow-x-hidden z-[2] pb-[110px] pt-20 md:pt-16 lg:pt-20'>
-            <div className={`md:w-[30vw] lg:w-[20vw] w-[100vw] md:min-h-[100vh] ${showFilter ? "h-[45vh]" : "h-[8vh]"} p-4 md:p-5 lg:p-[20px] border-r-[1px] border-gray-400 text-[#aaf5fa] lg:fixed`}>
+        <div className='w-[99vw] min-h-[100vh] bg-blue-50 flex items-start flex-col md:flex-row justify-start overflow-x-hidden z-[2] pb-[110px] pt-20 md:pt-16 lg:pt-20'>
+            <div className={`md:w-[30vw] lg:w-[20vw] w-[100vw] md:min-h-[100vh] ${showFilter ? "h-[45vh]" : "h-[8vh]"} p-4 md:p-5 lg:p-[20px] border-r-[1px] border-gray-400 text-gray-700 lg:fixed`}>
                 <p className='text-[25px] font-semibold flex gap-[5px] items-center justify-start cursor-pointer' onClick={() => setShowFilter(prev => !prev)}>FILTERS
                     {!showFilter && <FaChevronRight className='text-[18px] md:hidden' />}
                     {showFilter && <FaChevronDown className='text-[18px] md:hidden' />}
                 </p>
 
-                <div className={`border-[2px] border-purple-400/50 pl-6 py-4 mt-6 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-md ${showFilter ? "" : "hidden"} md:block`}>
+                <div className={`border-[2px] border-gray-300 pl-6 py-4 mt-6 rounded-lg bg-blue-50/80 backdrop-blur-md ${showFilter ? "" : "hidden"} md:block`}>
                     <div className='flex justify-between items-center mb-3'>
-                        <p className='text-[20px] font-medium text-white'>CATEGORIES</p>
+                        <p className='text-[20px] font-medium text-gray-800'>CATEGORIES</p>
                         {(category.length > 0 || subCategory.length > 0) && (
                             <button
                                 onClick={clearFilters}
@@ -111,31 +122,31 @@ function Collections() {
                         )}
                     </div>
                     <div className='w-[300px] max-h-[250px] overflow-y-auto flex items-start justify-center gap-[12px] flex-col'>
-                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-white transition-colors'>
+                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-gray-600 transition-colors'>
                             <input type="checkbox" value={'Clothes'} className='w-4 h-4' onChange={toggleCategory} checked={category.includes('Clothes')} /> Clothes
                         </p>
-                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-white transition-colors'>
+                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-gray-600 transition-colors'>
                             <input type="checkbox" value={'Electronics'} className='w-4 h-4' onChange={toggleCategory} checked={category.includes('Electronics')} /> Electronics
                         </p>
-                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-white transition-colors'>
+                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-gray-600 transition-colors'>
                             <input type="checkbox" value={'Home & Kitchen'} className='w-4 h-4' onChange={toggleCategory} checked={category.includes('Home & Kitchen')} /> Home & Kitchen
                         </p>
-                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-white transition-colors'>
+                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-gray-600 transition-colors'>
                             <input type="checkbox" value={'Beauty & Health'} className='w-4 h-4' onChange={toggleCategory} checked={category.includes('Beauty & Health')} /> Beauty & Health
                         </p>
-                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-white transition-colors'>
+                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-gray-600 transition-colors'>
                             <input type="checkbox" value={'Sports & Outdoors'} className='w-4 h-4' onChange={toggleCategory} checked={category.includes('Sports & Outdoors')} /> Sports & Outdoors
                         </p>
-                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-white transition-colors'>
+                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-gray-600 transition-colors'>
                             <input type="checkbox" value={'Books & Media'} className='w-4 h-4' onChange={toggleCategory} checked={category.includes('Books & Media')} /> Books & Media
                         </p>
-                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-white transition-colors'>
+                        <p className='flex items-center justify-center gap-[12px] text-[17px] font-normal hover:text-gray-600 transition-colors'>
                             <input type="checkbox" value={'Toys & Games'} className='w-4 h-4' onChange={toggleCategory} checked={category.includes('Toys & Games')} /> Toys & Games
                         </p>
                     </div>
                 </div>
-                <div className={`border-[2px] border-pink-400/50 pl-5 py-3 mt-6 rounded-md bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-sm ${showFilter ? "" : "hidden"} md:block`}>
-                    <p className='text-[18px] text-white'>SUB-CATEGORIES</p>
+                <div className={`border-[2px] border-gray-300 pl-5 py-3 mt-6 rounded-md bg-blue-50/80 backdrop-blur-sm ${showFilter ? "" : "hidden"} md:block`}>
+                    <p className='text-[18px] text-gray-800'>SUB-CATEGORIES</p>
                     <div className='w-[230px] max-h-[200px] overflow-y-auto flex items-start justify-center gap-[10px] flex-col'>
                         {/* Clothes Subcategories */}
                         {category.includes('Clothes') && (
@@ -294,18 +305,23 @@ function Collections() {
                 <div className='md:w-[80vw] w-[100vw] flex justify-between flex-col lg:flex-row lg:px-[50px] '>
                     <Title text1={"ALL"} text2={"COLLECTIONS"}/>
 
-                    <select name="" id="" className='bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm w-[60%] md:w-[200px] h-[50px] px-[10px] text-[white] rounded-lg hover:border-purple-400 border-[2px] border-purple-400/50 hover:bg-gradient-to-r hover:from-purple-500/30 hover:to-pink-500/30 transition-all duration-300' onChange={(e) => setSortType(e.target.value)}>
+                    <select name="" id="" className='bg-white/80 backdrop-blur-sm w-[60%] md:w-[200px] h-[50px] px-[10px] text-gray-800 rounded-lg hover:border-gray-400 border-[2px] border-gray-300 hover:bg-white transition-all duration-300' onChange={(e) => setSortType(e.target.value)}>
                         <option value="relevant" className='w-[100%] h-[100%]'>Sort By: Relevant</option>
                         <option value="low-high" className='w-[100%] h-[100%]'>Sort By: Low to High</option>
                         <option value="high-low" className='w-[100%] h-[100%]'>Sort By: High to Low</option>
                     </select>
                 </div>
                 <div className='lg:w-[80vw] md:w-[60vw] w-[100vw] min-h-[70vh] flex items-center justify-center flex-wrap gap-[30px]'>
-                    {
+                    {filterProduct.length > 0 ? (
                         filterProduct.map((item, index) => (
                             <Card key={index} id={item._id} name={item.name} price={item.price} image={item.image1} discount={item.discount || 0}/>
                         ))
-                    }
+                    ) : (
+                        <div className='text-center text-gray-800'>
+                            <p className='text-2xl font-semibold mb-4'>No products found</p>
+                            <p className='text-lg'>Try adjusting your filters or check back later for new products.</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

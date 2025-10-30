@@ -94,7 +94,7 @@ function QRPayment() {
     }
 
     return (
-    <div className='w-[100vw] min-h-[100vh] bg-slate-900 flex items-center justify-center p-4'>
+    <div className='w-[100vw] min-h-[100vh] bg-blue-50 flex items-center justify-center p-4'>
             <div className='max-w-md w-full bg-white rounded-2xl shadow-2xl overflow-hidden'>
                 {/* Header */}
                 <div className='bg-green-600 text-white p-6 text-center'>
@@ -188,7 +188,7 @@ function QRPayment() {
                         <div className='space-y-2'>
                             <button
                                 onClick={() => navigate('/placeorder')}
-                                className='w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-300'
+                                className='w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-300'
                             >
                                 Place Order (Skip Payment)
                             </button>

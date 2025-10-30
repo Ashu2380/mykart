@@ -210,6 +210,61 @@ const userSchema = new mongoose.Schema({
             type: Date,
             default: Date.now
         }
+    }],
+    // Referral System
+    referralCode: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    referredBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    referralStats: {
+        totalReferrals: {
+            type: Number,
+            default: 0
+        },
+        successfulReferrals: {
+            type: Number,
+            default: 0
+        },
+        totalEarned: {
+            type: Number,
+            default: 0
+        },
+        pendingRewards: {
+            type: Number,
+            default: 0
+        }
+    },
+    referralRewards: [{
+        referralId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Referral'
+        },
+        amount: {
+            type: Number,
+            required: true
+        },
+        type: {
+            type: String,
+            enum: ['signup_bonus', 'purchase_bonus', 'referral_earning'],
+            required: true
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'credited', 'expired'],
+            default: 'pending'
+        },
+        creditedAt: {
+            type: Date
+        },
+        description: {
+            type: String,
+            required: true
+        }
     }]
 },{timestamps:true , minimize:false})
 

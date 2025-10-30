@@ -158,7 +158,8 @@ async function generateProducts(perCategoryCount = 100) {
           image1,
           image2,
           image3,
-          image4
+          image4,
+          isManual: false // AI-generated products
         });
       }
     })
@@ -181,6 +182,7 @@ async function run() {
 
     const result = await Product.insertMany(products, { ordered: false });
     console.log(`Inserted ${result.length} products.`);
+    {
   } catch (err) {
     console.error('Seeding error:', err);
   } finally {
@@ -192,3 +194,4 @@ async function run() {
 run();
 
 
+    },

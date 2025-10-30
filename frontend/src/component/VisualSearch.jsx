@@ -56,80 +56,20 @@ function VisualSearch({ onResults, onSearchStart }) {
             if (data.success && data.similarProducts && data.similarProducts.length > 0) {
                 onResults(data.similarProducts);
                 toast.success(`Found ${data.similarProducts.length} similar products!`);
+
+                // Redirect to collections page with search query
+                setTimeout(() => {
+                    window.location.href = `/collection?search=${encodeURIComponent(data.searchQuery || 'visual search')}`;
+                }, 2000);
             } else {
-                // Fallback: show mock products as similar
-                toast.info('Visual search completed. Showing sample products.');
-                const mockProducts = [
-                    {
-                        _id: "fallback1",
-                        name: "Nike Men's Jacket",
-                        image1: "https://loremflickr.com/800/800/clothes%2Cmen%2Cnike%2Cmens%2Cjacket?lock=4",
-                        price: 4837,
-                        category: "Clothes",
-                        subCategory: "Men",
-                        bestseller: true,
-                        discount: 0
-                    },
-                    {
-                        _id: "fallback2",
-                        name: "Adidas Men's Jacket",
-                        image1: "https://loremflickr.com/800/800/clothes%2Cmen%2Cadidas%2Cmens%2Cjacket?lock=3",
-                        price: 4746,
-                        category: "Clothes",
-                        subCategory: "Men",
-                        bestseller: false,
-                        discount: 0
-                    },
-                    {
-                        _id: "fallback3",
-                        name: "Samsung Smartphone",
-                        image1: "https://loremflickr.com/800/800/electronics%2Cphones%2Csamsung%2Csmartphone?lock=1",
-                        price: 26631,
-                        category: "Electronics",
-                        subCategory: "Phones",
-                        bestseller: false,
-                        discount: 0
-                    },
-                    {
-                        _id: "fallback4",
-                        name: "Apple Smartphone",
-                        image1: "https://loremflickr.com/800/800/electronics%2Cphones%2Capple%2Csmartphone?lock=2",
-                        price: 56467,
-                        category: "Electronics",
-                        subCategory: "Phones",
-                        bestseller: false,
-                        discount: 0
-                    }
-                ];
-                onResults(mockProducts);
+                // No similar products found
+                toast.info('No similar products found. Try uploading a different image.');
+                onResults([]);
             }
         } catch (error) {
             console.error('Visual search error:', error);
-            // Fallback: show mock products as similar
-            toast.info('Visual search temporarily unavailable. Showing sample products.');
-            const mockProducts = [
-                {
-                    _id: "fallback1",
-                    name: "Nike Men's Jacket",
-                    image1: "https://loremflickr.com/800/800/clothes%2Cmen%2Cnike%2Cmens%2Cjacket?lock=4",
-                    price: 4837,
-                    category: "Clothes",
-                    subCategory: "Men",
-                    bestseller: true,
-                    discount: 0
-                },
-                {
-                    _id: "fallback2",
-                    name: "Adidas Men's Jacket",
-                    image1: "https://loremflickr.com/800/800/clothes%2Cmen%2Cadidas%2Cmens%2Cjacket?lock=3",
-                    price: 4746,
-                    category: "Clothes",
-                    subCategory: "Men",
-                    bestseller: false,
-                    discount: 0
-                }
-            ];
-            onResults(mockProducts);
+           toast.error('Visual search failed. Please try again.');
+           onResults([]);
         } finally {
             setIsProcessing(false);
         }

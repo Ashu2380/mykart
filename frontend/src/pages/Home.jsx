@@ -13,7 +13,7 @@ function Home() {
     {text1:"30% OFF Limited Offer",text2:"Style that"},
     {text1:"Discover the Best of Bold Fashion",text2:"Limited Time Only!"},
     {text1:"Explore Our Best Collection ",text2:"Shop Now!"},
-    {text1:"Choose your Perfect Fasion Fit",text2:"Now on Sale!"}
+    {text1:"Choose your Perfect Fashion Fit",text2:"Now on Sale!"}
   ]
 
   let [heroCount,setHeroCount] = useState(0)
@@ -27,7 +27,7 @@ function Home() {
   
   return (
     <div className='overflow-x-hidden pt-20 md:pt-16 lg:pt-20'>
-    <div className=' w-[100vw] lg:h-[100vh] md:h-[50vh] sm:h-[30vh] bg-slate-900'>
+    <div className=' w-[100vw] lg:h-[100vh] md:h-[50vh] sm:h-[30vh] bg-blue-50'>
 
       <Backgound heroCount={heroCount}/>
       <Hero
@@ -39,10 +39,12 @@ function Home() {
 
      
     </div>
-    <Product/>
-    <OurPolicy/>
-    <NewLetterBox/>
-    <Footer/>
+    <div className='bg-blue-50'>
+      <Product/>
+      <OurPolicy/>
+      <NewLetterBox/>
+      <Footer/>
+    </div>
     </div>
   )
 }
