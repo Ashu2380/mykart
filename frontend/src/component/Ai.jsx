@@ -64,11 +64,6 @@ window.speechSynthesis.speak(utterence)
       navigate("/order")
       setShowSearch(false)
     }
-    else if(transcript.toLowerCase().includes("visual search") || transcript.toLowerCase().includes("image search") || transcript.toLowerCase().includes("photo search")){
-      speak("opening visual search page")
-      navigate("/visual-search")
-      setShowSearch(false)
-    }
     else if(transcript.toLowerCase().includes("recommend") || transcript.toLowerCase().includes("suggestions") || transcript.toLowerCase().includes("personalized") || transcript.toLowerCase().includes("for me")){
       speak("showing personalized recommendations")
       navigate("/collection")

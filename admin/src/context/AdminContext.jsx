@@ -11,7 +11,7 @@ function AdminContext({children}) {
     const getAdmin = async () => {
       try {
            console.log("Attempting to get admin data from:", serverUrl + "/api/user/getadmin")
-           let result = await axios.get(serverUrl + "/api/user/getadmin",{withCredentials:true})
+           let result = await axios.get(serverUrl + "/api/user/getadmin", {withCredentials:true})
            console.log("Admin data received:", result.data)
       setAdminData(result.data)
       console.log("Admin data set:", result.data)

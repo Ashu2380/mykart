@@ -29,19 +29,19 @@ function Nav() {
   }
 
   return (
-<nav className="w-full h-[70px] bg-gradient-to-br from-slate-900 via-blue-950 to-teal-900 z-10 fixed top-0 flex items-center justify-between px-[30px] shadow-md shadow-black">
+<nav className="w-full h-[70px] bg-gradient-to-r from-white/95 to-blue-50/95 backdrop-blur-md z-10 fixed top-0 flex items-center justify-between px-[30px] shadow-lg border-b border-gray-200">
       {/* Logo and Brand */}
       <Link to="/" className="flex items-center gap-[10px] cursor-pointer">
         <img src={logo} alt="Mykart Logo" className="w-[30px]" />
-        <h1 className="text-[25px] text-white font-sans">Mykart</h1>
+        <h1 className="text-[25px] text-gray-800 font-sans font-bold">Mykart Admin</h1>
       </Link>
 
       {/* Logout Button */}
       <button
         disabled={loading}
         onClick={logOut}
-        className={`text-[15px] bg-[#000000ca] py-[10px] px-[20px] rounded-2xl text-white 
-          border border-transparent hover:border-[#89daea] transition 
+        className={`text-[15px] bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 py-[10px] px-[20px] rounded-2xl text-white
+          border border-transparent hover:border-red-300 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105
           ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
       >
         {loading ? "Logging out..." : "Log Out"}

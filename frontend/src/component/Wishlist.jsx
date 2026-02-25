@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { shopDataContext } from '../context/ShopContext';
 import { FaHeart, FaTrash, FaBell, FaBellSlash } from 'react-icons/fa';
 import Title from './Title';
+import { toast } from 'react-toastify';
 
 const Wishlist = () => {
     const { wishlist, removeFromWishlist, updateWishlistItem } = useContext(shopDataContext);
@@ -20,9 +21,41 @@ const Wishlist = () => {
     };
 
     const setTargetPrice = async (productId, targetPrice) => {
-        setLoading(true);
-        await updateWishlistItem(productId, { priceAlert: { targetPrice: parseFloat(targetPrice) } });
-        setLoading(false);
+        try {
+            console.log('setTargetPrice called with:', productId, targetPrice);
+            setLoading(true);
+            const price = parseFloat(targetPrice);
+            console.log('Parsed price:', price);
+
+            if (isNaN(price) || price <= 0) {
+                console.log('Invalid price detected');
+                toast.error('Please enter a valid price greater than 0');
+                setLoading(false);
+                return;
+            }
+
+            console.log('Calling updateWishlistItem...');
+            const result = await updateWishlistItem(productId, { priceAlert: { targetPrice: price } });
+            console.log('updateWishlistItem result:', result);
+
+            toast.success('Target price updated successfully!');
+            setLoading(false);
+        } catch (error) {
+            console.error('Error in setTargetPrice:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
+            console.error('Error message:', error.message);
+
+            // More specific error messages
+            if (error.response?.status === 404) {
+                toast.error('Product not found in wishlist');
+            } else if (error.response?.status === 401) {
+                toast.error('Please login to update wishlist');
+            } else {
+                toast.error('Failed to update target price. Please try again.');
+            }
+            setLoading(false);
+        }
     };
 
     if (!wishlist || wishlist.length === 0) {
@@ -81,7 +114,7 @@ const Wishlist = () => {
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-sm font-medium">Price Alert</span>
                                     <button
-                                        onClick={() => togglePriceAlert(item.productId, item.priceAlert?.enabled)}
+                                        onClick={() => togglePriceAlert(item._id, item.priceAlert?.enabled)}
                                         disabled={loading}
                                         className={`p-2 rounded-full transition-colors ${
                                             item.priceAlert?.enabled
@@ -99,12 +132,33 @@ const Wishlist = () => {
                                             type="number"
                                             placeholder="Target price (optional)"
                                             defaultValue={item.priceAlert?.targetPrice || ''}
-                                            onBlur={(e) => {
-                                                if (e.target.value) {
-                                                    setTargetPrice(item.productId, e.target.value);
+                                            onBlur={async (e) => {
+                                                const value = e.target.value.trim();
+                                                console.log('Input blur triggered with value:', value);
+                                                console.log('Item data:', item);
+                                                console.log('ProductId:', item.productId);
+                                                console.log('ProductId type:', typeof item.productId);
+
+                                                // Use the wishlist item ID for updating
+                                                const itemId = item._id;
+                                                console.log('Using itemId:', itemId);
+
+                                                if (value) {
+                                                    console.log('Calling setTargetPrice with:', itemId, value);
+                                                    await setTargetPrice(itemId, value);
+                                                } else {
+                                                    console.log('Empty value, skipping update');
+                                                }
+                                            }}
+                                            onKeyPress={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    console.log('Enter key pressed, triggering blur');
+                                                    e.target.blur();
                                                 }
                                             }}
                                             className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            min="0"
+                                            step="0.01"
                                         />
                                         <p className="text-xs text-gray-500">
                                             Get notified when price drops below this amount (leave empty for any drop)

@@ -206,16 +206,20 @@ function ShopContext({children}) {
         }
     };
 
-    const updateWishlistItem = async (productId, updates) => {
+    const updateWishlistItem = async (itemId, updates) => {
         try {
-            const response = await axios.put(serverUrl + `/api/wishlist/update/${productId}`, updates, { withCredentials: true });
+            console.log("Updating wishlist item:", itemId, updates);
+            const response = await axios.put(serverUrl + `/api/wishlist/update/${itemId}`, updates, { withCredentials: true });
+            console.log("Update response:", response.data);
             if (response.data) {
-                toast.success("Wishlist updated");
+                // Don't show success toast here, let the component handle it
                 getUserWishlist(); // Refresh wishlist
+                return response.data;
             }
         } catch (error) {
             console.log("Error updating wishlist item:", error);
-            toast.error("Failed to update wishlist");
+            console.log("Error details:", error.response?.data || error.message);
+            throw error; // Re-throw to let component handle the error
         }
     };
 

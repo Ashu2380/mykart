@@ -1,14 +1,21 @@
-import React, { useState, useEffect, useContext } from 'react'
-import { FaBell, FaTimes, FaMapMarkerAlt, FaCloudRain, FaTag, FaTruck, FaSearch, FaHeart, FaShoppingCart } from 'react-icons/fa'
+import React, { useState, useEffect, useContext, useRef } from 'react'
+import { FaBell, FaTimes, FaMapMarkerAlt, FaCloudRain, FaTag, FaTruck, FaSearch, FaHeart, FaShoppingCart, FaFilter, FaEye, FaExclamationTriangle, FaInfoCircle, FaExclamation } from 'react-icons/fa'
 import { userDataContext } from '../context/UserContext'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
+import openSound from '../assets/open.mp3'
 
 function NotificationSystem() {
   const [notifications, setNotifications] = useState([])
+  const [filteredNotifications, setFilteredNotifications] = useState([])
   const [showPanel, setShowPanel] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [filter, setFilter] = useState('all') // all, unread, price_alert, restock, deal, recommendation, order_update, system
+  const [previousUnreadCount, setPreviousUnreadCount] = useState(0)
   const { userData, token } = useContext(userDataContext)
+  const navigate = useNavigate()
+  const audioRef = useRef(null)
 
   // Fetch notifications from backend
   const fetchNotifications = async () => {
@@ -16,7 +23,7 @@ function NotificationSystem() {
 
     try {
       setLoading(true)
-      const response = await fetch('http://localhost:4000/api/user/notifications', {
+      const response = await fetch('http://localhost:8000/api/user/notifications', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -36,17 +43,31 @@ function NotificationSystem() {
           metadata: notification.metadata,
           time: notification.timeAgo,
           read: notification.isRead,
+          priority: notification.priority || 'low', // Add priority field
           icon: getNotificationIcon(notification.type)
         }))
 
         setNotifications(transformedNotifications)
         setUnreadCount(data.unreadCount)
+
+        // Play sound if new unread notifications arrived
+        if (data.unreadCount > previousUnreadCount) {
+          playNotificationSound()
+        }
+        setPreviousUnreadCount(data.unreadCount)
       }
     } catch (error) {
       console.error('Error fetching notifications:', error)
       toast.error('Failed to load notifications')
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Play notification sound
+  const playNotificationSound = () => {
+    if (audioRef.current) {
+      audioRef.current.play().catch(e => console.log('Audio play failed:', e))
     }
   }
 
@@ -87,9 +108,45 @@ function NotificationSystem() {
     return () => clearInterval(interval)
   }, [userData, token])
 
+  // Apply filters to notifications
+  useEffect(() => {
+    let filtered = notifications
+
+    if (filter === 'unread') {
+      filtered = notifications.filter(n => !n.read)
+    } else if (filter !== 'all') {
+      filtered = notifications.filter(n => n.type === filter)
+    }
+
+    setFilteredNotifications(filtered)
+  }, [notifications, filter])
+
+  // Get priority styling
+  const getPriorityStyling = (priority) => {
+    switch (priority) {
+      case 'urgent':
+        return 'border-l-4 border-red-500 bg-red-50'
+      case 'high':
+        return 'border-l-4 border-orange-500 bg-orange-50'
+      case 'medium':
+        return 'border-l-4 border-yellow-500 bg-yellow-50'
+      case 'low':
+      default:
+        return 'border-l-4 border-gray-300 bg-gray-50'
+    }
+  }
+
+  // Handle view product action
+  const handleViewProduct = (productId) => {
+    if (productId) {
+      navigate(`/product/${productId}`)
+      setShowPanel(false)
+    }
+  }
+
   const markAsRead = async (id) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/user/notifications/${id}/read`, {
+      const response = await fetch(`http://localhost:8000/api/user/notifications/${id}/read`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -124,7 +181,7 @@ function NotificationSystem() {
 
   const deleteNotification = async (id) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/user/notifications/${id}`, {
+      const response = await fetch(`http://localhost:8000/api/user/notifications/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -187,16 +244,32 @@ function NotificationSystem() {
             </button>
           </div>
 
-          {/* Actions */}
+          {/* Filter Dropdown */}
           {notifications.length > 0 && (
             <div className='p-3 border-b border-gray-200'>
-              <button
-                onClick={markAllAsRead}
-                className='text-sm text-purple-600 hover:text-purple-800 font-medium'
-                disabled={unreadCount === 0}
-              >
-                Mark all as read
-              </button>
+              <div className='flex items-center justify-between'>
+                <select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  className='text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500'
+                >
+                  <option value='all'>All Notifications</option>
+                  <option value='unread'>Unread Only</option>
+                  <option value='price_alert'>Price Alerts</option>
+                  <option value='restock'>Restock Alerts</option>
+                  <option value='deal'>Deals</option>
+                  <option value='recommendation'>Recommendations</option>
+                  <option value='order_update'>Order Updates</option>
+                  <option value='system'>System</option>
+                </select>
+                <button
+                  onClick={markAllAsRead}
+                  className='text-sm text-purple-600 hover:text-purple-800 font-medium disabled:opacity-50'
+                  disabled={unreadCount === 0}
+                >
+                  Mark all as read
+                </button>
+              </div>
             </div>
           )}
 
@@ -214,12 +287,12 @@ function NotificationSystem() {
                 <p className='text-sm'>We'll notify you about relevant offers and updates!</p>
               </div>
             ) : (
-              notifications.map(notification => (
+              filteredNotifications.map(notification => (
                 <div
                   key={notification.id}
                   className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200 ${
                     !notification.read ? 'bg-blue-50' : ''
-                  }`}
+                  } ${getPriorityStyling(notification.priority)}`}
                 >
                   <div className='flex items-start gap-3'>
                     <div className='flex-shrink-0 mt-1'>
@@ -242,9 +315,21 @@ function NotificationSystem() {
                         {notification.message}
                       </p>
                       <div className='flex items-center justify-between mt-2'>
-                        <span className='text-xs text-gray-500'>
-                          {notification.time}
-                        </span>
+                        <div className='flex items-center gap-2'>
+                          <span className='text-xs text-gray-500'>
+                            {notification.time}
+                          </span>
+                          {notification.productId && (
+                            <button
+                              onClick={() => handleViewProduct(notification.productId)}
+                              className='text-xs text-blue-600 hover:text-blue-800 font-medium'
+                              title="View Product"
+                            >
+                              <FaEye className='inline mr-1' />
+                              View Product
+                            </button>
+                          )}
+                        </div>
                         {!notification.read && (
                           <button
                             onClick={() => markAsRead(notification.id)}
@@ -277,6 +362,9 @@ function NotificationSystem() {
           onClick={() => setShowPanel(false)}
         />
       )}
+
+      {/* Audio element for notification sound */}
+      <audio ref={audioRef} src={openSound} preload="auto" />
     </>
   )
 }

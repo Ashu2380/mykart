@@ -1,0 +1,51 @@
+Hello From Server
+DB connected
+ReferenceError: mongoose is not defined
+    at getProductReviews (file:///home/asharam-saini/Downloads/ashu%20(2)/E-commerce/backend/controller/reviewController.js:96:40)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+ReferenceError: mongoose is not defined
+    at getProductReviews (file:///home/asharam-saini/Downloads/ashu%20(2)/E-commerce/backend/controller/reviewController.js:96:40)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+ReferenceError: mongoose is not defined
+    at getProductReviews (file:///home/asharam-saini/Downloads/ashu%20(2)/E-commerce/backend/controller/reviewController.js:96:40)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+ReferenceError: mongoose is not defined
+    at getProductReviews (file:///home/asharam-saini/Downloads/ashu%20(2)/E-commerce/backend/controller/reviewController.js:96:40)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+adminAuth error
+isAuth error: invalid signature
+isAuth error: invalid signature
+isAuth error: invalid signature
+Google login request received: { name: 'Asharam Saini', email: 'asharamsaini2380@gmail.com' }
+Checking if user exists for email: asharamsaini2380@gmail.com
+Existing user found: new ObjectId('699dce7104e2f44a52d0a155')
+Generating token for user: new ObjectId('699dce7104e2f44a52d0a155')
+Token generated successfully
+Cookie set, sending response
+adminAuth error
+Price drop detected for product 699e9db4171af17b2102f48e: ₹69 -> ₹5
+Found 1 users with price alerts for this product
+Checking user 699dce7104e2f44a52d0a155: targetPrice=10, lastNotifiedPrice=69, shouldNotify=true
+Creating price drop notification for user 699dce7104e2f44a52d0a155
+Price drop notifications sent: 1
+Price drop detected for product 699df4703f13a18973867771: ₹98 -> ₹8
+Found 1 users with price alerts for this product
+Checking user 699dce7104e2f44a52d0a155: targetPrice=10, lastNotifiedPrice=98, shouldNotify=true
+Creating price drop notification for user 699dce7104e2f44a52d0a155
+Price drop notifications sent: 1
+Price drop detected for product 699e9156763acd78df3bc9a6: ₹99 -> ₹4
+Found 1 users with price alerts for this product
+Checking user 699dce7104e2f44a52d0a155: targetPrice=19, lastNotifiedPrice=99, shouldNotify=true
+Creating price drop notification for user 699dce7104e2f44a52d0a155
+Price drop notifications sent: 1
+isAuth error: invalid signature
+isAuth error: invalid signature
+Google login request received: { name: 'Asharam Saini', email: 'asharamsaini2380@gmail.com' }
+Checking if user exists for email: asharamsaini2380@gmail.com
+Existing user found: new ObjectId('699dce7104e2f44a52d0a155')
+Generating token for user: new ObjectId('699dce7104e2f44a52d0a155')
+Token generated successfully
+Cookie set, sending response
+ReferenceError: mongoose is not defined
+    at getProductReviews (file:///home/asharam-saini/Downloads/ashu%20(2)/E-commerce/backend/controller/reviewController.js:96:40)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)

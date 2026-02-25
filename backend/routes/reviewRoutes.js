@@ -23,6 +23,7 @@ reviewRouter.post('/user', isAuth, getUserReviews);
 
 // Admin routes
 reviewRouter.get('/all', adminAuth, getAllReviews);
+reviewRouter.get('/count', adminAuth, getAllReviews); // Add count endpoint
 reviewRouter.post('/status', adminAuth, updateReviewStatus);
 reviewRouter.post('/delete', adminAuth, deleteReview);
 

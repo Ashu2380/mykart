@@ -237,58 +237,60 @@ function Lists() {
   }
 
   return (
-    <div className='w-[100vw] min-h-[100vh] bg-gradient-to-br from-slate-900 via-blue-950 to-teal-900 text-[white] overflow-x-hidden relative'>
+    <div className='w-full min-h-[100vh] bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 text-[black] overflow-x-hidden relative'>
       <Nav />
       <Sidebar />
       <div className='w-[82%] h-[100%] flex items-center justify-start overflow-x-hidden absolute right-0 bottom-[5%]'>
-        <div className='w-[100%] md:w-[90%] h-[100%] mt-[70px] flex flex-col gap-[30px] py-[90px] px-[30px] md:px-[60px]'>
-          <div className='w-[400px] h-[50px] text-[28px] md:text-[40px] mb-[20px] text-white'>All Listed Products</div>
+        <div className='w-[100%] md:w-[90%] h-[calc(100vh-100px)] mt-[70px] flex flex-col gap-[20px] md:gap-[30px] py-[20px] md:py-[90px] px-[20px] md:px-[60px] overflow-y-auto'>
+          <div className='w-full md:w-auto text-[24px] md:text-[40px] mb-[20px] text-gray-800 font-bold animate-fade-in'>All Listed Products</div>
 
 
           {
             list?.length > 0 ? (
               list.map((item,index)=>(
-                <div className='w-[90%] md:h-[120px] h-auto min-h-[90px] bg-slate-600 rounded-xl flex items-center justify-start gap-[5px] md:gap-[30px] p-[10px] md:px-[30px]' key={index}>
-                  <img src={item.image1} className='w-[30%] md:w-[120px] h-[90%] rounded-lg' alt="" />
-                  <div className='w-[90%] h-[80%] flex flex-col items-start justify-center gap-[2px]'>
+                <div className='w-full md:w-[90%] h-auto min-h-[120px] bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-300 flex flex-col md:flex-row items-center justify-start gap-[10px] md:gap-[30px] p-[15px] md:px-[30px] overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl group animate-fade-in-up' key={index} style={{animationDelay: `${index * 0.05}s`}}>
+                  <img src={item.image1} className='w-[80px] md:w-[120px] h-[80px] md:h-[110px] rounded-xl shadow-md group-hover:scale-105 transition-transform duration-300 object-cover' alt="" />
+                  <div className='flex-1 flex flex-col items-start justify-center gap-[5px]'>
 
-                    <div className='w-[100%] md:text-[20px] text-[15px] text-[#bef0f3]'>{item.name}</div>
-                       <div className='md:text-[17px] text-[15px] text-[#bef3da]'>{item.category}</div>
-                    <div className='md:text-[17px] text-[15px] text-[#bef3da]'>
+                    <div className='w-full md:text-[22px] text-[18px] text-gray-800 font-bold group-hover:text-gray-900 transition-colors duration-300 truncate'>{item.name}</div>
+                       <div className='md:text-[18px] text-[16px] text-blue-600 font-medium'>{item.category}</div>
+                    <div className='md:text-[18px] text-[16px] text-gray-700 font-semibold truncate'>
                       ₹{item.price}
                       {item.discount > 0 && (
-                        <span className='ml-2 text-green-400'>
+                        <span className='ml-3 text-green-600 font-bold'>
                           → ₹{Math.round(item.price * (1 - item.discount / 100))}
-                          <span className='text-xs text-yellow-400 ml-1'>({item.discount}% off)</span>
+                          <span className='text-sm text-orange-500 ml-2 font-medium'>({item.discount}% off)</span>
                         </span>
                       )}
                     </div>
 
                   </div>
-                  <div className='w-[15%] h-[100%] bg-transparent flex items-center justify-center gap-2'>
+                  <div className='w-full md:w-[60%] h-[100%] bg-transparent flex items-center justify-center md:justify-start gap-2 md:gap-3 mt-3 md:mt-0'>
                     <button
-                      className='w-[35px] h-[30%] flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 text-white cursor-pointer'
+                      className='w-[45px] h-[45px] flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white cursor-pointer shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300'
                       onClick={() => openEditModal(item)}
                       title="Edit Product"
                     >
-                      <FaEdit className='text-sm' />
+                      <FaEdit className='text-lg' />
                     </button>
                     <button
-                      className='w-[35px] h-[30%] flex items-center justify-center rounded-md md:hover:bg-red-300 md:hover:text-black cursor-pointer'
+                      className='w-[45px] h-[45px] flex items-center justify-center rounded-xl bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white cursor-pointer shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300'
                       onClick={() => removeList(item._id)}
                       title="Delete Product"
                     >
-                      <FaTrash className='text-sm' />
+                      <FaTrash className='text-lg' />
                     </button>
                   </div>
                  
 
                 </div>
               ))
-            )
-
-            : (
-              <div className='text-white text-lg'>No products available.</div>
+            ) : (
+              <div className='text-center py-12 animate-fade-in'>
+                <div className='text-6xl text-gray-400 mb-4 animate-pulse'>📦</div>
+                <p className='text-gray-800 text-xl mb-4 font-semibold'>No products available</p>
+                <p className='text-gray-500'>Products will appear here once you add them.</p>
+              </div>
             )
           }
         </div>
@@ -298,8 +300,8 @@ function Lists() {
       {/* Edit Product Modal */}
       {showEditModal && editingProduct && (
         <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>
-          <div className='bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto'>
-            <div className='p-6'>
+          <div className='bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg max-w-full md:max-w-4xl w-full max-h-[90vh] overflow-y-auto p-4 md:p-6'>
+            <div className='p-4 md:p-6'>
               <div className='flex items-center justify-between mb-6'>
                 <h2 className='text-2xl font-bold text-white'>Edit Product</h2>
                 <button
@@ -310,9 +312,9 @@ function Lists() {
                 </button>
               </div>
 
-              <form onSubmit={updateProduct} className='space-y-6'>
+              <form onSubmit={updateProduct} className='space-y-4 md:space-y-6'>
                 {/* Basic Information */}
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6'>
                   <div>
                     <label className='block text-white mb-2'>Product Name</label>
                     <input
@@ -474,7 +476,7 @@ function Lists() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className='flex gap-4 pt-4'>
+                <div className='flex flex-col md:flex-row gap-3 md:pt-4'>
                   <button
                     type='submit'
                     disabled={loading}

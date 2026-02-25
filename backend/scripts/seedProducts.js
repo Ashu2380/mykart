@@ -182,7 +182,6 @@ async function run() {
 
     const result = await Product.insertMany(products, { ordered: false });
     console.log(`Inserted ${result.length} products.`);
-    {
   } catch (err) {
     console.error('Seeding error:', err);
   } finally {
@@ -191,7 +190,4 @@ async function run() {
   }
 }
 
-run();
 
-
-    },

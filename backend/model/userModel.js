@@ -265,7 +265,19 @@ const userSchema = new mongoose.Schema({
             type: String,
             required: true
         }
-    }]
+    }],
+    // Login tracking
+    lastLogin: {
+        type: Date
+    },
+    loginCount: {
+        type: Number,
+        default: 0
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    }
 },{timestamps:true , minimize:false})
 
 const User = mongoose.model("User",userSchema)

@@ -1,7 +1,0 @@
-- [x] Edit Sidebar.jsx to hide on small screens (add 'hidden md:block')
-- [x] Edit Orders.jsx to adjust margins and widths for responsiveness
-- [x] Edit Users.jsx to adjust margins and widths for responsiveness
-- [x] Edit Lists.jsx to adjust margins and widths for responsiveness
-- [x] Fix content positioning to start below nav bar (top-[70px] and h-[calc(100vh-70px)])
-- [x] Adjust sidebar positioning to start below nav bar (top-[70px] and h-[calc(100vh-70px)])
-- [x] Update all admin pages to match Add.jsx layout structure

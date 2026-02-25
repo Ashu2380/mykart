@@ -93,7 +93,7 @@ const getProductReviews = async (req, res) => {
 
         // Get rating distribution
         const ratingStats = await Review.aggregate([
-            { $match: { productId: require('mongoose').Types.ObjectId(productId), status: 'approved' } },
+            { $match: { productId: new mongoose.Types.ObjectId(productId), status: 'approved' } },
             {
                 $group: {
                     _id: '$rating',
@@ -242,6 +242,14 @@ const getAllReviews = async (req, res) => {
             .skip((page - 1) * limit);
 
         const totalReviews = await Review.countDocuments(filter);
+
+        // If this is a count request, return just the count
+        if (req.route.path === '/count') {
+            return res.json({
+                success: true,
+                total: totalReviews
+            });
+        }
 
         res.json({
             success: true,

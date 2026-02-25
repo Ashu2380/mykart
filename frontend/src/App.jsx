@@ -21,7 +21,6 @@ import DeviceSupport from './pages/DeviceSupport'
 import EmiCalculator from './pages/EmiCalculator'
 import ChatSupport from './pages/ChatSupport'
 import QRPayment from './pages/QRPayment'
-import VisualSearchPage from './pages/VisualSearchPage'
 import Wishlist from './component/Wishlist'
 import ReferralDashboard from './component/ReferralDashboard'
 import { ToastContainer } from 'react-toastify';
@@ -93,9 +92,6 @@ let location = useLocation()
 
         <Route path='/emi-calculator'
         element={userData ? <EmiCalculator/> : <Navigate to="/login" state={{from: location.pathname}} /> }/>
-
-        <Route path='/visual-search'
-        element={userData ? <VisualSearchPage/> : <Navigate to="/login" state={{from: location.pathname}} /> }/>
 
         <Route path='/wishlist'
         element={userData ? <Wishlist/> : <Navigate to="/login" state={{from: location.pathname}} /> }/>

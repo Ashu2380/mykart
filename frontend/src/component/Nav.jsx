@@ -50,18 +50,15 @@ function Nav() {
                 placeholder='Search products...'
                 onChange={(e)=>{
                     setSearch(e.target.value);
-                    // setShowSearch(true);
-                    if(e.target.value === '') {
-                        // setShowSearch(false);
+                    if(e.target.value.length > 0) {
+                        navigate('/collection');
                     }
                 }}
                 value={search}
                 onFocus={() => {
-                    if(search) // setShowSearch(true);
                     navigate('/collection');
                 }}
                 onClick={() => {
-                    if(search) // setShowSearch(true);
                     navigate('/collection');
                 }}
             />
@@ -74,7 +71,6 @@ function Nav() {
             <button className='text-[14px] hover:underline' onClick={()=>navigate("/contact")}>Contact</button>
             <button className='text-[14px] hover:underline' onClick={()=>navigate("/customer-support")}>Customer Support</button>
             <button className='text-[14px] hover:underline' onClick={()=>navigate("/emi-calculator")}>EMI Calculator</button>
-            <button className='text-[14px] hover:underline' onClick={()=>navigate("/visual-search")}>Visual Search</button>
             <div className='relative group'>
                 <button className='text-[14px] flex items-center gap-1 hover:underline' onClick={()=>setShowMore(prev=>!prev)}>More <FaChevronDown /></button>
                 <div className={`absolute w-[180px] bg-white text-black top-[30px] right-0 border rounded-md shadow-lg z-20 max-h-[200px] overflow-y-auto transition-all duration-300 ${showMore || 'group-hover:block'} ${showMore ? 'opacity-100 visible' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'}`}>

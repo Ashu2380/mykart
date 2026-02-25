@@ -15,7 +15,7 @@ function App() {
   console.log("App component rendering, adminData:", adminData)
   return (
 
-    <>
+    <div className="bg-gray-50 min-h-screen">
       <ToastContainer />
     {!adminData ? (
       <>
@@ -37,7 +37,7 @@ function App() {
       </>
       )
       }
-    </>
+    </div>
   )
 }
 
