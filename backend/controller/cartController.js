@@ -3,7 +3,7 @@ import User from "../model/userModel.js";
 
 export const addToCart = async (req,res) => {
     try {
-    const {itemId, size } = req.body;
+    const {itemId, size, quantity = 1 } = req.body;
 
     const userData = await User.findById(req.userId);
 
@@ -17,13 +17,13 @@ export const addToCart = async (req,res) => {
 
     if (cartData[itemId]) {
       if (cartData[itemId][size]) {
-        cartData[itemId][size] += 1;
+        cartData[itemId][size] += quantity;
       } else {
-        cartData[itemId][size] = 1;
+        cartData[itemId][size] = quantity;
       }
     } else {
       cartData[itemId] = {};
-      cartData[itemId][size] = 1;
+      cartData[itemId][size] = quantity;
     }
 
     await User.findByIdAndUpdate(req.userId, { cartData });

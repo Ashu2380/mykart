@@ -12,6 +12,8 @@ import orderRoutes from './routes/orderRoutes.js'
 import wishlistRoutes from './routes/wishlistRoutes.js'
 import referralRoutes from './routes/referralRoutes.js'
 import reviewRoutes from './routes/reviewRoutes.js'
+import couponRoutes from './routes/couponRoutes.js'
+import categoryRoutes from './routes/categoryRoutes.js'
 
 let port = process.env.PORT || 8000
 
@@ -39,6 +41,8 @@ app.use("/api/order",orderRoutes)
 app.use("/api/wishlist",wishlistRoutes)
 app.use("/api/referral",referralRoutes)
 app.use("/api/review",reviewRoutes)
+app.use("/api/coupon",couponRoutes)
+app.use("/api/category",categoryRoutes)
 
 
 

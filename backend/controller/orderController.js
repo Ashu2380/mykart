@@ -11,6 +11,111 @@ const razorpayInstance = new razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET
 })
 
+// Generate Invoice for an order
+export const generateInvoice = async (req, res) => {
+    try {
+        const { orderId, itemId } = req.body;
+        const userId = req.userId;
+        
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        
+        // Verify the order belongs to the user
+        if (order.userId.toString() !== userId) {
+            return res.status(403).json({ message: 'Unauthorized access' });
+        }
+        
+        const user = await User.findById(userId);
+        
+        // Generate invoice number
+        const invoiceNumber = `INV-${order._id.toString().slice(-8).toUpperCase()}-${Date.now().toString().slice(-4)}`;
+        
+        // Filter items - if itemId provided, show only that item
+        let items = order.items;
+        if (itemId) {
+            // Try to find item by index first (since items may not have _id)
+            const itemIndex = parseInt(itemId);
+            if (!isNaN(itemIndex) && order.items[itemIndex]) {
+                items = [order.items[itemIndex]];
+            } else {
+                // Try matching by _id
+                items = order.items.filter(item => item._id && item._id.toString() === itemId);
+                if (items.length === 0) {
+                    // Try by productId
+                    items = order.items.filter(item => item.productId === itemId);
+                }
+            }
+        }
+        
+        // Calculate item totals
+        const itemsList = items.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            size: item.size || 'N/A',
+            total: item.price * item.quantity
+        }));
+        
+        // Calculate totals - No GST
+        const subtotal = itemsList.reduce((sum, item) => sum + item.total, 0);
+        const shipping = itemId ? 0 : (order.amount >= 499 ? 0 : 49);
+        const total = subtotal + shipping;
+        
+        const invoiceData = {
+            invoiceNumber,
+            invoiceDate: new Date().toISOString(),
+            orderId: order._id,
+            orderDate: order.date,
+            orderStatus: order.status,
+            
+            customer: {
+                name: user.name,
+                email: user.email,
+                phone: user.phone || 'N/A'
+            },
+            
+            shippingAddress: {
+                street: order.address.street,
+                city: order.address.city,
+                state: order.address.state,
+                pinCode: order.address.pinCode,
+                country: order.address.country || 'India'
+            },
+            
+            payment: {
+                method: order.paymentMethod,
+                status: order.payment ? 'Paid' : 'Pending',
+                transactionId: order.razorpayPaymentId || 'N/A'
+            },
+            
+            items: itemsList,
+            
+            summary: {
+                subtotal,
+                shipping: itemId ? 0 : shipping,
+                discount: 0,
+                total
+            },
+            
+            company: {
+                name: 'MyKart',
+                address: '123 E-commerce Street, Amar  Jaipur',
+                phone: '+91 9509564164',
+                email: 'support@mykart.com',
+                gstin: '27AABCU1234A1Z5'
+            }
+        };
+        
+        return res.status(200).json(invoiceData);
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Error generating invoice' });
+    }
+}
+
 // for User
 export const placeOrder = async (req,res) => {
 

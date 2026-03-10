@@ -1,5 +1,5 @@
 import express from 'express'
-import { addProduct, listProduct, removeProduct, updateProduct, getAIRecommendations, visualSearch, checkPriceDrops, getPersonalizedRecommendations } from '../controller/productController.js'
+import { addProduct, listProduct, removeProduct, updateProduct, getAIRecommendations, visualSearch, checkPriceDrops, getPersonalizedRecommendations, checkUserPriceAlerts } from '../controller/productController.js'
 import upload from '../middleware/multer.js'
 import adminAuth from "../middleware/adminAuth.js"
 import isAuth from "../middleware/isAuth.js"
@@ -25,5 +25,7 @@ productRoutes.put("/update/:id",adminAuth,upload.fields([
 
 productRoutes.post("/check-price-drops", adminAuth, checkPriceDrops)
 productRoutes.get("/personalized", isAuth, getPersonalizedRecommendations)
+// User-facing endpoint to check price drops on wishlist items
+productRoutes.get("/check-my-price-alerts", isAuth, checkUserPriceAlerts)
 
 export default productRoutes

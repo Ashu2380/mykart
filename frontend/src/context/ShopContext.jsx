@@ -39,7 +39,7 @@ function ShopContext({children}) {
 
 
 
-    const addtoCart = async (itemId , size) => {
+    const addtoCart = async (itemId , size, quantity = 1) => {
        // If no size provided and product has no sizes, fallback to 'One Size'
        let effectiveSize = size;
        if (!effectiveSize) {
@@ -57,13 +57,13 @@ function ShopContext({children}) {
 
     if (cartData[itemId]) {
       if (cartData[itemId][effectiveSize]) {
-        cartData[itemId][effectiveSize] += 1;
+        cartData[itemId][effectiveSize] += quantity;
       } else {
-        cartData[itemId][effectiveSize] = 1;
+        cartData[itemId][effectiveSize] = quantity;
       }
     } else {
       cartData[itemId] = {};
-      cartData[itemId][effectiveSize] = 1;
+      cartData[itemId][effectiveSize] = quantity;
     }
   
     setCartItem(cartData);
@@ -72,7 +72,7 @@ function ShopContext({children}) {
     if (userData) {
       setLoading(true)
       try {
-      let result = await axios.post(serverUrl + "/api/cart/add" , {itemId,size: effectiveSize} , {withCredentials: true})
+      let result = await axios.post(serverUrl + "/api/cart/add" , {itemId,size: effectiveSize, quantity} , {withCredentials: true})
       console.log(result.data)
       toast.success("Product Added")
       setLoading(false)

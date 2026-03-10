@@ -14,7 +14,10 @@ function Collections() {
     let [subCategory, setSubCategory] = useState([]);
     let [sortType, setSortType] = useState("relevant");
     let [searchParams] = useSearchParams();
-    // let location = useLocation();
+    // Price filter state
+    let [minPrice, setMinPrice] = useState("");
+    let [maxPrice, setMaxPrice] = useState("");
+    let [selectedPriceRange, setSelectedPriceRange] = useState("");
 
     // Handle URL category parameter and search parameter
     useEffect(() => {
@@ -37,6 +40,9 @@ function Collections() {
     const clearFilters = () => {
         setCategory([]);
         setSubCategory([]);
+        setMinPrice("");
+        setMaxPrice("");
+        setSelectedPriceRange("");
         window.history.pushState({}, '', '/collection');
     };
 
@@ -68,6 +74,30 @@ function Collections() {
         if (subCategory.length > 0) {
             productCopy = productCopy.filter(item => subCategory.includes(item.subCategory));
         }
+        // Apply price filter
+        if (minPrice || maxPrice) {
+            const min = minPrice ? parseFloat(minPrice) : 0;
+            const max = maxPrice ? parseFloat(maxPrice) : Infinity;
+            productCopy = productCopy.filter(item => {
+                const price = item.price || 0;
+                return price >= min && price <= max;
+            });
+        }
+        // Apply predefined price range
+        if (selectedPriceRange) {
+            const ranges = {
+                'under500': [0, 500],
+                '500to1000': [500, 1000],
+                '1000to2000': [1000, 2000],
+                '2000to5000': [2000, 5000],
+                'above5000': [5000, Infinity]
+            };
+            const [min, max] = ranges[selectedPriceRange] || [0, Infinity];
+            productCopy = productCopy.filter(item => {
+                const price = item.price || 0;
+                return price >= min && price <= max;
+            });
+        }
         setFilterProduct(productCopy);
     }
 
@@ -97,13 +127,13 @@ function Collections() {
 
     useEffect(() => {
         applyFilter();
-    }, [category, subCategory, search, showSearch]);
+    }, [category, subCategory, search, showSearch, minPrice, maxPrice, selectedPriceRange]);
 
 
 
     return (
         <div className='w-full min-h-[100vh] bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-start flex-col md:flex-row justify-start overflow-x-hidden z-[2] pb-[110px] pt-20 md:pt-16 lg:pt-20'>
-            <div className={`md:w-[25vw] lg:w-[18vw] w-[100vw] md:min-h-[100vh] ${showFilter ? "h-[50vh]" : "h-[8vh]"} p-4 md:p-5 lg:p-[20px] border-r-[1px] border-gray-300 text-gray-700 lg:fixed bg-white/90 backdrop-blur-sm shadow-lg`}>
+            <div className={`md:w-[25vw] lg:w-[18vw] w-[100vw] md:min-h-[100vh] ${showFilter ? "h-[70vh] md:h-auto md:max-h-[90vh]" : "h-[8vh]"} p-4 md:p-5 lg:p-[20px] border-r-[1px] border-gray-300 text-gray-700 lg:fixed bg-white/90 backdrop-blur-sm shadow-lg overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100`}>
                 <p className='text-[24px] font-bold flex gap-[8px] items-center justify-start cursor-pointer text-gray-800 hover:text-blue-600 transition-colors duration-300' onClick={() => setShowFilter(prev => !prev)}>
                     FILTERS
                     {!showFilter && <FaChevronRight className='text-[16px] md:hidden' />}
@@ -113,7 +143,7 @@ function Collections() {
                 <div className={`border-[2px] border-gray-200 pl-6 py-4 mt-6 rounded-xl bg-white/80 backdrop-blur-md shadow-sm ${showFilter ? "" : "hidden"} md:block transition-all duration-300`}>
                     <div className='flex justify-between items-center mb-4'>
                         <p className='text-[18px] font-semibold text-gray-800'>CATEGORIES</p>
-                        {(category.length > 0 || subCategory.length > 0) && (
+                        {(category.length > 0 || subCategory.length > 0 || minPrice || maxPrice || selectedPriceRange) && (
                             <button
                                 onClick={clearFilters}
                                 className='text-[12px] text-red-500 hover:text-red-400 underline font-medium transition-colors duration-200'
@@ -341,6 +371,86 @@ function Collections() {
                             <p className='text-[14px] text-gray-500 italic bg-gray-50 p-2 rounded'></p>
                         )}
                     </div>
+                </div>
+                
+                {/* Price Filter Section */}
+                <div className={`border-[2px] border-gray-200 pl-5 py-4 mt-6 rounded-xl bg-white/80 backdrop-blur-md shadow-sm ${showFilter ? "" : "hidden"} md:block transition-all duration-300`}>
+                    <p className='text-[17px] font-semibold text-gray-800 mb-3'>PRICE FILTER</p>
+                    
+                    {/* Quick Price Range Buttons */}
+                    <div className='flex flex-wrap gap-2 mb-4'>
+                        <button 
+                            onClick={() => {setSelectedPriceRange('under500'); setMinPrice(''); setMaxPrice('');}}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200 ${selectedPriceRange === 'under500' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600'}`}
+                        >
+                            Under ₹500
+                        </button>
+                        <button 
+                            onClick={() => {setSelectedPriceRange('500to1000'); setMinPrice(''); setMaxPrice('');}}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200 ${selectedPriceRange === '500to1000' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600'}`}
+                        >
+                            ₹500-₹1000
+                        </button>
+                        <button 
+                            onClick={() => {setSelectedPriceRange('1000to2000'); setMinPrice(''); setMaxPrice('');}}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200 ${selectedPriceRange === '1000to2000' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600'}`}
+                        >
+                            ₹1000-₹2000
+                        </button>
+                        <button 
+                            onClick={() => {setSelectedPriceRange('2000to5000'); setMinPrice(''); setMaxPrice('');}}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200 ${selectedPriceRange === '2000to5000' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600'}`}
+                        >
+                            ₹2000-₹5000
+                        </button>
+                        <button 
+                            onClick={() => {setSelectedPriceRange('above5000'); setMinPrice(''); setMaxPrice('');}}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200 ${selectedPriceRange === 'above5000' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600'}`}
+                        >
+                            Above ₹5000
+                        </button>
+                    </div>
+
+                    {/* Custom Price Range Input */}
+                    <div className='flex items-center gap-2 mb-3'>
+                        <div className='flex-1'>
+                            <label className='text-xs text-gray-500 mb-1 block'>Min Price</label>
+                            <input 
+                                type="number" 
+                                placeholder="₹0" 
+                                value={minPrice}
+                                onChange={(e) => {setMinPrice(e.target.value); setSelectedPriceRange('');}}
+                                className='w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                            />
+                        </div>
+                        <span className='text-gray-400 mt-4'>-</span>
+                        <div className='flex-1'>
+                            <label className='text-xs text-gray-500 mb-1 block'>Max Price</label>
+                            <input 
+                                type="number" 
+                                placeholder="₹10000" 
+                                value={maxPrice}
+                                onChange={(e) => {setMaxPrice(e.target.value); setSelectedPriceRange('');}}
+                                className='w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                            />
+                        </div>
+                    </div>
+                    
+                    {/* Show Active Filter */}
+                    {(selectedPriceRange || minPrice || maxPrice) && (
+                        <div className='mt-3 pt-3 border-t border-gray-200'>
+                            <p className='text-xs text-green-600 font-medium'>✓ Active Filter: {
+                                selectedPriceRange === 'under500' ? 'Under ₹500' :
+                                selectedPriceRange === '500to1000' ? '₹500 - ₹1000' :
+                                selectedPriceRange === '1000to2000' ? '₹1000 - ₹2000' :
+                                selectedPriceRange === '2000to5000' ? '₹2000 - ₹5000' :
+                                selectedPriceRange === 'above5000' ? 'Above ₹5000' :
+                                minPrice && maxPrice ? `₹${minPrice} - ₹${maxPrice}` :
+                                minPrice ? `₹${minPrice} and above` :
+                                maxPrice ? `Up to ₹${maxPrice}` : ''
+                            }</p>
+                        </div>
+                    )}
                 </div>
             </div>
             <div className='lg:ml-[18vw] md:py-[10px] w-full'>

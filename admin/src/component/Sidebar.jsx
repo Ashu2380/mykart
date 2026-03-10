@@ -3,6 +3,8 @@ import { IoIosAddCircleOutline } from "react-icons/io";
 import { FaRegListAlt, FaUsers, FaStar } from "react-icons/fa";
 import { SiTicktick } from "react-icons/si";
 import { MdDashboard } from "react-icons/md";
+import { FaTag } from "react-icons/fa";
+import { FaLayerGroup } from "react-icons/fa";
 import { useNavigate, useLocation } from 'react-router-dom';
 
 function Sidebar() {
@@ -15,6 +17,8 @@ function Sidebar() {
         { path: '/add', icon: IoIosAddCircleOutline, label: 'Add Items', color: 'green' },
         { path: '/lists', icon: FaRegListAlt, label: 'List Items', color: 'purple' },
         { path: '/orders', icon: SiTicktick, label: 'Orders', color: 'orange' },
+        { path: '/coupons', icon: FaTag, label: 'Coupons', color: 'emerald' },
+        { path: '/categories', icon: FaLayerGroup, label: 'Categories', color: 'violet' },
         { path: '/users', icon: FaUsers, label: 'Users', color: 'pink' },
         { path: '/reviews', icon: FaStar, label: 'Reviews', color: 'yellow' }
     ]
@@ -25,6 +29,8 @@ function Sidebar() {
             case 'green': return 'hover:bg-green-50 hover:border-green-300 hover:text-green-600'
             case 'purple': return 'hover:bg-purple-50 hover:border-purple-300 hover:text-purple-600'
             case 'orange': return 'hover:bg-orange-50 hover:border-orange-300 hover:text-orange-600'
+            case 'emerald': return 'hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600'
+            case 'violet': return 'hover:bg-violet-50 hover:border-violet-300 hover:text-violet-600'
             case 'pink': return 'hover:bg-pink-50 hover:border-pink-300 hover:text-pink-600'
             case 'yellow': return 'hover:bg-yellow-50 hover:border-yellow-300 hover:text-yellow-600'
             default: return 'hover:bg-gray-50 hover:border-gray-300 hover:text-gray-600'
@@ -37,6 +43,8 @@ function Sidebar() {
             case 'green': return 'bg-green-100 border-green-400 text-green-700 shadow-md'
             case 'purple': return 'bg-purple-100 border-purple-400 text-purple-700 shadow-md'
             case 'orange': return 'bg-orange-100 border-orange-400 text-orange-700 shadow-md'
+            case 'emerald': return 'bg-emerald-100 border-emerald-400 text-emerald-700 shadow-md'
+            case 'violet': return 'bg-violet-100 border-violet-400 text-violet-700 shadow-md'
             case 'pink': return 'bg-pink-100 border-pink-400 text-pink-700 shadow-md'
             case 'yellow': return 'bg-yellow-100 border-yellow-400 text-yellow-700 shadow-md'
             default: return 'bg-gray-100 border-gray-400 text-gray-700 shadow-md'

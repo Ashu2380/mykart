@@ -1,6 +1,7 @@
 import User from "../model/userModel.js"
 import Product from "../model/productModel.js"
 import Order from "../model/orderModel.js"
+import Notification from "../model/notificationModel.js"
 import bcrypt from "bcryptjs"
 
 
@@ -511,4 +512,31 @@ const getTimeAgo = (date) => {
     if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
     if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
     return `${Math.floor(diffInSeconds / 2592000)} months ago`;
+};
+
+// Create test notification - for testing only
+export const createTestNotification = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const { type, title, message } = req.body;
+        
+        const notification = new Notification({
+            userId,
+            type: type || 'price_alert',
+            title: title || 'Test Price Alert! 🎉',
+            message: message || 'This is a test notification to verify the system is working.',
+            priority: 'high'
+        });
+        
+        await notification.save();
+        
+        return res.status(201).json({
+            success: true,
+            message: 'Test notification created',
+            notification
+        });
+    } catch (error) {
+        console.log("Create test notification error", error);
+        return res.status(500).json({ success: false, message: `Error: ${error.message}` });
+    }
 };

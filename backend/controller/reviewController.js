@@ -2,6 +2,7 @@ import Review from '../model/reviewModel.js';
 import Product from '../model/productModel.js';
 import User from '../model/userModel.js';
 import Order from '../model/orderModel.js';
+import mongoose from 'mongoose';
 
 // Add a new review
 const addReview = async (req, res) => {

@@ -919,3 +919,82 @@ export const checkPriceDrops = async (req, res) => {
     }
 };
 
+// User-facing endpoint to check price drops on wishlist items
+export const checkUserPriceAlerts = async (req, res) => {
+    try {
+        const userId = req.userId;
+        
+        // Get user's wishlist with price alerts
+        const user = await User.findById(userId).populate('wishlist.productId');
+        
+        if (!user || !user.wishlist || user.wishlist.length === 0) {
+            return res.status(200).json({ 
+                success: true, 
+                message: 'No items in wishlist',
+                notificationsSent: 0 
+            });
+        }
+        
+        let notificationsSent = 0;
+        
+        for (const wishlistItem of user.wishlist) {
+            // Skip if price alert is not enabled
+            if (!wishlistItem.priceAlert || !wishlistItem.priceAlert.enabled) {
+                continue;
+            }
+            
+            const product = wishlistItem.productId;
+            if (!product) continue;
+            
+            const currentPrice = product.price;
+            const targetPrice = wishlistItem.priceAlert.targetPrice;
+            const lastNotifiedPrice = wishlistItem.priceAlert.lastNotifiedPrice;
+            
+            // Check if price dropped below target or lower than last notified
+            const shouldNotify = targetPrice && currentPrice <= targetPrice;
+            const priceChanged = lastNotifiedPrice && currentPrice < lastNotifiedPrice;
+            
+            if ((shouldNotify || priceChanged) && currentPrice !== lastNotifiedPrice) {
+                // Create notification
+                const notification = new Notification({
+                    userId: userId,
+                    type: 'price_alert',
+                    title: 'Price Drop Alert! 🎉',
+                    message: `${product.name} price is now ₹${currentPrice}! ${targetPrice ? `(Target: ₹${targetPrice})` : ''}`,
+                    productId: product._id,
+                    metadata: {
+                        oldPrice: lastNotifiedPrice || product.price,
+                        newPrice: currentPrice,
+                        targetPrice: targetPrice,
+                        discount: lastNotifiedPrice ? ((lastNotifiedPrice - currentPrice) / lastNotifiedPrice * 100).toFixed(1) : 0
+                    },
+                    priority: 'high'
+                });
+                
+                await notification.save();
+                
+                // Update last notified price
+                wishlistItem.priceAlert.lastNotifiedPrice = currentPrice;
+                
+                notificationsSent++;
+            }
+        }
+        
+        // Save user to update lastNotifiedPrice
+        await user.save();
+        
+        return res.status(200).json({
+            success: true,
+            message: `Price check completed. Notifications sent: ${notificationsSent}`,
+            notificationsSent
+        });
+        
+    } catch (error) {
+        console.log("Check user price alerts error", error);
+        return res.status(500).json({ 
+            success: false, 
+            message: `Error checking price alerts: ${error.message}` 
+        });
+    }
+};
+

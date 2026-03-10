@@ -14,7 +14,8 @@ import {
     getAnalytics,
     getNotifications,
     markNotificationAsRead,
-    deleteNotification
+    deleteNotification,
+    createTestNotification
 } from "../controller/userController.js"
 import adminAuth from "../middleware/adminAuth.js"
 
@@ -40,6 +41,8 @@ userRoutes.put("/addresses/:addressId/default", isAuth, setDefaultAddress)
 userRoutes.get("/notifications", isAuth, getNotifications)
 userRoutes.put("/notifications/:notificationId/read", isAuth, markNotificationAsRead)
 userRoutes.delete("/notifications/:notificationId", isAuth, deleteNotification)
+// Test notification route - for testing only
+userRoutes.post("/notifications/test", isAuth, createTestNotification)
 userRoutes.put("/addresses/:addressId/default", isAuth, setDefaultAddress)
 
 export default userRoutes
