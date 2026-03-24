@@ -14,6 +14,7 @@ import referralRoutes from './routes/referralRoutes.js'
 import reviewRoutes from './routes/reviewRoutes.js'
 import couponRoutes from './routes/couponRoutes.js'
 import categoryRoutes from './routes/categoryRoutes.js'
+import newsletterRoutes from './routes/newsletterRoutes.js'
 
 let port = process.env.PORT || 8000
 
@@ -22,7 +23,7 @@ let app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-  origin:["http://localhost:5173" , "http://localhost:5174", "http://localhost:5175", "http://localhost:5176", "http://localhost:5177", "http://localhost:5178"],
+  origin:["http://localhost:5173" , "http://localhost:5174", "http://localhost:5175", "http://localhost:5176", "http://localhost:5177", "http://localhost:5178","http://localhost:5179","http://localhost:5180"],
   credentials:true
 }))
 
@@ -43,6 +44,7 @@ app.use("/api/referral",referralRoutes)
 app.use("/api/review",reviewRoutes)
 app.use("/api/coupon",couponRoutes)
 app.use("/api/category",categoryRoutes)
+app.use("/api/newsletter",newsletterRoutes)
 
 
 

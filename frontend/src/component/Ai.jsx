@@ -61,7 +61,7 @@ function Ai() {
           transcript.toLowerCase().includes("hey ai") ||
           transcript.toLowerCase().includes("एआई") ||
           transcript.toLowerCase().includes("Himanshu") ||
-          transcript.toLowerCase().includes("alexa")) {
+          transcript.toLowerCase().includes("Bhawnesh")) {
         
         speak("Yes, I'm listening!")
         setActiveAi(true)
@@ -89,155 +89,146 @@ function Ai() {
   }, [activeAi])
 
   const processCommand = (transcript) => {
-    // ===================== HINDI COMMANDS =====================
-    
-    // Wishlist
+   // command into the hindi language 
     if(transcript.toLowerCase().includes("विशलिस्ट") || transcript.toLowerCase().includes("wishlist") || transcript.toLowerCase().includes("पसंद")){
-      speak("आपका विशलिस्ट खोल रहा हूं")
+      speak("Opening Wishlist")
       navigate("/wishlist")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Cart
     else if(transcript.toLowerCase().includes("कार्ट") || transcript.toLowerCase().includes("गाड़ी") || transcript.toLowerCase().includes("shopping cart")){
-      speak("आपका कार्ट खोल रहा हूं")
+      speak("Opening Cart Page")
       navigate("/cart")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Orders / My Orders
     else if(transcript.toLowerCase().includes("ऑर्डर") || transcript.toLowerCase().includes("आदेश") || transcript.toLowerCase().includes("my order") || transcript.toLowerCase().includes("orders")){
-      speak("आपके ऑर्डर खोल रहा हूं")
+      speak("Your Oder Page is opening")
       navigate("/order")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Account Settings
     else if(transcript.toLowerCase().includes("अकाउंट") || transcript.toLowerCase().includes("account") || transcript.toLowerCase().includes("प्रोफाइल")){
-      speak("अकाउंट सेटिंग्स खोल रहा हूं")
+      speak("Your Account Setting is Opening")
       navigate("/account-settings")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Address / Manage Address
     else if(transcript.toLowerCase().includes("पता") || transcript.toLowerCase().includes("address") || transcript.toLowerCase().includes("पते")){
-      speak("पते खोल रहा हूं")
+      speak("Address section is opening")
       navigate("/addresses")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Payment Settings
-    else if(transcript.toLowerCase().includes("भुगतान") || transcript.toLowerCase().includes("payment") || transcript.toLowerCase().includes("pay")){
-      speak("भुगतान सेटिंग्स खोल रहा हूं")
+    else if(transcript.toLowerCase().includes("भुगतान") || transcript.toLowerCase().includes("payment setting") || transcript.toLowerCase().includes("pay")){
+      speak("Opening Payment Setting Page")
       navigate("/payment-settings")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Returns / Refund
     else if(transcript.toLowerCase().includes("रिटर्न") || transcript.toLowerCase().includes("वापस") || transcript.toLowerCase().includes("refund")){
-      speak("रिटर्न्स पेज खोल रहा हूं")
+      speak("opening returns page")
       navigate("/returns")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Contact / Support
     else if(transcript.toLowerCase().includes("संपर्क") || transcript.toLowerCase().includes("contact") || transcript.toLowerCase().includes("सपोर्ट")){
-      speak("संपर्क पेज खोल रहा हूं")
+      speak("opening contact page ")
       navigate("/contact")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Customer Support
     else if(transcript.toLowerCase().includes("ग्राहक सहायता") || transcript.toLowerCase().includes("customer support") || transcript.toLowerCase().includes("help")){
-      speak("ग्राहक सहायता खोल रहा हूं")
+      speak(" Customer -support page is opening")
       navigate("/customer-support")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Chat Support
     else if(transcript.toLowerCase().includes("चैट") || transcript.toLowerCase().includes("chat support") || transcript.toLowerCase().includes("live chat")){
-      speak("चैट सपोर्ट खोल रहा हूं")
+      speak("chat support is opening")
       navigate("/chat-support")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Device Support
     else if(transcript.toLowerCase().includes("डिवाइस") || transcript.toLowerCase().includes("device support") || transcript.toLowerCase().includes("gadget")){
-      speak("डिवाइस सपोर्ट खोल रहा हूं")
+      speak("Device support is opening")
       navigate("/device-support")
       setShowSearch(false)
       setActiveAi(false)
     }
     // EMI Calculator
     else if(transcript.toLowerCase().includes("ईएमआई") || transcript.toLowerCase().includes("emi") || transcript.toLowerCase().includes("कैलकुलेटर")){
-      speak("ईएमआई कैलकुलेटर खोल रहा हूं")
+      speak("Emi page is opening")
       navigate("/emi-calculator")
       setShowSearch(false)
       setActiveAi(false)
     }
-    // QR Payment
-    else if(transcript.toLowerCase().includes("क्यूआर") || transcript.toLowerCase().includes("qr payment") || transcript.toLowerCase().includes("scan")){
-      speak("क्यूआर पेमेंट खोल रहा हूं")
-      navigate("/qr-payment")
-      setShowSearch(false)
-      setActiveAi(false)
-    }
-    // Referrals
+  // referrals
     else if(transcript.toLowerCase().includes("रेफरल") || transcript.toLowerCase().includes("referral") || transcript.toLowerCase().includes("friends")){
-      speak("रेफरल पेज खोल रहा हूं")
+      speak("referal page is opening")
       navigate("/referrals")
       setShowSearch(false)
       setActiveAi(false)
     }
     // About
     else if(transcript.toLowerCase().includes("के बारे में") || transcript.toLowerCase().includes("about") || transcript.toLowerCase().includes("जानकारी")){
-      speak("के बारे में पेज खोल रहा हूं")
+      speak("yes sir About page is opening ")
       navigate("/about")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Home
     else if(transcript.toLowerCase().includes("होम") || transcript.toLowerCase().includes("home") || transcript.toLowerCase().includes("मुख्य पृष्ठ")){
-      speak("होम पेज खोल रहा हूं")
+      speak("Home page is opening")
       navigate("/")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Collection / Products
     else if(transcript.toLowerCase().includes("कलेक्शन") || transcript.toLowerCase().includes("collection") || transcript.toLowerCase().includes("प्रोडक्ट्स") || transcript.toLowerCase().includes("सामान") || transcript.toLowerCase().includes("shop")){
-      speak("कलेक्शन पेज खोल रहा हूं")
+      speak("open collection page")
       navigate("/collection")
       setShowSearch(false)
       setActiveAi(false)
     }
     // Search open
-    else if(transcript.toLowerCase().includes("खोज") && transcript.toLowerCase().includes("खोलो") && !showSearch){
-      speak("खोज खोल रहा हूं")
-      setShowSearch(true)
-      navigate("/collection")
-      setActiveAi(false)
-    }
+    // else if(transcript.toLowerCase().includes("खोज") && transcript.toLowerCase().includes("खोलो") && !showSearch){
+    //   speak("खोज खोल रहा हूं")
+    //   setShowSearch(true)
+    //   navigate("/collection")
+    //   setActiveAi(false)
+    // }
     // Search close
-    else if(transcript.toLowerCase().includes("खोज") && transcript.toLowerCase().includes("बंद") && showSearch){
-      speak("खोज बंद कर रहा हूं")
-      setShowSearch(false)
-      setActiveAi(false)
-    }
+    // else if(transcript.toLowerCase().includes("खोज") && transcript.toLowerCase().includes("बंद") && showSearch){
+    //   speak("खोज बंद कर रहा हूं")
+    //   setShowSearch(false)
+    //   setActiveAi(false)
+    // }
     // Personalized recommendations
-    else if(transcript.toLowerCase().includes("सिफारिश") || transcript.toLowerCase().includes("recommend") || transcript.toLowerCase().includes("सुझाव") || transcript.toLowerCase().includes("मेरे लिए") || transcript.toLowerCase().includes("personalized")){
-      speak("व्यक्तिगत सिफारिशें दिखा रहा हूं")
-      navigate("/collection")
-      setShowSearch(false)
-      setActiveAi(false)
-    }
+    // else if(transcript.toLowerCase().includes("सिफारिश") || transcript.toLowerCase().includes("recommend") || transcript.toLowerCase().includes("सुझाव") || transcript.toLowerCase().includes("मेरे लिए") || transcript.toLowerCase().includes("personalized")){
+    //   speak("व्यक्तिगत सिफारिशें दिखा रहा हूं")
+    //   navigate("/collection")
+    //   setShowSearch(false)
+    //   setActiveAi(false)
+    // }
     // Chat / AI Assistant
-    else if(transcript.toLowerCase().includes("चैट") || transcript.toLowerCase().includes("ai") || transcript.toLowerCase().includes("assistant") || transcript.toLowerCase().includes("बॉट")){
-      speak("एआई शॉपिंग असिस्टेंट खोल रहा हूं")
-      setActiveAi(false)
-    }
+    // else if(transcript.toLowerCase().includes("चैट") || transcript.toLowerCase().includes("ai") || transcript.toLowerCase().includes("assistant") || transcript.toLowerCase().includes("बॉट")){
+    //   speak("एआई शॉपिंग असिस्टेंट खोल रहा हूं")
+    //   setActiveAi(false)
+    // }
     // Place Order / Checkout
     else if(transcript.toLowerCase().includes("चेकआउट") || transcript.toLowerCase().includes("checkout") || transcript.toLowerCase().includes("खरीद")){
-      speak("चेकआउट पेज खोल रहा हूं")
+      speak("placeoder page is opening")
       navigate("/placeorder")
       setShowSearch(false)
       setActiveAi(false)
@@ -417,9 +408,9 @@ function Ai() {
   return (
     <div className='fixed bottom-4 right-4 z-30'>
       <div className='ai-container' onClick={handleAiClick}>
-        {/* <img src={ai} alt="" className={`w-[100px] cursor-pointer ${activeAi ? 'translate-x-[10%] translate-y-[-10%] scale-125 ' : 'translate-x-[0] translate-y-[0] scale-100'} transition-transform` } style={{
+        <img src={ai} alt="" className={`w-[100px] cursor-pointer ${activeAi ? 'translate-x-[10%] translate-y-[-10%] scale-125 ' : 'translate-x-[0] translate-y-[0] scale-100'} transition-transform` } style={{
           filter: ` ${activeAi?"drop-shadow(0px 0px 30px #00d2fc)":"drop-shadow(0px 0px 20px black)"}`
-        }}/> */}
+        }}/>
       </div>
       {/* Listening indicator */}
       <div className="absolute -top-2 -right-2">

@@ -101,7 +101,7 @@ export const generateInvoice = async (req, res) => {
             
             company: {
                 name: 'MyKart',
-                address: '123 E-commerce Street, Amar  Jaipur',
+                address: 'NaradPura Road Kunda Amar Jaipur ',
                 phone: '+91 9509564164',
                 email: 'support@mykart.com',
                 gstin: '27AABCU1234A1Z5'
@@ -161,7 +161,7 @@ export const placeOrder = async (req,res) => {
              const notification = new Notification({
                  userId: userId,
                  type: 'order_update',
-                 title: 'Order Placed Successfully! 🎉',
+                 title: 'Order Placed Successfully! ',
                  message: `Your order #${newOrder._id.toString().slice(-8)} has been placed successfully. Track your order for updates.`,
                  orderId: newOrder._id,
                  metadata: {
@@ -306,9 +306,9 @@ export const updateStatus = async (req,res) => {
      if (updatedOrder && updatedOrder.userId) {
          try {
              const statusMessages = {
-                 'Shipped': 'Your order has been shipped and is on its way! 🚚',
-                 'Out for Delivery': 'Your order is out for delivery. Please be available to receive it. 📦',
-                 'Delivered': 'Your order has been delivered successfully! Thank you for shopping with us. ✅',
+                 'Shipped': 'Your order has been shipped and is on its way! ',
+                 'Out for Delivery': 'Your order is out for delivery. Please be available to receive it. ',
+                 'Delivered': 'Your order has been delivered successfully! Thank you for shopping with us. ',
                  'Cancelled': 'Your order has been cancelled. If you have any questions, please contact support.',
                  'Processing': 'Your order is being processed and will be shipped soon.',
                  'Confirmed': 'Your order has been confirmed and is being prepared for shipment.'

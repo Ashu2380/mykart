@@ -3,7 +3,6 @@ import Backgound from '../component/Backgound'
 import Hero from '../component/Hero'
 import Product from './Product'
 import OurPolicy from '../component/OurPolicy'
-import NewLetterBox from '../component/NewLetterBox'
 import Footer from '../component/Footer'
 import '../styles-home.css'
 
@@ -42,7 +41,6 @@ function Home() {
     <div className='bg-blue-50'>
       <Product/>
       <OurPolicy/>
-      <NewLetterBox/>
       <Footer/>
     </div>
     </div>

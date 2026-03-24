@@ -167,13 +167,13 @@ function Add() {
     } else if (category === 'Beauty & Health') {
       return []
     } else if (category === 'Sports & Outdoors') {
-      return ['S', 'M', 'L', 'XL', 'XXL']
+      return []
     } else if (category === 'Books & Media') {
       return []
     } else if (category === 'Toys & Games') {
       return []
     }
-    return ['S', 'M', 'L', 'XL']
+    return []
   }
 
   const handleCategoryChange = (e) => {

@@ -5,7 +5,6 @@ import User from "../model/userModel.js"
 import BrowsingHistory from "../model/browsingHistoryModel.js"
 import Feedback from "../model/feedbackModel.js"
 import Order from "../model/orderModel.js"
-import Notification from "../model/notificationModel.js"
 
 // AI-powered product recommendation function
 const getProductRecommendations = (query, products) => {
@@ -147,26 +146,6 @@ export const getAIRecommendations = async (req, res) => {
             }).sort((a, b) => b.recommendationScore - a.recommendationScore);
         }
 
-        // Create smart notification for search activity
-        if (userId && recommendations.length > 0) {
-            try {
-                const notification = new Notification({
-                    userId: userId,
-                    type: 'recommendation',
-                    title: 'Smart Recommendations Available!',
-                    message: `Based on your search for "${query}", we found ${recommendations.length} products you might like.`,
-                    metadata: {
-                        searchQuery: query,
-                        recommendationsCount: recommendations.length,
-                        category: category || 'General'
-                    }
-                });
-                await notification.save();
-            } catch (notificationError) {
-                console.log("Notification creation error:", notificationError);
-                // Don't fail the main request if notification fails
-            }
-        }
 
         return res.status(200).json({
             success: true,
@@ -262,28 +241,6 @@ export const visualSearch = async (req, res) => {
             ...product.toObject(),
             relevanceScore: calculateRelevanceScore(product, uploadedImage, confidence)
         })).sort((a, b) => b.relevanceScore - a.relevanceScore);
-
-        // Create smart notification for visual search activity
-        if (req.userId && finalProducts.length > 0) {
-            try {
-                const notification = new Notification({
-                    userId: req.userId,
-                    type: 'recommendation',
-                    title: 'Visual Search Results!',
-                    message: `Found ${finalProducts.length} products similar to your uploaded image.`,
-                    metadata: {
-                        searchType: 'visual',
-                        resultsCount: finalProducts.length,
-                        imageUploaded: true,
-                        confidence: confidence
-                    }
-                });
-                await notification.save();
-            } catch (notificationError) {
-                console.log("Visual search notification error:", notificationError);
-                // Don't fail the main request if notification fails
-            }
-        }
 
         return res.status(200).json({
             success: true,
@@ -684,74 +641,6 @@ export const updateProduct = async (req,res) => {
 
         const product = await Product.findByIdAndUpdate(id, updateData, {new: true})
 
-        // Check for price drops and send notifications to users with price alerts
-        if (price && Number(price) < oldProduct.price) {
-            console.log(`Price drop detected for product ${id}: ₹${oldProduct.price} -> ₹${price}`);
-            
-            // Find all users who have this product in their wishlist with price alerts enabled
-            const usersWithAlerts = await User.find({
-                'wishlist.productId': new mongoose.Types.ObjectId(id),
-                'wishlist.priceAlert.enabled': true
-            });
-            
-            console.log(`Found ${usersWithAlerts.length} users with price alerts for this product`);
-            
-            if (usersWithAlerts.length === 0) {
-                console.log('No users found with price alerts. Checking user wishlists...');
-                // Debug: check what's in the wishlists
-                const allUsers = await User.find({}, 'wishlist');
-                for (const user of allUsers) {
-                    for (const item of user.wishlist) {
-                        if (item.productId.toString() === id) {
-                            console.log(`User ${user._id} has product in wishlist with priceAlert:`, item.priceAlert);
-                        }
-                    }
-                }
-            }
-
-            let notificationsSent = 0;
-
-            for (const user of usersWithAlerts) {
-                const wishlistItem = user.wishlist.find(item =>
-                    item.productId.toString() === id
-                );
-
-                // Check if we should send notification based on target price or any drop
-                const shouldNotify = !wishlistItem.priceAlert.targetPrice ||
-                                    Number(price) <= wishlistItem.priceAlert.targetPrice;
-                
-                console.log(`Checking user ${user._id}: targetPrice=${wishlistItem.priceAlert.targetPrice}, lastNotifiedPrice=${wishlistItem.priceAlert.lastNotifiedPrice}, shouldNotify=${shouldNotify}`);
-
-                if (shouldNotify && wishlistItem.priceAlert.lastNotifiedPrice !== Number(price)) {
-                    console.log(`Creating price drop notification for user ${user._id}`);
-                    // Create smart notification for price drop
-                    const notification = new Notification({
-                        userId: user._id,
-                        type: 'price_alert',
-                        title: 'Price Drop Alert! 🎉',
-                        message: `${product.name} price dropped from ₹${oldProduct.price} to ₹${price}!`,
-                        productId: id,
-                        metadata: {
-                            oldPrice: oldProduct.price,
-                            newPrice: Number(price),
-                            discount: ((oldProduct.price - Number(price)) / oldProduct.price * 100).toFixed(1),
-                            targetPrice: wishlistItem.priceAlert.targetPrice || null
-                        },
-                        priority: 'high'
-                    });
-
-                    await notification.save();
-
-                    // Update last notified price
-                    wishlistItem.priceAlert.lastNotifiedPrice = Number(price);
-                    await user.save();
-                    notificationsSent++;
-                }
-            }
-
-            console.log(`Price drop notifications sent: ${notificationsSent}`);
-        }
-
         return res.status(200).json(product)
 
     } catch (error) {
@@ -959,7 +848,7 @@ export const checkUserPriceAlerts = async (req, res) => {
                 const notification = new Notification({
                     userId: userId,
                     type: 'price_alert',
-                    title: 'Price Drop Alert! 🎉',
+                    title: 'Price Drop Alert! ',
                     message: `${product.name} price is now ₹${currentPrice}! ${targetPrice ? `(Target: ₹${targetPrice})` : ''}`,
                     productId: product._id,
                     metadata: {

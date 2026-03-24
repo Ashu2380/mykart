@@ -1,6 +1,5 @@
 import User from "../model/userModel.js";
 import Product from "../model/productModel.js";
-import Notification from "../model/notificationModel.js";
 
 // Add product to wishlist
 export const addToWishlist = async (req, res) => {
@@ -107,32 +106,6 @@ export const updateWishlistItem = async (req, res) => {
 
         await user.save();
 
-        // Check for price drops and send notifications
-        if (priceAlert && priceAlert.targetPrice) {
-            const product = await Product.findById(wishlistItem.productId);
-            if (product && product.price < priceAlert.targetPrice) {
-                // Create smart notification for price drop
-                const notification = new Notification({
-                    userId: userId,
-                    type: 'price_alert',
-                    title: 'Price Drop Alert! 🎉',
-                    message: `${product.name} is now ₹${product.price} - below your target price of ₹${priceAlert.targetPrice}!`,
-                    productId: wishlistItem.productId,
-                    metadata: {
-                        targetPrice: priceAlert.targetPrice,
-                        currentPrice: product.price,
-                        discount: ((priceAlert.targetPrice - product.price) / priceAlert.targetPrice * 100).toFixed(1)
-                    },
-                    priority: 'high'
-                });
-
-                await notification.save();
-
-                // Update last notified price
-                wishlistItem.priceAlert.lastNotifiedPrice = product.price;
-                await user.save();
-            }
-        }
 
         res.status(200).json({
             message: "Wishlist item updated",

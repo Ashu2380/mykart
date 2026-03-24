@@ -539,4 +539,33 @@ export const createTestNotification = async (req, res) => {
         console.log("Create test notification error", error);
         return res.status(500).json({ success: false, message: `Error: ${error.message}` });
     }
-};
+}
+
+export const submitContact = async (req, res) => {
+    try {
+        const { name, email, phone, subject, message } = req.body;
+        
+        if (!name || !email || !message) {
+            return res.status(400).json({ success: false, message: 'Name, email and message are required' });
+        }
+        
+        // In a real application, you would save this to a database
+        // and/or send an email notification
+        console.log('Contact Form Submission:', {
+            name,
+            email,
+            phone,
+            subject,
+            message,
+            submittedAt: new Date()
+        });
+        
+        return res.status(201).json({
+            success: true,
+            message: 'Thank you for contacting us! We have received your message and will get back to you soon.'
+        });
+    } catch (error) {
+        console.log("Contact form error", error);
+        return res.status(500).json({ success: false, message: `Error: ${error.message}` });
+    }
+}

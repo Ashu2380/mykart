@@ -15,7 +15,8 @@ import {
     getNotifications,
     markNotificationAsRead,
     deleteNotification,
-    createTestNotification
+    createTestNotification,
+    submitContact
 } from "../controller/userController.js"
 import adminAuth from "../middleware/adminAuth.js"
 
@@ -44,5 +45,8 @@ userRoutes.delete("/notifications/:notificationId", isAuth, deleteNotification)
 // Test notification route - for testing only
 userRoutes.post("/notifications/test", isAuth, createTestNotification)
 userRoutes.put("/addresses/:addressId/default", isAuth, setDefaultAddress)
+
+// Contact form route (public - no auth required)
+userRoutes.post("/contact", submitContact)
 
 export default userRoutes

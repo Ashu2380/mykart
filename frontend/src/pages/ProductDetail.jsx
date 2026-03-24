@@ -6,7 +6,7 @@ import RelatedProduct from '../component/RelatedProduct';
 import ProductReviews from '../component/ProductReviews';
 import Loading from '../component/Loading';
 import { FaVrCardboard, FaCamera, FaHeart, FaShare, FaShoppingCart } from 'react-icons/fa';
-import ARViewer from '../component/ARViewer';
+
 import { toast } from 'react-toastify';
 
 function ProductDetail() {
@@ -379,12 +379,6 @@ function ProductDetail() {
                         </>
                     )}
                 </div>
-                
-                {/* Stock Status */}
-                <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-sm ${stockStatus.bg}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${stockStatus.color.replace('text-', 'bg-')}`}></span>
-                    <span className={`font-medium ${stockStatus.color}`}>{stockStatus.text}</span>
-                </div>
             </div>
 
             {/* Delivery Info */}
@@ -449,26 +443,28 @@ function ProductDetail() {
             )}
 
             {/* Size Selection */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
-                <div className="flex items-center justify-between mb-2">
-                    <p className="font-semibold text-gray-900">Select Size</p>
+            {productData.sizes && productData.sizes.length > 0 && (
+                <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                        <p className="font-semibold text-gray-900">Select Size</p>
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                        {productData.sizes.map((item, index) => (
+                            <button 
+                                key={index} 
+                                className={`px-3 py-1.5 rounded border text-sm ${
+                                item === size 
+                                    ? 'border-blue-600 bg-blue-50 text-blue-600' 
+                                    : 'border-gray-300 bg-white text-gray-700'
+                                }`} 
+                                onClick={() => setSize(item)}
+                            >
+                                {item}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-                <div className="flex gap-2 flex-wrap">
-                    {(productData.sizes && productData.sizes.length > 0 ? productData.sizes : ['One Size']).map((item, index) => (
-                        <button 
-                            key={index} 
-                            className={`px-3 py-1.5 rounded border text-sm ${
-                            item === size 
-                                ? 'border-blue-600 bg-blue-50 text-blue-600' 
-                                : 'border-gray-300 bg-white text-gray-700'
-                            }`} 
-                            onClick={() => setSize(item)}
-                        >
-                            {item}
-                        </button>
-                    ))}
-                </div>
-            </div>
+            )}
 
             {/* Quantity & Actions */}
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -678,9 +674,7 @@ function ProductDetail() {
                                 <td className="p-3 font-medium text-gray-600">Availability</td>
                                 {compareList.map(item => (
                                     <td key={item._id} className="p-3 text-center">
-                                        <span className={item.stock > 0 ? 'text-green-600 font-medium' : 'text-red-500 font-medium'}>
-                                            {item.stock > 0 ? 'In Stock' : 'Out of Stock'}
-                                        </span>
+                                        <span className='text-green-600 font-medium'>In Stock</span>
                                     </td>
                                 ))}
                             </tr>

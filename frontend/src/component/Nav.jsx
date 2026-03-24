@@ -14,8 +14,7 @@
  import axios from 'axios';
  import { authDataContext } from '../context/authContext';
  import { shopDataContext } from '../context/ShopContext';
- import NotificationSystem from './NotificationSystem';
-function Nav() {
+ function Nav() {
     let {userData, setUserData} = useContext(userDataContext)
     let {serverUrl} = useContext(authDataContext)
     let {search,setSearch,getCartCount} = useContext(shopDataContext)
@@ -90,7 +89,6 @@ function Nav() {
             <div className='relative hidden md:block'>
                 <FaHeart className='w-[30px] h-[30px] cursor-pointer' onClick={()=>navigate("/wishlist")}/>
             </div>
-            <NotificationSystem />
         </div>
 
        {showProfile && <div className='absolute w-[220px] bg-white top-[110%] right-[4%] border-[1px] border-gray-300 rounded-[10px] z-50 shadow-lg'>
