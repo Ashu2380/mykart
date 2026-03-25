@@ -47,6 +47,15 @@ const orderSchema = new mongoose.Schema({
     date: {
         type: Number,
         required:true
+    },
+    cryptoTxHash: {
+        type: String,
+        default: null
+    },
+    cryptoNetwork: {
+        type: String,
+        enum: ['ethereum', 'cardano'],
+        default: null
     }
 },{timestamps:true}) 
 

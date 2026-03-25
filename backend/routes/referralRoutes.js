@@ -11,13 +11,13 @@ import adminAuth from '../middleware/adminAuth.js';
 
 const referralRouter = express.Router();
 
-// User routes
+//User routes
 referralRouter.post('/create-code', isAuth, createReferralCode);
 referralRouter.post('/stats', isAuth, getReferralStats);
 referralRouter.post('/validate-code', validateReferralCode);
 referralRouter.post('/rewards', isAuth, getReferralRewards);
 
-// Admin routes
+//Admin routes
 referralRouter.get('/all', adminAuth, getAllReferrals);
 
 export default referralRouter;
