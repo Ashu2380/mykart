@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
     name:{
         type:String,
-        required:true
+        required:false
     },
     email:{
         type:String,
@@ -25,6 +25,8 @@ const userSchema = new mongoose.Schema({
     alternateEmail:{
         type:String
     },
+
+    // ================= ADDRESS =================
     addresses:[{
         type:{
             type:String,
@@ -71,11 +73,13 @@ const userSchema = new mongoose.Schema({
             default:false
         }
     }],
+
     cartData:{
         type:Object,
         default:{}
     },
-    // AI Shopping Assistant enhancements
+
+    // ================= AI FEATURES =================
     browsingHistory: [{
         productId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -86,7 +90,7 @@ const userSchema = new mongoose.Schema({
             default: Date.now
         },
         timeSpent: {
-            type: Number, // in seconds
+            type: Number,
             default: 0
         },
         source: {
@@ -95,6 +99,7 @@ const userSchema = new mongoose.Schema({
             default: 'category'
         }
     }],
+
     purchaseHistory: [{
         productId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -116,6 +121,7 @@ const userSchema = new mongoose.Schema({
             type: String
         }
     }],
+
     userPreferences: {
         favoriteCategories: [{
             category: String,
@@ -127,14 +133,8 @@ const userSchema = new mongoose.Schema({
             }
         }],
         priceRange: {
-            min: {
-                type: Number,
-                default: 0
-            },
-            max: {
-                type: Number,
-                default: 10000
-            }
+            min: { type: Number, default: 0 },
+            max: { type: Number, default: 10000 }
         },
         preferredBrands: [String],
         dislikedProducts: [{
@@ -145,24 +145,14 @@ const userSchema = new mongoose.Schema({
             reason: String
         }]
     },
+
     aiSettings: {
-        enablePersonalizedRecommendations: {
-            type: Boolean,
-            default: true
-        },
-        enableVoiceFeatures: {
-            type: Boolean,
-            default: true
-        },
-        enableNotifications: {
-            type: Boolean,
-            default: true
-        },
-        dataCollectionConsent: {
-            type: Boolean,
-            default: false
-        }
+        enablePersonalizedRecommendations: { type: Boolean, default: true },
+        enableVoiceFeatures: { type: Boolean, default: true },
+        enableNotifications: { type: Boolean, default: true },
+        dataCollectionConsent: { type: Boolean, default: false }
     },
+
     wishlist: [{
         productId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -174,20 +164,12 @@ const userSchema = new mongoose.Schema({
             default: Date.now
         },
         priceAlert: {
-            enabled: {
-                type: Boolean,
-                default: true
-            },
-            targetPrice: {
-                type: Number,
-                default: null
-            },
-            lastNotifiedPrice: {
-                type: Number,
-                default: null
-            }
+            enabled: { type: Boolean, default: true },
+            targetPrice: { type: Number, default: null },
+            lastNotifiedPrice: { type: Number, default: null }
         }
     }],
+
     notifications: [{
         type: {
             type: String,
@@ -211,7 +193,8 @@ const userSchema = new mongoose.Schema({
             default: Date.now
         }
     }],
-    // Referral System
+
+    // ================= REFERRAL =================
     referralCode: {
         type: String,
         unique: true,
@@ -222,32 +205,18 @@ const userSchema = new mongoose.Schema({
         ref: 'User'
     },
     referralStats: {
-        totalReferrals: {
-            type: Number,
-            default: 0
-        },
-        successfulReferrals: {
-            type: Number,
-            default: 0
-        },
-        totalEarned: {
-            type: Number,
-            default: 0
-        },
-        pendingRewards: {
-            type: Number,
-            default: 0
-        }
+        totalReferrals: { type: Number, default: 0 },
+        successfulReferrals: { type: Number, default: 0 },
+        totalEarned: { type: Number, default: 0 },
+        pendingRewards: { type: Number, default: 0 }
     },
+
     referralRewards: [{
         referralId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Referral'
         },
-        amount: {
-            type: Number,
-            required: true
-        },
+        amount: { type: Number, required: true },
         type: {
             type: String,
             enum: ['signup_bonus', 'purchase_bonus', 'referral_earning'],
@@ -258,15 +227,11 @@ const userSchema = new mongoose.Schema({
             enum: ['pending', 'credited', 'expired'],
             default: 'pending'
         },
-        creditedAt: {
-            type: Date
-        },
-        description: {
-            type: String,
-            required: true
-        }
+        creditedAt: Date,
+        description: { type: String, required: true }
     }],
-    // Login tracking
+
+    // ================= LOGIN TRACKING =================
     lastLogin: {
         type: Date
     },
@@ -274,12 +239,87 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+
+    // ================= OTP SYSTEM =================
+    otp: {
+        type: String
+    },
+    otpExpiry: {
+        type: Date
+    },
     isVerified: {
         type: Boolean,
         default: false
-    }
-},{timestamps:true , minimize:false})
+    },
 
-const User = mongoose.model("User",userSchema)
+    // ================= PAYMENT METHODS =================
+    paymentMethods: [{
+        type: {
+            type: String,
+            enum: ['card', 'upi', 'netbanking', 'wallet'],
+            required: true
+        },
+        nickname: {
+            type: String,
+            default: ''
+        },
+        // Card specific
+        cardNumber: {
+            type: String,
+            default: ''
+        },
+        cardHolderName: {
+            type: String,
+            default: ''
+        },
+        expiryMonth: {
+            type: String,
+            default: ''
+        },
+        expiryYear: {
+            type: String,
+            default: ''
+        },
+        // UPI specific
+        upiId: {
+            type: String,
+            default: ''
+        },
+        // Netbanking specific
+        bankName: {
+            type: String,
+            default: ''
+        },
+        accountNumber: {
+            type: String,
+            default: ''
+        },
+        ifscCode: {
+            type: String,
+            default: ''
+        },
+        // Wallet specific
+        walletType: {
+            type: String,
+            enum: ['paytm', 'phonepe', 'googlepay', 'amazonpay', 'other', 'ethereum', 'cardano', 'bitcoin'],
+            default: 'paytm'
+        },
+        walletNumber: {
+            type: String,
+            default: ''
+        },
+        isDefault: {
+            type: Boolean,
+            default: false
+        },
+        addedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }]
 
-export default User
+},{ timestamps:true , minimize:false });
+
+const User = mongoose.model("User", userSchema);
+
+export default User;

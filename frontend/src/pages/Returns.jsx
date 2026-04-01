@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import Title from '../component/Title';
 
 function Returns() {
+  console.log('Returns component loaded');
   // const { userData } = useContext(userDataContext);
   const { serverUrl } = useContext(authDataContext);
   const [orders, setOrders] = useState([]);
@@ -24,15 +25,14 @@ function Returns() {
   }, []);
 
   const loadOrders = async () => {
+    console.log('Loading orders from API...');
     try {
       setLoading(true);
-      const response = await axios.get(`${serverUrl}/api/order/userorders`, { withCredentials: true });
-      // Filter orders that are eligible for return (delivered and within return window)
-      const eligibleOrders = response.data.orders?.filter(order =>
-        order.status === 'Delivered' &&
-        isWithinReturnWindow(order.date)
-      ) || [];
-      setOrders(eligibleOrders);
+      const response = await axios.post(`${serverUrl}/api/order/userorder`, {}, { withCredentials: true });
+      console.log('Orders response:', response.data);
+      // Show all orders for debugging - filter for eligible only in display
+      const allOrders = response.data || [];
+      setOrders(allOrders);
     } catch (error) {
       console.error('Error loading orders:', error);
       // toast.error('Failed to load orders'); // Removed error popup
@@ -42,44 +42,80 @@ function Returns() {
   };
 
   const loadReturns = async () => {
+    console.log('Loading returns from API...');
     try {
       const response = await axios.get(`${serverUrl}/api/returns/user`, { withCredentials: true });
-      setReturns(response.data.returns || []);
+      console.log('Returns response:', response);
+      console.log('Returns response.data:', response.data);
+      console.log('Returns response.data.returns:', response.data?.returns);
+      setReturns(response.data?.returns || []);
     } catch (error) {
       console.error('Error loading returns:', error);
+      if (error.response) {
+        console.error('Error response:', error.response);
+        console.error('Error response data:', error.response.data);
+      }
     }
+  };
+
+  // Helper to get order IDs that already have return requests
+  const getOrderIdsWithReturns = () => {
+    return returns.map(r => {
+      if (typeof r.orderId === 'string') return r.orderId;
+      if (r.orderId && r.orderId._id) return r.orderId._id;
+      return null;
+    }).filter(Boolean);
   };
 
   const isWithinReturnWindow = (orderDate) => {
     const orderTime = new Date(orderDate);
     const currentTime = new Date();
     const daysDiff = (currentTime - orderTime) / (1000 * 60 * 60 * 24);
-    return daysDiff <= 30; // 30 days return window
+    return daysDiff < 8; // Must be less than 8 days (0 to 7 days)
   };
 
   const getDaysLeft = (orderDate) => {
     const orderTime = new Date(orderDate);
     const currentTime = new Date();
     const daysDiff = (currentTime - orderTime) / (1000 * 60 * 60 * 24);
-    return Math.max(0, Math.ceil(30 - daysDiff));
+    return Math.max(0, Math.floor(8 - daysDiff));
   };
 
   const handleReturnRequest = async (e) => {
     e.preventDefault();
+    
+    console.log('=== SUBMITTING RETURN REQUEST ===');
+    console.log('Selected order:', selectedOrder);
+    console.log('Order _id:', selectedOrder?._id);
+    console.log('Order status:', selectedOrder?.status);
+    console.log('Order userId:', selectedOrder?.userId);
+    console.log('Reason:', returnReason);
+    console.log('Description:', returnDescription);
     
     if (!returnReason || !returnDescription) {
       toast.error('Please fill all required fields');
       return;
     }
 
+    if (selectedOrder?.status !== 'Delivered') {
+      console.log('Order status check failed:', selectedOrder?.status);
+      toast.error('Order is not eligible for return. Only delivered orders can be returned.');
+      return;
+    }
+
     try {
       setLoading(true);
-      await axios.post(`${serverUrl}/api/returns/request`, {
+      const requestData = {
         orderId: selectedOrder._id,
         reason: returnReason,
         description: returnDescription,
         items: selectedOrder.items
-      }, { withCredentials: true });
+      };
+      console.log('Request data:', requestData);
+      
+      const response = await axios.post(`${serverUrl}/api/returns/request`, requestData, { withCredentials: true });
+      console.log('Return request response:', response);
+      console.log('Return request response.data:', response.data);
       
       toast.success('Return request submitted successfully');
       setShowReturnForm(false);
@@ -90,7 +126,13 @@ function Returns() {
       loadOrders();
     } catch (error) {
       console.error('Error submitting return request:', error);
-      toast.error('Failed to submit return request');
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('Failed to submit return request');
+      }
     } finally {
       setLoading(false);
     }
@@ -129,6 +171,13 @@ function Returns() {
     }
   };
 
+  const getOrderId = (orderId) => {
+    if (!orderId) return 'N/A';
+    if (typeof orderId === 'string') return orderId;
+    if (orderId._id) return orderId._id;
+    return 'N/A';
+  };
+
   const filteredOrders = orders.filter(order =>
     order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     order.items.some(item => 
@@ -137,9 +186,16 @@ function Returns() {
   );
 
   const filteredReturns = returns.filter(returnItem =>
-    returnItem.orderId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    getOrderId(returnItem.orderId)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     returnItem.reason?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Filter out orders that already have a return request or are outside the return window
+  const eligibleOrders = filteredOrders.filter(order => {
+    const orderIdsWithReturns = getOrderIdsWithReturns();
+    const withinWindow = isWithinReturnWindow(order.date);
+    return !orderIdsWithReturns.includes(order._id) && withinWindow;
+  });
 
   return (
     <div className='w-full min-h-screen bg-blue-50 pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
@@ -163,7 +219,7 @@ function Returns() {
         {/* Tabs */}
         <div className='flex flex-wrap gap-2 mb-6'>
           {[
-            { key: 'eligible', label: 'Eligible for Return', count: filteredOrders.length },
+            { key: 'eligible', label: 'My Orders', count: eligibleOrders.length },
             { key: 'requested', label: 'Return Requests', count: filteredReturns.filter(r => ['Requested', 'Approved', 'Picked Up'].includes(r.status)).length },
             { key: 'completed', label: 'Completed Returns', count: filteredReturns.filter(r => ['Completed', 'Rejected'].includes(r.status)).length }
           ].map(tab => (
@@ -187,34 +243,46 @@ function Returns() {
             <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6'>
               <h3 className='text-blue-800 font-semibold mb-2'>Return Policy</h3>
               <ul className='text-blue-700 text-sm space-y-1'>
-                <li>• Returns accepted within 30 days of delivery</li>
+                <li>• Returns accepted within 8 days of delivery</li>
                 <li>• Items must be in original condition with tags</li>
                 <li>• Free return pickup for eligible items</li>
                 <li>• Refund processed within 7-10 business days</li>
               </ul>
             </div>
 
-            {filteredOrders.map((order) => (
+            {eligibleOrders.map((order) => (
               <div key={order._id} className='bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-gray-200 shadow-sm'>
                 <div className='flex flex-col md:flex-row md:items-center justify-between mb-4'>
                   <div>
                     <h3 className='text-gray-800 font-semibold'>Order #{order._id}</h3>
                     <p className='text-gray-600 text-sm'>
-                      Delivered on {new Date(order.date).toLocaleDateString()}
+                      Status: <span className={`font-semibold ${order.status === 'Delivered' ? 'text-green-600' : 'text-orange-600'}`}>{order.status}</span>
                     </p>
-                    <p className='text-orange-600 text-sm'>
-                      {getDaysLeft(order.date)} days left to return
+                    <p className='text-gray-600 text-sm'>
+                      Ordered on: {new Date(order.date).toLocaleDateString()}
                     </p>
+                    {order.status === 'Delivered' && (
+                      <p className='text-orange-600 text-sm'>
+                        {getDaysLeft(order.date)} days left to return
+                      </p>
+                    )}
                   </div>
-                  <button
-                    onClick={() => {
-                      setSelectedOrder(order);
-                      setShowReturnForm(true);
-                    }}
-                    className='bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 mt-4 md:mt-0'
-                  >
-                    Request Return
-                  </button>
+                  {order.status === 'Delivered' && (
+                    <button
+                      onClick={() => {
+                        setSelectedOrder(order);
+                        setShowReturnForm(true);
+                      }}
+                      className='bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 mt-4 md:mt-0'
+                    >
+                      Request Return
+                    </button>
+                  )}
+                  {order.status !== 'Delivered' && (
+                    <span className='text-gray-500 text-sm mt-4 md:mt-0'>
+                      Return available after delivery
+                    </span>
+                  )}
                 </div>
 
                 <div className='space-y-3'>
@@ -237,11 +305,11 @@ function Returns() {
               </div>
             ))}
 
-            {filteredOrders.length === 0 && (
+            {eligibleOrders.length === 0 && (
               <div className='text-center py-12'>
                 <FaBox className='text-6xl text-gray-500 mx-auto mb-4' />
-                <p className='text-gray-800 text-xl mb-4'>No orders eligible for return</p>
-                <p className='text-gray-600'>Orders are eligible for return within 30 days of delivery</p>
+                <p className='text-gray-800 text-xl mb-4'>No eligible orders to show</p>
+                <p className='text-gray-600'>You have no orders eligible for return or you've already requested returns for all your orders.</p>
               </div>
             )}
           </div>
@@ -255,7 +323,7 @@ function Returns() {
                 <div className='flex flex-col md:flex-row md:items-center justify-between mb-4'>
                   <div>
                     <h3 className='text-gray-800 font-semibold'>Return Request #{returnItem._id}</h3>
-                    <p className='text-gray-600 text-sm'>Order: {returnItem.orderId}</p>
+                    <p className='text-gray-600 text-sm'>Order: {getOrderId(returnItem.orderId)}</p>
                     <p className={`text-sm font-semibold ${getStatusColor(returnItem.status)}`}>
                       Status: {returnItem.status}
                     </p>
@@ -300,7 +368,7 @@ function Returns() {
                 <div className='flex flex-col md:flex-row md:items-center justify-between mb-4'>
                   <div>
                     <h3 className='text-gray-800 font-semibold'>Return #{returnItem._id}</h3>
-                    <p className='text-gray-600 text-sm'>Order: {returnItem.orderId}</p>
+                    <p className='text-gray-600 text-sm'>Order: {getOrderId(returnItem.orderId)}</p>
                     <p className={`text-sm font-semibold ${getStatusColor(returnItem.status)}`}>
                       Status: {returnItem.status}
                     </p>

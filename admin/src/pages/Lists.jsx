@@ -65,7 +65,9 @@ function Lists() {
     subCategory: '',
     sizes: '',
     bestseller: false,
-    discount: 0
+    discount: 0,
+    ram: '',
+    rom: ''
   })
 
   let [imageFiles, setImageFiles] = useState({
@@ -128,7 +130,9 @@ function Lists() {
       subCategory: product.subCategory,
       sizes: sizeOptions.length > 0 ? JSON.stringify(product.sizes) : JSON.stringify([]),
       bestseller: product.bestseller,
-      discount: product.discount || 0
+      discount: product.discount || 0,
+      ram: product.ram || '',
+      rom: product.rom || ''
     })
     setImageFiles({
       image1: null,
@@ -150,7 +154,9 @@ function Lists() {
       subCategory: '',
       sizes: JSON.stringify([]),
       bestseller: false,
-      discount: 0
+      discount: 0,
+      ram: '',
+      rom: ''
     })
     setImageFiles({
       image1: null,
@@ -200,6 +206,8 @@ function Lists() {
       formData.append('sizes', editFormData.sizes)
       formData.append('bestseller', editFormData.bestseller)
       formData.append('discount', editFormData.discount)
+      formData.append('ram', editFormData.ram || '')
+      formData.append('rom', editFormData.rom || '')
 
       if (imageFiles.image1) formData.append('image1', imageFiles.image1)
       if (imageFiles.image2) formData.append('image2', imageFiles.image2)
@@ -680,6 +688,34 @@ function Lists() {
                       <span className='ml-3 text-white font-medium'>Mark as Bestseller</span>
                     </label>
                   </div>
+
+                  {/* RAM/ROM for Electronics */}
+                  {(editFormData.category === 'Electronics' || editFormData.category === 'Accessories') && (
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div>
+                        <label className='block text-gray-300 mb-2 font-medium'>RAM</label>
+                        <input
+                          type='text'
+                          name='ram'
+                          value={editFormData.ram}
+                          onChange={handleEditFormChange}
+                          placeholder='e.g., 8GB, 12GB'
+                          className='w-full p-3 rounded-lg bg-white/10 text-white placeholder-gray-500 border border-white/20 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 outline-none transition-all duration-200'
+                        />
+                      </div>
+                      <div>
+                        <label className='block text-gray-300 mb-2 font-medium'>ROM (Storage)</label>
+                        <input
+                          type='text'
+                          name='rom'
+                          value={editFormData.rom}
+                          onChange={handleEditFormChange}
+                          placeholder='e.g., 128GB, 256GB'
+                          className='w-full p-3 rounded-lg bg-white/10 text-white placeholder-gray-500 border border-white/20 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 outline-none transition-all duration-200'
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}

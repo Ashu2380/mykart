@@ -5,7 +5,7 @@ export const addToCart = async (req,res) => {
     try {
     const {itemId, size, quantity = 1 } = req.body;
 
-    const userData = await User.findById(req.userId);
+    const userData = await User.findById(req.user._id);
 
     // Check if user exists
     if (!userData) {
@@ -26,7 +26,7 @@ export const addToCart = async (req,res) => {
       cartData[itemId][size] = quantity;
     }
 
-    await User.findByIdAndUpdate(req.userId, { cartData });
+    await User.findByIdAndUpdate(req.user._id, { cartData });
 
     return res.status(201).json({ message: "Added to cart" });
   } catch (error) {
@@ -35,19 +35,25 @@ export const addToCart = async (req,res) => {
   }
 
 
-    
+     
 }
 
 
 export const UpdateCart = async (req,res) => {
      try {
          const {itemId , size , quantity } = req.body
-         const userData = await User.findById(req.userId)
-         let cartData = await userData.cartData;
+         const userData = await User.findById(req.user._id)
+         
+         // Check if user exists
+         if (!userData) {
+           return res.status(404).json({ message: "User not found" });
+         }
+         
+         let cartData = userData.cartData || {};
 
          cartData[itemId][size] = quantity
 
-          await User.findByIdAndUpdate(req.userId,{cartData})
+          await User.findByIdAndUpdate(req.user._id,{cartData})
 
     return res.status(201).json({message:"cart updated"})
 
@@ -68,9 +74,14 @@ export const getUserCart = async (req,res) => {
 
      try {
          
-         const userData = await User.findById(req.userId)
-         let cartData = await userData.cartData;
-
+         const userData = await User.findById(req.user._id)
+         
+         // Check if user exists
+         if (!userData) {
+           return res.status(404).json({ message: "User not found" });
+         }
+         
+         let cartData = userData.cartData || {};
 
     return res.status(200).json(cartData)
 

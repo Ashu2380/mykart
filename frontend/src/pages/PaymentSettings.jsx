@@ -9,25 +9,21 @@ function PaymentSettings() {
   // const { userData } = useContext(userDataContext);
   const { serverUrl } = useContext(authDataContext);
   const [paymentMethods, setPaymentMethods] = useState([]);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(true);
   const [editingMethod, setEditingMethod] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [selectedType, setSelectedType] = useState('card');
+  const [selectedType, setSelectedType] = useState('wallet');
+  
+  // Blockchain wallet state
+  const [walletBalance, setWalletBalance] = useState(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectedWallet, setConnectedWallet] = useState(null);
 
   const [formData, setFormData] = useState({
-    type: 'card', // card, upi, netbanking, wallet
-    cardNumber: '',
-    cardHolderName: '',
-    expiryMonth: '',
-    expiryYear: '',
-    cvv: '',
-    upiId: '',
-    bankName: '',
-    accountNumber: '',
-    ifscCode: '',
-    walletType: 'paytm', // paytm, phonepe, googlepay
+    type: 'wallet',
+    walletType: 'ethereum',
     walletNumber: '',
-    isDefault: false,
+    isDefault: true,
     nickname: ''
   });
 
@@ -48,17 +44,243 @@ function PaymentSettings() {
     }
   };
 
+  // Connect blockchain wallet and get details
+  const connectBlockchainWallet = async (cryptoType) => {
+    setIsConnecting(true);
+    try {
+      let walletData = {
+        address: '',
+        balance: '0',
+        walletName: '',
+        network: ''
+      };
+
+      if (cryptoType === 'ethereum' || cryptoType === 'bitcoin') {
+        // Ethereum/Bitcoin via MetaMask
+        if (typeof window.ethereum !== 'undefined') {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          walletData.address = accounts[0];
+          walletData.walletName = 'MetaMask';
+          
+          // Get ETH balance
+          const balance = await window.ethereum.request({
+            method: 'eth_getBalance',
+            params: [accounts[0], 'latest']
+          });
+          // Convert from wei to ETH
+          walletData.balance = (parseInt(balance, 16) / 1e18).toFixed(6);
+          
+          if (cryptoType === 'bitcoin') {
+            // For BTC, we need a different approach - estimate based on ETH or just show 0
+            // Real implementation would need a BTC node or API
+            walletData.balance = '0'; // BTC balance requires separate integration
+          }
+          
+          toast.success('Wallet connected! Address: ' + accounts[0].slice(0, 10) + '...');
+        } else {
+          toast.error('MetaMask not installed. Please install MetaMask for ETH/BTC.');
+          setIsConnecting(false);
+          return null;
+        }
+      } else if (cryptoType === 'cardano') {
+        // Cardano via Nami/Yoroi wallet
+        if (window.cardano) {
+          // Updated wallet list including newer wallets
+          const wallets = ['nami', 'yoroi', 'flint', 'eternl', 'gero', 'lace', 'nufi', 'typhon', 'vip'];
+          let connected = false;
+          let lastError = null;
+          
+          for (const walletName of wallets) {
+            const wallet = window.cardano[walletName];
+            if (wallet?.enable) {
+              try {
+                console.log('Trying to connect to wallet:', walletName);
+                const api = await wallet.enable();
+                console.log('Wallet API enabled:', walletName);
+                
+                // Get addresses
+                const addresses = await api.getUsedAddresses();
+                if (!addresses || addresses.length === 0) {
+                  // Try reward addresses for staking wallets
+                  const rewardAddresses = await api.getRewardAddresses();
+                  if (rewardAddresses && rewardAddresses.length > 0) {
+                    walletData.address = rewardAddresses[0];
+                  } else {
+                    continue;
+                  }
+                } else {
+                  walletData.address = addresses[0];
+                }
+                walletData.walletName = walletName.charAt(0).toUpperCase() + walletName.slice(1);
+                
+                // Get network ID to show in UI
+                let networkId = null;
+                try {
+                  networkId = await api.getNetworkId();
+                  console.log('Network ID:', networkId);
+                  // 0 = Preprod, 1 = Mainnet
+                  walletData.network = networkId === 0 ? 'Preprod' : (networkId === 1 ? 'Mainnet' : 'Testnet');
+                } catch (netErr) {
+                  console.log('Network ID error:', netErr);
+                  walletData.network = 'Unknown';
+                }
+                
+                // Get balance - try multiple methods
+                try {
+                  let balanceFound = false;
+                  
+                  // Method 1: getUtxos (most common)
+                  const utxos = await api.getUtxos();
+                  console.log('UTXOs:', utxos);
+                  if (utxos && utxos.length > 0) {
+                    let totalLovelace = 0;
+                    utxos.forEach(utxo => {
+                      if (utxo.amount && Array.isArray(utxo.amount)) {
+                        const lovelace = utxo.amount.find(a => a.unit === 'lovelace');
+                        if (lovelace) {
+                          totalLovelace += Number(lovelace.quantity);
+                        }
+                      }
+                    });
+                    if (totalLovelace > 0) {
+                      walletData.balance = (totalLovelace / 1e6).toFixed(6);
+                      balanceFound = true;
+                      console.log('Balance from UTXOs:', walletData.balance);
+                    }
+                  }
+                  
+                  // Method 2: getBalance (CIP-30 standard)
+                  if (!balanceFound) {
+                    try {
+                      const balance = await api.getBalance();
+                      console.log('Raw balance:', balance);
+                      if (balance) {
+                        // Handle different balance formats
+                        if (typeof balance === 'string') {
+                          // Hex-encoded value - try to parse as lovelace
+                          // If it's a single number in hex (lovelace)
+                          if (balance.length <= 16 && !balance.includes('.')) {
+                            const lovelace = parseInt(balance, 16);
+                            if (!isNaN(lovelace) && lovelace > 0) {
+                              walletData.balance = (lovelace / 1e6).toFixed(6);
+                              balanceFound = true;
+                            }
+                          }
+                          // Check if it's an array/collection
+                          if (!balanceFound && balance.startsWith('[')) {
+                            try {
+                              const arr = JSON.parse(balance);
+                              arr.forEach(asset => {
+                                if (asset && asset.unit === 'lovelace') {
+                                  walletData.balance = (Number(asset.quantity) / 1e6).toFixed(6);
+                                  balanceFound = true;
+                                }
+                              });
+                            } catch (e) {}
+                          }
+                        } else if (Array.isArray(balance)) {
+                          // Array of assets
+                          balance.forEach(asset => {
+                            if (asset && asset.unit === 'lovelace') {
+                              walletData.balance = (Number(asset.quantity) / 1e6).toFixed(6);
+                              balanceFound = true;
+                            }
+                          });
+                        }
+                      }
+                    } catch (balErr2) {
+                      console.log('getBalance error:', balErr2);
+                    }
+                  }
+                  
+                  // Method 3: Check for any UTXO with assets
+                  if (!balanceFound && utxos && utxos.length > 0) {
+                    // Try alternative unit names
+                    utxos.forEach(utxo => {
+                      if (utxo.amount && Array.isArray(utxo.amount)) {
+                        // Try different unit names
+                        const altUnits = ['lovelace', 'ada', ' lovelace', ' lovelace'];
+                        altUnits.forEach(unit => {
+                          const asset = utxo.amount.find(a => String(a.unit).trim() === unit);
+                          if (asset) {
+                            walletData.balance = (Number(asset.quantity) / 1e6).toFixed(6);
+                            balanceFound = true;
+                          }
+                        });
+                      }
+                    });
+                  }
+                  
+                  // If still no balance, show 0 but don't fail
+                  if (!balanceFound) {
+                    console.log('Could not detect balance, showing 0');
+                    walletData.balance = '0';
+                  }
+                } catch (balErr) {
+                  console.log('Balance error:', balErr);
+                  walletData.balance = '0';
+                }
+                
+                connected = true;
+                console.log('Connected to', walletData.walletName, 'with address:', walletData.address);
+                toast.success(walletData.walletName + ' connected! Address saved.');
+                break;
+              } catch (err) {
+                console.log('Failed to connect ' + walletName + ':', err);
+                lastError = err;
+              }
+            }
+          }
+          
+          if (!connected) {
+            toast.error(lastError ? 'Connection failed: ' + lastError.message : 'No Cardano wallet found. Please install Nami, Yoroi, Flint, or Lace.');
+            setIsConnecting(false);
+            return null;
+          }
+        } else {
+          toast.error('No Cardano wallet found. Please install a Cardano wallet like Nami, Yoroi, Flint, or Lace.');
+          setIsConnecting(false);
+          return null;
+        }
+      }
+
+      setConnectedWallet(walletData);
+      setWalletBalance(walletData.balance);
+      
+      // Update form data with wallet info
+      setFormData(prev => ({
+        ...prev,
+        walletNumber: walletData.address,
+        nickname: walletData.walletName + ' - ' + walletData.address.slice(0, 10) + '...'
+      }));
+      
+      return walletData;
+    } catch (error) {
+      console.error('Wallet connection error:', error);
+      toast.error('Failed to connect wallet: ' + error.message);
+      return null;
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // Reset connected wallet when wallet type changes
+    if (name === 'walletType') {
+      setConnectedWallet(null);
+      setWalletBalance(null);
+    }
   };
 
   const resetForm = () => {
     setFormData({
-      type: 'card',
+      type: 'wallet',
       cardNumber: '',
       cardHolderName: '',
       expiryMonth: '',
@@ -68,13 +290,15 @@ function PaymentSettings() {
       bankName: '',
       accountNumber: '',
       ifscCode: '',
-      walletType: 'paytm',
+      walletType: 'ethereum',
       walletNumber: '',
       isDefault: false,
       nickname: ''
     });
     setEditingMethod(null);
     setShowAddForm(false);
+    setConnectedWallet(null);
+    setWalletBalance(null);
     setSelectedType('card');
   };
 
@@ -185,9 +409,9 @@ function PaymentSettings() {
   };
 
   return (
-    <div className='w-full min-h-screen bg-blue-50 pt-24 md:pt-20 lg:pt-24 px-4 md:px-6 lg:px-8 pb-20'>
+    <div className='w-full min-h-screen bg-blue-50 pt-24 md:pt-20 lg:pt-24 px-2 md:px-6 lg:px-8 pb-20 overflow-x-hidden'>
       <div className='max-w-6xl mx-auto'>
-        <Title text1={'PAYMENT'} text2={'SETTINGS'} />
+        <Title text1={'PAYMENT'} text2={'SETTING'} />
         
         {/* Add New Payment Method Button */}
         <div className='mb-6'>
@@ -201,45 +425,53 @@ function PaymentSettings() {
 
         {/* Add/Edit Payment Method Form */}
         {showAddForm && (
-          <div className='bg-white/80 backdrop-blur-sm rounded-lg p-6 mb-6 border border-gray-300'>
+          <div className='bg-white/80 backdrop-blur-sm rounded-lg p-6 mb-6 border border-gray-300 overflow-hidden'>
             <h3 className='text-xl font-semibold text-gray-800 mb-4'>
               {editingMethod ? 'Edit Payment Method' : 'Add New Payment Method'}
             </h3>
             
             {/* Payment Type Selection */}
             <div className='mb-6'>
-              <label className='block text-gray-700 mb-3'>Payment Type</label>
-              <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+              <label className='block text-gray-700 mb-3 text-sm md:text-base font-semibold'>Payment Type</label>
+              <div className='grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4'>
                 {[
-                  { type: 'card', label: 'Credit/Debit Card', icon: <FaCreditCard /> },
-                  { type: 'upi', label: 'UPI', icon: <FaWallet /> },
-                  { type: 'netbanking', label: 'Net Banking', icon: <FaUniversity /> },
-                  { type: 'wallet', label: 'Digital Wallet', icon: <FaWallet /> }
-                ].map(({ type, label, icon }) => (
+                  { type: 'card', label: 'Card', icon: <FaCreditCard className='text-xl md:text-2xl' />, desc: 'Credit/Debit' },
+                  { type: 'upi', label: 'UPI', icon: <FaWallet className='text-xl md:text-2xl' />, desc: 'BHIM, GPay' },
+                  { type: 'netbanking', label: 'Net Banking', icon: <FaUniversity className='text-xl md:text-2xl' />, desc: 'Bank Transfer' },
+                  { type: 'wallet', label: 'Crypto', icon: <FaWallet className='text-xl md:text-2xl' />, desc: 'ETH, ADA, BTC' }
+                ].map(({ type, label, icon, desc }) => (
                   <button
                     key={type}
                     type='button'
                     onClick={() => {
                       setSelectedType(type);
-                      setFormData(prev => ({ ...prev, type }));
+                      // Reset wallet info when switching to wallet type
+                      if (type === 'wallet') {
+                        setFormData(prev => ({ ...prev, type, walletType: 'ethereum' }));
+                        setConnectedWallet(null);
+                        setWalletBalance(null);
+                      } else {
+                        setFormData(prev => ({ ...prev, type }));
+                      }
                     }}
-                    className={`p-4 rounded-lg border-2 transition-all duration-300 ${
+                    className={`p-3 md:p-4 rounded-lg border-2 transition-all duration-300 ${
                       selectedType === type 
-                        ? 'border-blue-500 bg-blue-500/20' 
-                        : 'border-gray-600 bg-white/5 hover:border-gray-500'
+                        ? 'border-blue-500 bg-blue-500/20 shadow-md' 
+                        : 'border-gray-600 bg-white/5 hover:border-gray-500 hover:bg-gray-100'
                     }`}
                   >
-                    <div className='flex flex-col items-center gap-2 text-gray-700'>
-                      <div className='text-2xl'>{icon}</div>
-                      <span className='text-sm text-center'>{label}</span>
+                    <div className='flex flex-col items-center gap-1 md:gap-2 text-gray-700'>
+                      {icon}
+                      <span className='text-sm md:text-base font-medium'>{label}</span>
+                      <span className='text-xs text-gray-500 hidden md:block'>{desc}</span>
                     </div>
                   </button>
                 ))}
               </div>
             </div>
             
-            <form onSubmit={handleSubmit} className='space-y-4'>
-              {/* Nickname */}
+            <form onSubmit={handleSubmit} className='space-y-4 overflow-hidden'>
+              {/* Nickname
               <div>
                 <label className='block text-gray-700 mb-2'>Nickname (Optional)</label>
                 <input
@@ -250,7 +482,7 @@ function PaymentSettings() {
                   className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
                   placeholder='e.g., Personal Card, Work Account'
                 />
-              </div>
+              </div> */}
 
               {/* Card Details */}
               {selectedType === 'card' && (
@@ -403,31 +635,81 @@ function PaymentSettings() {
               {selectedType === 'wallet' && (
                 <>
                   <div>
-                    <label className='block text-gray-700 mb-2'>Wallet Type *</label>
+                    <label className='block text-gray-700 mb-2 text-sm md:text-base'>Wallet Type *</label>
                     <select
                       name='walletType'
                       value={formData.walletType}
                       onChange={handleInputChange}
-                      className='w-full p-3 rounded-lg bg-white text-gray-800 border border-gray-300 focus:border-blue-500 focus:outline-none'
+                      className='w-full p-3 md:p-4 rounded-lg bg-white text-gray-800 border border-gray-300 focus:border-blue-500 focus:outline-none text-sm md:text-base'
                       required
                     >
-                      <option value='paytm' className='text-black'>Paytm</option>
-                      <option value='phonepe' className='text-black'>PhonePe</option>
-                      <option value='googlepay' className='text-black'>Google Pay</option>
-                      <option value='amazonpay' className='text-black'>Amazon Pay</option>
+                      <option value='ethereum' className='text-black'>Ethereum (ETH)</option>
+                      <option value='cardano' className='text-black'>Cardano (ADA)</option>
+                      <option value='bitcoin' className='text-black'>Bitcoin (BTC)</option>
                     </select>
                   </div>
                   
+                  {/* Connect Wallet Button */}
+                  <button
+                    type='button'
+                    onClick={() => connectBlockchainWallet(formData.walletType)}
+                    disabled={isConnecting}
+                    className='w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 md:px-6 py-3 md:py-4 rounded-lg transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-sm md:text-base font-semibold shadow-md hover:shadow-lg'
+                  >
+                    {isConnecting ? (
+                      <>
+                        <span className='animate-spin text-lg'>⟳</span> <span className='text-sm md:text-base'>Connecting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaWallet className='text-lg' /> Connect {formData.walletType === 'ethereum' ? 'MetaMask' : formData.walletType === 'cardano' ? 'Cardano' : 'Bitcoin'} Wallet
+                      </>
+                    )}
+                  </button>
+                  
+                  {/* Connected Wallet Info */}
+                  {connectedWallet && (
+                    <div className='bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-3 shadow-sm'>
+                      <div className='flex items-center justify-between gap-2 mb-2'>
+                        <div className='flex items-center gap-2 min-w-0'>
+                          <span className='w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0'></span>
+                          <span className='text-green-700 font-bold text-sm truncate'>{connectedWallet.walletName} Connected</span>
+                        </div>
+                        <span className='text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0'>
+                          {connectedWallet.network || (formData.walletType === 'cardano' ? 'Preprod' : 'Sepolia')} Testnet
+                        </span>
+                      </div>
+                      
+                      <div className='bg-white rounded-lg p-2 mb-2 border border-green-100 overflow-hidden'>
+                        <div className='flex items-center gap-1 mb-1'>
+                          <span className='text-xs text-gray-500 whitespace-nowrap'>Address:</span>
+                        </div>
+                        <div className='overflow-x-auto max-w-full scrollbar-thin'>
+                          <p className='text-xs font-mono text-gray-800 whitespace-nowrap bg-gray-50 px-2 py-1 rounded w-max'>
+                            {connectedWallet.address}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div>
-                    <label className='block text-gray-700 mb-2'>Wallet Number *</label>
+                    <label className='block text-gray-700 mb-2 text-sm md:text-base'>
+                      {['ethereum', 'cardano', 'bitcoin'].includes(formData.walletType) ? 'Wallet Address *' : 'Wallet Number *'}
+                    </label>
                     <input
                       type='text'
                       name='walletNumber'
                       value={formData.walletNumber}
                       onChange={handleInputChange}
-                      className='w-full p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none'
-                      placeholder='Enter wallet number'
-                      required
+                      className='w-full p-2 md:p-3 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-gray-300 focus:border-blue-500 focus:outline-none text-xs md:text-sm font-mono'
+                      placeholder={
+                        ['ethereum', 'cardano', 'bitcoin'].includes(formData.walletType) 
+                          ? 'Auto-filled after connecting' 
+                          : 'Enter wallet number'
+                      }
+                      readOnly
+                      style={{ fontSize: '11px' }}
                     />
                   </div>
                 </>
@@ -448,18 +730,18 @@ function PaymentSettings() {
               </div>
 
               {/* Form Buttons */}
-              <div className='flex gap-4'>
+              <div className='flex flex-col sm:flex-row gap-3 sm:gap-4'>
                 <button
                   type='submit'
                   disabled={loading}
-                  className='bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors duration-300 disabled:opacity-50'
+                  className='w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 md:py-4 rounded-lg transition-all duration-300 disabled:opacity-50 font-semibold shadow-md hover:shadow-lg text-sm md:text-base'
                 >
                   {loading ? 'Saving...' : (editingMethod ? 'Update Method' : 'Save Method')}
                 </button>
                 <button
                   type='button'
                   onClick={resetForm}
-                  className='bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors duration-300'
+                  className='w-full sm:w-auto bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 md:py-4 rounded-lg transition-all duration-300 font-semibold shadow-md hover:shadow-lg text-sm md:text-base'
                 >
                   Cancel
                 </button>
@@ -523,7 +805,12 @@ function PaymentSettings() {
                 
                 {method.type === 'wallet' && (
                   <>
-                    <p className='text-sm text-gray-600 capitalize'>{method.walletType}</p>
+                    <p className='text-sm text-gray-600 capitalize'>
+                      {method.walletType === 'ethereum' ? 'Ethereum (ETH)' : 
+                       method.walletType === 'cardano' ? 'Cardano (ADA)' : 
+                       method.walletType === 'bitcoin' ? 'Bitcoin (BTC)' : 
+                       method.walletType}
+                    </p>
                     <p className='text-sm text-gray-600'>{method.walletNumber}</p>
                   </>
                 )}

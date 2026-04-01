@@ -9,9 +9,10 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import Loading from '../component/Loading'
 import { FaQrcode } from 'react-icons/fa'
+import CryptoPayment from '../component/CryptoPayment'
 
 function PlaceOrder() {
-    let [method,setMethod] = useState('cod')
+    let [method,setMethod] = useState('crypto')
     let navigate = useNavigate()
     const {cartItem , setCartItem , getCartAmount , delivery_fee , products } = useContext(shopDataContext)
     let {serverUrl} = useContext(authDataContext)
@@ -42,6 +43,10 @@ function PlaceOrder() {
         time: '',
         ecoMode: false
     })
+
+    // Crypto payment state
+    let [showCryptoPayment, setShowCryptoPayment] = useState(false)
+    let [cryptoOrderData, setCryptoOrderData] = useState(null)
 
     const onChangeHandler = (e)=>{
     const name = e.target.name;
@@ -141,10 +146,13 @@ function PlaceOrder() {
          break;
 
          case 'qr':
-         {
-           // QR payment redirects to separate page, no need to process here
-           break;
-         }
+          {
+            // QR payment - save form data and redirect to QR payment page
+            localStorage.setItem('orderFormData', JSON.stringify(formData))
+            navigate('/qr-payment')
+            setLoading(false)
+            break;
+          }
 
          case 'razorpay':
         try {
@@ -164,6 +172,13 @@ function PlaceOrder() {
         }
 
         break;
+
+        case 'crypto':
+            // Prepare order data for crypto payment
+            setCryptoOrderData(orderData)
+            setShowCryptoPayment(true)
+            setLoading(false)
+            break;
 
 
 
@@ -283,21 +298,14 @@ function PlaceOrder() {
             <div className='flex items-center justify-center gap-[30px] flex-wrap'>
                 <button
                     onClick={()=>setMethod('razorpay')}
-                    className={`w-[140px] h-[45px] rounded-sm transition-all duration-300 ${method === 'razorpay' ? 'border-[3px] border-blue-500 shadow-lg scale-105' : 'border-2 border-gray-300 hover:border-blue-400'}`}
-                    title="Online Payment (Razorpay)"
-                >
-                    <img src={razorpay} className='w-[100%] h-[100%] object-fill rounded-sm' alt="Razorpay" />
+                    className={`w-[140px] h-[45px] rounded-sm transition-all duration-300 ${method === 'razorpay' ? 'border-[3px] border-blue-500 shadow-lg scale-105' : 'border-2 border-gray-300'}`}
+                    title="Pay with Razorpay">
+                    <img src={razorpay} className='w-[100%] h-[100%] object-fill rounded-sm ' alt="Razorpay" />
                 </button>
                 <button
-                    onClick={()=>{
-                        setMethod('qr');
-                        // Save form data for QR payment page
-                        localStorage.setItem('orderFormData', JSON.stringify(formData));
-                        navigate('/qr-payment');
-                    }}
-                    className={`w-[140px] h-[45px] bg-gradient-to-r from-[#10b981] to-[#059669] text-white rounded-sm font-bold text-[14px] transition-all duration-300 flex items-center justify-center gap-2 ${method === 'qr' ? 'border-[3px] border-green-600 shadow-lg scale-105' : 'border-2 border-gray-300 hover:border-green-500'}`}
-                    title="Pay using QR Code"
-                >
+                    onClick={()=>setMethod('qr')}
+                    className={`w-[140px] h-[45px] bg-gradient-to-r from-[#10b981] to-[#059669] text-white rounded-sm font-bold text-[14px] transition-all duration-300 flex items-center justify-center gap-2 ${method === 'qr' ? 'border-[3px] border-green-600 shadow-lg scale-105' : 'border-2 border-gray-300'}`}
+                    title="Pay with QR Code">
                     <FaQrcode className="text-lg" />
                     QR PAYMENT
                 </button>
@@ -307,113 +315,91 @@ function PlaceOrder() {
                 >
                     CASH ON DELIVERY
                 </button>
+                <button
+                    onClick={()=>{
+                        // Check if form is valid
+                        if(!formData.firstName || !formData.lastName || !formData.email || 
+                           !formData.street || !formData.city || !formData.state || 
+                           !formData.pinCode || !formData.phone) {
+                            toast.error('Please fill in all address details first!')
+                            return
+                        }
+                        // Prepare order data
+                        let orderItems = []
+                        for(const items in cartItem){
+                            for(const item in cartItem[items]){
+                                if(cartItem[items][item] > 0){
+                                    const itemInfo = structuredClone(products.find(product => product._id === items))
+                                    if(itemInfo){
+                                        itemInfo.size = item
+                                        itemInfo.quantity = cartItem[items][item]
+                                        orderItems.push(itemInfo)
+                                    }
+                                }
+                            }
+                        }
+                        let orderData = {
+                            address:formData,
+                            items:orderItems,
+                            amount:getCartAmount() + delivery_fee,
+                            splitPayment: null,
+                            deliverySlot: deliverySlot.date && deliverySlot.time ? deliverySlot : null
+                        }
+                        setCryptoOrderData(orderData)
+                        setShowCryptoPayment(true)
+                        setMethod('crypto')
+                    }}
+                    className={`w-[160px] h-[50px] bg-gradient-to-r from-[#627eea] to-[#8c6cf0] text-white rounded-lg font-bold text-[13px] px-3 transition-all duration-300 flex items-center justify-center gap-1 shadow-2xl border-[3px] border-purple-600 scale-105`}
+                    title="Pay with Blockchain Wallet (Primary)"
+                >
+                    <span className="text-xl">₿</span>
+                    BLOCKCHAIN
+                </button>
             </div>
 
-            {/* Split Payment Option */}
-            {(method === 'razorpay' || method === 'qr') && (
-                <div className='w-full mt-4'>
-                    <div className='flex items-center justify-center gap-4 mb-3'>
-                        <label className='text-gray-800 text-sm'>Split Payment:</label>
-                        <input
-                            type="checkbox"
-                            checked={splitPayment}
-                            onChange={(e) => setSplitPayment(e.target.checked)}
-                            className='w-4 h-4'
-                        />
-                    </div>
+            {/* Split Payment - Disabled for Blockchain */}
+            <div className='w-full mt-4 opacity-50'>
+                <p className='text-sm text-gray-500 text-center italic'>Split payment for blockchain payments</p>
+            </div>
 
-                    {splitPayment && (
-                        <div className='bg-white rounded-lg p-4 border border-gray-300'>
-                            <h4 className='text-gray-800 text-center mb-3 font-semibold'>Split Payment Details</h4>
-                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                                <div>
-                                    <label className='text-gray-800 text-sm block mb-1'>Payer 1 Name:</label>
-                                    <input
-                                        type="text"
-                                        value={splitData.payer1.name}
-                                        onChange={(e) => setSplitData(prev => ({
-                                            ...prev,
-                                            payer1: { ...prev.payer1, name: e.target.value }
-                                        }))}
-                                        className='w-full h-8 rounded px-2 text-black'
-                                        placeholder="Enter name"
-                                    />
-                                    <label className='text-gray-800 text-sm block mb-1 mt-2'>Payer 1 Email:</label>
-                                    <input
-                                        type="email"
-                                        value={splitData.payer1.email}
-                                        onChange={(e) => setSplitData(prev => ({
-                                            ...prev,
-                                            payer1: { ...prev.payer1, email: e.target.value }
-                                        }))}
-                                        className='w-full h-8 rounded px-2 text-black'
-                                        placeholder="Enter email"
-                                    />
-                                    <label className='text-gray-800 text-sm block mb-1 mt-2'>Amount (₹):</label>
-                                    <input
-                                        type="number"
-                                        value={splitData.payer1.amount}
-                                        onChange={(e) => setSplitData(prev => ({
-                                            ...prev,
-                                            payer1: { ...prev.payer1, amount: parseFloat(e.target.value) || 0 }
-                                        }))}
-                                        className='w-full h-8 rounded px-2 text-black'
-                                        placeholder="Amount"
-                                        max={getCartAmount() + delivery_fee}
-                                    />
-                                </div>
-                                <div>
-                                    <label className='text-gray-800 text-sm block mb-1'>Payer 2 Name:</label>
-                                    <input
-                                        type="text"
-                                        value={splitData.payer2.name}
-                                        onChange={(e) => setSplitData(prev => ({
-                                            ...prev,
-                                            payer2: { ...prev.payer2, name: e.target.value }
-                                        }))}
-                                        className='w-full h-8 rounded px-2 text-black'
-                                        placeholder="Enter name"
-                                    />
-                                    <label className='text-gray-800 text-sm block mb-1 mt-2'>Payer 2 Email:</label>
-                                    <input
-                                        type="email"
-                                        value={splitData.payer2.email}
-                                        onChange={(e) => setSplitData(prev => ({
-                                            ...prev,
-                                            payer2: { ...prev.payer2, email: e.target.value }
-                                        }))}
-                                        className='w-full h-8 rounded px-2 text-black'
-                                        placeholder="Enter email"
-                                    />
-                                    <label className='text-gray-800 text-sm block mb-1 mt-2'>Amount (₹):</label>
-                                    <input
-                                        type="number"
-                                        value={splitData.payer2.amount}
-                                        onChange={(e) => setSplitData(prev => ({
-                                            ...prev,
-                                            payer2: { ...prev.payer2, amount: parseFloat(e.target.value) || 0 }
-                                        }))}
-                                        className='w-full h-8 rounded px-2 text-black'
-                                        placeholder="Amount"
-                                        max={getCartAmount() + delivery_fee}
-                                    />
-                                </div>
-                            </div>
-                            <div className='text-center mt-3'>
-                                <p className='text-gray-800 text-sm'>
-                                    Total: ₹{getCartAmount() + delivery_fee} |
-                                    Split: ₹{splitData.payer1.amount + splitData.payer2.amount}
-                                </p>
-                            </div>
-                        </div>
-                    )}
+        </div>
+            </div>
+        </div>
+
+        {/* Crypto Payment Modal */}
+        {showCryptoPayment && (
+            <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
+                <div className='relative max-w-lg w-full'>
+                    <button 
+                        onClick={() => {
+                            setShowCryptoPayment(false)
+                            setCryptoOrderData(null)
+                        }}
+                        className='absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 z-10'
+                    >
+                        ✕
+                    </button>
+                    <CryptoPayment 
+                        orderData={cryptoOrderData}
+                        onSuccess={(orderId) => {
+                            // Clear cart and close modal first
+                            setCartItem({})
+                            setShowCryptoPayment(false)
+                            toast.success("Payment Successful! Order placed.")
+                            // Use setTimeout to allow state to update, then use navigate
+                            setTimeout(() => {
+                                navigate("/order", { replace: true })
+                            }, 500)
+                        }}
+                        onCancel={() => {
+                            setShowCryptoPayment(false)
+                            setCryptoOrderData(null)
+                        }}
+                    />
                 </div>
-            )}
-
-        </div>
             </div>
-        </div>
-      
+        )}
+
     </div>
   )
 }

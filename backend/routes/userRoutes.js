@@ -16,7 +16,12 @@ import {
     markNotificationAsRead,
     deleteNotification,
     createTestNotification,
-    submitContact
+    submitContact,
+    getPaymentMethods,
+    addPaymentMethod,
+    updatePaymentMethod,
+    deletePaymentMethod,
+    setDefaultPaymentMethod
 } from "../controller/userController.js"
 import adminAuth from "../middleware/adminAuth.js"
 
@@ -48,5 +53,12 @@ userRoutes.put("/addresses/:addressId/default", isAuth, setDefaultAddress)
 
 // Contact form route (public - no auth required)
 userRoutes.post("/contact", submitContact)
+
+// Payment Methods routes
+userRoutes.get("/payment-methods", isAuth, getPaymentMethods)
+userRoutes.post("/payment-methods", isAuth, addPaymentMethod)
+userRoutes.put("/payment-methods/:methodId", isAuth, updatePaymentMethod)
+userRoutes.delete("/payment-methods/:methodId", isAuth, deletePaymentMethod)
+userRoutes.put("/payment-methods/:methodId/default", isAuth, setDefaultPaymentMethod)
 
 export default userRoutes

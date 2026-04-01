@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authDataContext } from '../context/authContext';
 
 function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -6,6 +8,8 @@ function Chatbot() {
     { id: 1, text: "Hello! I'm your shopping assistant. How can I help you today?", sender: 'bot' }
   ]);
   const [inputValue, setInputValue] = useState('');
+  const navigate = useNavigate();
+  const { serverUrl } = useContext(authDataContext);
 
   const toggleChatbot = () => {
     setIsOpen(!isOpen);
@@ -32,50 +36,49 @@ function Chatbot() {
   const getBotResponse = async (userInput) => {
     const input = userInput.toLowerCase();
 
-    // Check if it's a product recommendation query
+    // === CHECK ORDER QUERIES FIRST ===
+    if (input.includes('order') || input.includes('track')) {
+      return "You can track your orders in the 'My Orders' section of your account. Would you like me to help you navigate there?";
+    }
+
+    // === CHECK RETURN/REFUND QUERIES ===
+    if (input.includes('return') || input.includes('refund')) {
+      // Navigate to returns page
+      navigate('/returns');
+      return "I've opened the Returns & Refunds page for you. You can initiate a return request, track existing returns, or learn about our return policy here.";
+    }
+
+    // === CHECK CART QUERIES ===
+    if (input.includes('cart')) {
+      return "You can view your cart by clicking on the cart icon in the top right corner. Would you like me to take you there?";
+    }
+
+    // === CHECK PRODUCT RECOMMENDATION QUERIES ===
     if (input.includes('recommend') || input.includes('suggest') || input.includes('find') ||
         input.includes('looking for') || input.includes('need') || input.includes('want') ||
         input.includes('best') || input.includes('good')) {
 
       try {
-        // Extract budget from query
-        let budget = null;
-        const budgetMatch = input.match(/under\s+(\d+)|below\s+(\d+)|₹?\s*(\d+)\s*rupees?/i);
-        if (budgetMatch) {
-          budget = budgetMatch[1] || budgetMatch[2] || budgetMatch[3];
-        }
-
-        // Extract preferences
-        const preferences = [];
-        if (input.includes('men') || input.includes('male')) preferences.push('men');
-        if (input.includes('women') || input.includes('female')) preferences.push('women');
-        if (input.includes('kids') || input.includes('children')) preferences.push('kids');
-        if (input.includes('electronics') || input.includes('phone') || input.includes('laptop')) preferences.push('electronics');
-        if (input.includes('home') || input.includes('kitchen')) preferences.push('home');
-        if (input.includes('beauty') || input.includes('health')) preferences.push('beauty');
-
         // Call AI recommendations API
-        const response = await fetch('http://localhost:6000/api/product/ai-recommendations', {
+        const response = await fetch(`${serverUrl}/api/product/ai-recommendations`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            query: userInput,
-            budget: budget,
-            preferences: preferences
+            query: userInput
           })
         });
 
         const data = await response.json();
 
-        if (data.success && data.recommendations.length > 0) {
+        if (data.success && data.recommendations && data.recommendations.length > 0) {
           const topRecommendations = data.recommendations.slice(0, 3);
           let responseText = `Based on your query "${userInput}", here are some recommendations:\n\n`;
 
           topRecommendations.forEach((product, index) => {
             responseText += `${index + 1}. ${product.name} - ₹${product.price}\n`;
-            responseText += `   ${product.description.substring(0, 100)}...\n\n`;
+            responseText += `   ${product.description?.substring(0, 100) || 'Great product'}\n\n`;
           });
 
           responseText += "Would you like me to show you more details about any of these products?";
@@ -89,10 +92,12 @@ function Chatbot() {
       }
     }
 
-    // Default responses for other queries
+    // === DEFAULT RESPONSES FOR OTHER QUERIES ===
     if (input.includes('hello') || input.includes('hi') || input.includes('hey')) {
       return "Hello there! How can I assist you with your shopping today?";
-    } else if (input.includes('product') || input.includes('item')) {
+    } else if (input.includes('help') || input.includes('how') || input.includes('what')) {
+      return "I can help you with:\n• Finding products - just tell me what you're looking for\n• Order tracking & returns\n• Product recommendations\n• Shipping & delivery info\n\nWhat would you like to know?";
+    } else if (input.includes('product') || input.includes('item') || input.includes('shop') || input.includes('produts')) {
       return "We have a wide range of products in categories like Men, Women, Kids, Electronics, Home & Kitchen, Beauty & Health, Sports & Outdoors, Books & Media, and Toys & Games. Which category interests you?";
     } else if (input.includes('men')) {
       return "Our Men's collection includes TopWear, BottomWear, and WinterWear. Would you like to know more about any specific subcategory?";
@@ -112,12 +117,6 @@ function Chatbot() {
       return "Our Books & Media section includes Fiction, Non-Fiction, and Movies & TV. What genre interests you?";
     } else if (input.includes('toys') || input.includes('games')) {
       return "Our Toys & Games section includes Action Figures, Board Games, and Puzzles. What age group are you shopping for?";
-    } else if (input.includes('order') || input.includes('track')) {
-      return "You can track your orders in the 'My Orders' section of your account. Would you like me to help you navigate there?";
-    } else if (input.includes('cart')) {
-      return "You can view your cart by clicking on the cart icon in the top right corner. Would you like me to take you there?";
-    } else if (input.includes('return') || input.includes('refund')) {
-      return "We have a 30-day return policy on most items. For more details, please check our Returns & Refunds page or contact customer support.";
     } else if (input.includes('contact') || input.includes('support')) {
       return "You can reach our customer support team through the Contact page, or I can connect you to a live agent. Would you like me to do that?";
     } else if (input.includes('visual search') || input.includes('image search') || input.includes('photo search')) {
@@ -129,7 +128,7 @@ function Chatbot() {
     } else if (input.includes('thank')) {
       return "You're welcome! Is there anything else I can help you with?";
     } else {
-      return "I'm here to help with your shopping experience. You can ask me about products, orders, returns, visual search, voice commands, or anything else related to your shopping. What would you like to know?";
+      return "I can help you with finding products, order tracking, returns, shipping, and more! Just ask me something like 'show me men's shirts' or 'how do I track my order'.";
     }
   };
 

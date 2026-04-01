@@ -20,8 +20,12 @@ function Registration() {
      let [name,setName] = useState("")
      let [email,setEmail] = useState("")
      let [password,setPassword] = useState("")
+     let [otp,setOtp] = useState("")
+     let [otpSent,setOtpSent] = useState(false)
+
      let [referralCode, setReferralCode] = useState("")
      let {getCurrentUser} = useContext(userDataContext)
+
      let [loading,setLoading] = useState(false)
      let [searchParams] = useSearchParams()
 
@@ -34,38 +38,67 @@ function Registration() {
              setReferralCode(refCode.toUpperCase());
          }
      }, [searchParams]);
+     
+ 
+// ================= SEND OTP =================
+    const handleSendOtp = async () => {
+        if (!email) {
+            return toast.error("Enter email first")
+        }
 
-
-    const handleSignup = async (e) => {
-        setLoading(true)
-        e.preventDefault()
         try {
-         const result = await axios.post(serverUrl + '/api/auth/registration',{
-            name,email,password,referralCode: referralCode || undefined
-         },{withCredentials:true})
-            console.log("Registration successful:", result.data)
-            getCurrentUser()
-            navigate("/")
-            toast.success("User Registration Successful")
-            setLoading(false)
+            setLoading(true)
+
+            await axios.post(
+                serverUrl + "/api/auth/send-otp",
+                { email }
+            )
+
+            toast.success("OTP sent to your email")
+            setOtpSent(true)
 
         } catch (error) {
-            console.error("Registration error:", error);
-            if (error.response) {
-                console.error("Backend error response:", error.response.data);
-                console.error("Backend error status:", error.response.status);
-                toast.error(error.response.data.message || "User Registration Failed")
-            } else if (error.request) {
-                console.error("Network error:", error.request);
-                toast.error("Network error - please check backend server")
-            } else {
-                console.error("Request setup error:", error.message);
-                toast.error("Request error: " + error.message)
-            }
+            toast.error(error.response?.data?.message || "Failed to send OTP")
+        } finally {
             setLoading(false)
         }
     }
 
+    // ================= VERIFY + REGISTER =================
+    const handleSignup = async (e) => {
+        e.preventDefault()
+
+        if (!otpSent) {
+            return toast.error("Please send OTP first")
+        }
+
+        try {
+            setLoading(true)
+
+            const result = await axios.post(
+                serverUrl + "/api/auth/verify-otp",
+                {
+                    name,
+                    email,
+                    password,
+                    otp,
+                    referralCode: referralCode || undefined
+                },
+                { withCredentials: true }
+            )
+
+            console.log("Registration successful:", result.data)
+
+            getCurrentUser()
+            navigate("/")
+            toast.success("User Registration Successful")
+
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Registration Failed")
+        } finally {
+            setLoading(false)
+        }
+    }
     const googleSignup = async () => {
         try {
             console.log("Starting Google signup...");
@@ -110,7 +143,7 @@ function Registration() {
         <span className='text-[16px]'>Welcome to Mykart, Place your order</span>
 
     </div>
-    <div className='max-w-[600px] w-[90%] h-[500px] bg-white/80 border-[1px] border-gray-300 backdrop:blur-2xl rounded-lg shadow-lg flex items-center justify-center '>
+    <div className='max-w-[600px] w-[90%] h-[600px] bg-white/80 border-[1px] border-gray-300 backdrop:blur-2xl rounded-lg shadow-lg flex items-center justify-center '>
         <form action="" onSubmit={handleSignup} className='w-[90%] h-[90%] flex flex-col items-center justify-start gap-[20px]'>
             <div className='w-[90%] h-[50px] bg-blue-600 rounded-lg flex items-center justify-center gap-[10px] py-[20px] cursor-pointer hover:bg-blue-700 transition-colors' onClick={googleSignup} >
                 <img src={google}  alt="" className='w-[20px]'/> <span className='text-white'>Registration with Google</span>
@@ -124,6 +157,29 @@ function Registration() {
                   <input type={show?"text":"password"} className='w-[100%] h-[50px] border-[2px] border-gray-300 rounded-lg shadow-lg bg-white text-gray-800 placeholder-gray-500 px-[20px] font-semibold focus:border-blue-500 focus:outline-none' placeholder='Password' required onChange={(e)=>setPassword(e.target.value)} value={password}/>
                   {!show && <IoEyeOutline className='w-[20px] h-[20px] cursor-pointer absolute right-[5%]' onClick={()=>setShow(prev => !prev)}/>}
                   {show && <IoEye className='w-[20px] h-[20px] cursor-pointer absolute right-[5%]' onClick={()=>setShow(prev => !prev)}/>}
+                    {/* OTP FIELD */}
+               {otpSent && (
+    <div className='w-full relative group'>
+        
+        <input
+            type="text"
+            placeholder="Enter OTP"
+            value={otp}
+            onChange={(e)=>setOtp(e.target.value)}
+            required
+            className='w-[100%] h-[50px] border-[2px] border-gray-300 rounded-lg shadow-lg bg-white text-gray-800 placeholder-gray-500 px-[20px] font-semibold focus:border-blue-500 focus:outline-none'
+        />
+    </div>
+)}
+               {!otpSent && (
+    <button
+        type="button"
+        onClick={handleSendOtp}
+        className='w-full h-[55px] bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl flex items-center justify-center gap-2 text-[16px] font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]'
+    >
+        {loading ? <Loading/> : "Send OTP"}
+    </button>
+)}
 
                   {/* Referral Code Input */}
                   {referralCode && (
@@ -142,5 +198,6 @@ function Registration() {
     </div>
   )
 }
+
 
 export default Registration

@@ -381,6 +381,32 @@ function ProductDetail() {
                 </div>
             </div>
 
+            {/* RAM/ROM Display for Electronics */}
+            {(productData.ram || productData.rom) && (
+                <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-50 rounded flex items-center justify-center">
+                            <FaStore className="text-blue-600 text-sm" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500">Specifications</p>
+                            <div className="flex gap-4 mt-1">
+                                {productData.ram && (
+                                    <span className="font-semibold text-sm text-gray-900">
+                                        RAM: <span className="text-blue-600">{productData.ram}</span>
+                                    </span>
+                                )}
+                                {productData.rom && (
+                                    <span className="font-semibold text-sm text-gray-900">
+                                        Storage: <span className="text-blue-600">{productData.rom}</span>
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Delivery Info */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
                 <div className="flex items-center gap-3 mb-2">

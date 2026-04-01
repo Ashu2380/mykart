@@ -38,6 +38,14 @@ const productSchema = new mongoose.Schema({
         type:Array,
         required:true
     },
+    ram: {
+        type: String,
+        default: null
+    },
+    rom: {
+        type: String,
+        default: null
+    },
     date:{
         type:Number,
         required:true

@@ -1,233 +1,345 @@
 import User from "../model/userModel.js";
 import Referral from "../model/referralModel.js";
-import validator from "validator"
-import bcrypt from "bcryptjs"
+import validator from "validator";
+import bcrypt from "bcryptjs";
+import otpGenerator from "otp-generator";
 import { genToken, genToken1 } from "../config/token.js";
 import { validateReferralCode } from "./referralController.js";
+import sendOtp from "../utils/sendOtp.js";
+import LoginHistory from "../model/LoginHistory.js";
+import geoip from "geoip-lite";
 
+// ✅ CORRECT IMPORT (FIXED)
+import { UAParser } from "ua-parser-js";
 
-export const registration = async (req,res) => {
-   try {
-     const {name , email, password, referralCode} = req.body;
-     const existUser = await User.findOne({email})
-     if(existUser){
-         return res.status(400).json({message:"User already exist"})
-     }
-     if(!validator.isEmail(email)){
-          return res.status(400).json({message:"Enter valid Email"})
-     }
-     if(password.length < 8){
-         return res.status(400).json({message:"Enter Strong Password"})
-     }
-     let hashPassword = await bcrypt.hash(password,10)
+// ========================= DEVICE HELPER =========================
+const getDeviceInfo = (req) => {
+  const parser = new UAParser(req.headers["user-agent"]);
+  const result = parser.getResult();
 
-     // Handle referral code if provided
-     let referredBy = null;
-     if (referralCode) {
-         const referralValidation = await validateReferralCode({ body: { referralCode } }, {
-             json: (data) => data
-         });
-         if (referralValidation.valid) {
-             referredBy = referralValidation.referrer.id;
+  const ip =
+    req.headers["x-forwarded-for"] ||
+    req.socket.remoteAddress ||
+    "0.0.0.0";
 
-             // Create referral record
-             await Referral.create({
-                 referrerId: referredBy,
-                 referredUserId: null, // Will be set after user creation
-                 referralCode: referralCode.toUpperCase(),
-                 status: 'pending'
-             });
-         }
-     }
+  const geo = geoip.lookup(ip);
 
-     const user = await User.create({
-         name,
-         email,
-         password: hashPassword,
-         referredBy
-     });
+  return {
+    ip,
+    browser: result.browser.name || "Unknown",
+    os: result.os.name || "Unknown",
+    device: result.device.type || "desktop",
+    location: geo
+      ? `${geo.city || "Unknown"}, ${geo.country}`
+      : "Unknown",
+  };
+};
 
-     // Update referral record with new user ID
-     if (referredBy) {
-         await Referral.findOneAndUpdate(
-             { referrerId: referredBy, referralCode: referralCode.toUpperCase() },
-             { referredUserId: user._id }
-         );
+// ========================= SEND OTP =========================
+export const sendOtpController = async (req, res) => {
+  try {
+    const { email } = req.body;
 
-         // Update referrer stats
-         await User.findByIdAndUpdate(referredBy, {
-             $inc: { 'referralStats.totalReferrals': 1 }
-         });
-     }
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
 
-     let token = await genToken(user._id)
-     res.cookie("token",token,{
-         httpOnly:true,
-         secure:false,
-         sameSite: "Strict",
-         maxAge: 7 * 24 * 60 * 60 * 1000
-     })
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ message: "Invalid Email" });
+    }
 
-     return res.status(201).json(user)
-   } catch (error) {
-     console.log("registration error")
-     return res.status(500).json({message:`registration error ${error}`})
-   }
+    let user = await User.findOne({ email });
 
- }
+    if (user && user.otpExpiry && user.otpExpiry > Date.now()) {
+      return res.status(400).json({ message: "OTP already sent. Try later." });
+    }
 
+    const otp = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
 
-export const login = async (req,res) => {
-    try {
-        let {email,password} = req.body;
-        let user = await User.findOne({email})
-        if(!user){
-            return res.status(404).json({message:"User is not Found"})
-        }
-        let isMatch = await bcrypt.compare(password,user.password)
-        if(!isMatch){
-            return res.status(400).json({message:"Incorrect password"})
-        }
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
-        // Update login tracking
-        await User.findByIdAndUpdate(user._id, {
-            lastLogin: new Date(),
-            $inc: { loginCount: 1 }
+    if (!user) {
+      user = new User({ email });
+    }
+
+    user.otp = otp;
+    user.otpExpiry = otpExpiry;
+
+    await user.save();
+    await sendOtp(email, otp);
+
+    return res.status(200).json({ message: "OTP sent successfully" });
+
+  } catch (error) {
+    console.log("Send OTP error", error);
+    return res.status(500).json({ message: "Send OTP error" });
+  }
+};
+
+// ========================= VERIFY OTP + REGISTER =========================
+export const verifyOtpAndRegister = async (req, res) => {
+  try {
+    const { name, email, password, otp, referralCode } = req.body;
+
+    if (!name || !email || !password || !otp) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user || user.otp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    if (user.otpExpiry < Date.now()) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ message: "Weak password" });
+    }
+
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    let referredBy = null;
+
+    if (referralCode) {
+      const referralValidation = await validateReferralCode(
+        { body: { referralCode } },
+        { json: (data) => data }
+      );
+
+      if (referralValidation.valid) {
+        referredBy = referralValidation.referrer.id;
+
+        await Referral.create({
+          referrerId: referredBy,
+          referredUserId: null,
+          referralCode: referralCode.toUpperCase(),
+          status: "pending",
         });
-
-        let token = await genToken(user._id)
-        res.cookie("token",token,{
-        httpOnly:true,
-        secure:false,
-        sameSite: "Strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    })
-    return res.status(201).json(user)
-
-    } catch (error) {
-         console.log("login error")
-    return res.status(500).json({message:`Login error ${error}`})
-
+      }
     }
 
-}
-export const logOut = async (req,res) => {
-try {
-    res.clearCookie("token")
-    return res.status(200).json({message:"logOut successful"})
-} catch (error) {
-    console.log("logOut error")
-    return res.status(500).json({message:`LogOut error ${error}`})
-}
-    
-}
+    user.name = name;
+    user.password = hashPassword;
+    user.isVerified = true;
+    user.referredBy = referredBy;
+    user.otp = null;
+    user.otpExpiry = null;
 
+    await user.save();
 
-export const googleLogin = async (req,res) => {
-     try {
-         console.log("Google login request received:", req.body);
-         let {name , email, referralCode} = req.body;
-         if (!email) {
-             console.error("No email provided in request");
-             return res.status(400).json({message: "Email is required"});
-         }
-         console.log("Checking if user exists for email:", email);
-         let user = await User.findOne({email})
-         if(!user){
-             console.log("User not found, creating new user");
+    if (referredBy) {
+      await Referral.findOneAndUpdate(
+        { referrerId: referredBy, referralCode: referralCode.toUpperCase() },
+        { referredUserId: user._id }
+      );
 
-             // Handle referral code for Google login
-             let referredBy = null;
-             if (referralCode) {
-                 const referralValidation = await validateReferralCode({ body: { referralCode } }, {
-                     json: (data) => data
-                 });
-                 if (referralValidation.valid) {
-                     referredBy = referralValidation.referrer.id;
+      await User.findByIdAndUpdate(referredBy, {
+        $inc: { "referralStats.totalReferrals": 1 },
+      });
+    }
 
-                     // Create referral record
-                     await Referral.create({
-                         referrerId: referredBy,
-                         referredUserId: null, // Will be set after user creation
-                         referralCode: referralCode.toUpperCase(),
-                         status: 'pending'
-                     });
-                 }
-             }
+    const token = await genToken(user._id);
 
-             user = await User.create({
-                 name,
-                 email,
-                 referredBy,
-                 isVerified: true // Google accounts are pre-verified
-             });
+    // Configure cookie based on environment
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
-             // Update referral record with new user ID
-             if (referredBy) {
-                 await Referral.findOneAndUpdate(
-                     { referrerId: referredBy, referralCode: referralCode.toUpperCase() },
-                     { referredUserId: user._id }
-                 );
+    user.password = undefined;
 
-                 // Update referrer stats
-                 await User.findByIdAndUpdate(referredBy, {
-                     $inc: { 'referralStats.totalReferrals': 1 }
-                 });
-             }
+    return res.status(201).json(user);
 
-             console.log("New user created:", user._id);
-         } else {
-             console.log("Existing user found:", user._id);
-         }
+  } catch (error) {
+    console.log("Registration error", error);
+    return res.status(500).json({ message: "Registration error" });
+  }
+};
 
-         // Update login tracking for existing users
-         await User.findByIdAndUpdate(user._id, {
-             lastLogin: new Date(),
-             $inc: { loginCount: 1 }
-         });
+// ========================= LOGIN =========================
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-         console.log("Generating token for user:", user._id);
-         let token = await genToken(user._id)
-         console.log("Token generated successfully");
+    let user = await User.findOne({ email });
 
-         res.cookie("token",token,{
-         httpOnly:true,
-         secure:false,
-         sameSite: "Strict",
-         maxAge: 7 * 24 * 60 * 60 * 1000
-     })
-     console.log("Cookie set, sending response");
-     return res.status(200).json(user)
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-     } catch (error) {
-          console.error("googleLogin error:", error);
-          console.error("Error stack:", error.stack);
-     return res.status(500).json({message:`googleLogin error ${error.message}`})
-     }
+    if (!user.isVerified) {
+      return res.status(400).json({ message: "Please verify OTP first" });
+    }
 
- }
+    const isMatch = await bcrypt.compare(password, user.password);
 
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect password" });
+    }
 
-export const adminLogin = async (req,res) => {
-    try {
-        let {email , password} = req.body
-        if(email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD){
-        let token = await genToken1(email)
-        res.cookie("token",token,{
-        httpOnly:true,
-        secure:false,
-        sameSite: "Strict",
-        maxAge: 1 * 24 * 60 * 60 * 1000
-    })
-    return res.status(200).json(token)
+    // ✅ SAVE LOGIN HISTORY
+    const deviceInfo = getDeviceInfo(req);
+
+    await LoginHistory.create({
+      userId: user._id,
+      ip: deviceInfo.ip,
+      browser: deviceInfo.browser,
+      os: deviceInfo.os,
+      device: deviceInfo.device,
+      location: deviceInfo.location,
+    });
+
+    await User.findByIdAndUpdate(user._id, {
+      lastLogin: new Date(),
+      $inc: { loginCount: 1 },
+    });
+
+    const token = await genToken(user._id);
+
+    // Configure cookie based on environment
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    user.password = undefined;
+
+    return res.status(200).json(user);
+
+  } catch (error) {
+    console.log("login error", error);
+    return res.status(500).json({ message: "Login error" });
+  }
+};
+
+// ========================= GOOGLE LOGIN =========================
+export const googleLogin = async (req, res) => {
+  try {
+    const { name, email, referralCode } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      let referredBy = null;
+
+      if (referralCode) {
+        const referralValidation = await validateReferralCode(
+          { body: { referralCode } },
+          { json: (data) => data }
+        );
+
+        if (referralValidation.valid) {
+          referredBy = referralValidation.referrer.id;
+
+          await Referral.create({
+            referrerId: referredBy,
+            referredUserId: null,
+            referralCode: referralCode.toUpperCase(),
+            status: "pending",
+          });
         }
-        return res.status(400).json({message:"Invaild creadintials"})
+      }
 
-    } catch (error) {
-        console.log("AdminLogin error")
-    return res.status(500).json({message:`AdminLogin error ${error}`})
-        
+      user = await User.create({
+        name,
+        email,
+        referredBy,
+        isVerified: true,
+      });
     }
-    
-}
 
+    // ✅ SAVE LOGIN HISTORY
+    const deviceInfo = getDeviceInfo(req);
+
+    await LoginHistory.create({
+      userId: user._id,
+      ip: deviceInfo.ip,
+      browser: deviceInfo.browser,
+      os: deviceInfo.os,
+      device: deviceInfo.device,
+      location: deviceInfo.location,
+    });
+
+    await User.findByIdAndUpdate(user._id, {
+      lastLogin: new Date(),
+      $inc: { loginCount: 1 },
+    });
+
+    const token = await genToken(user._id);
+
+    // Configure cookie based on environment
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    user.password = undefined;
+
+    return res.status(200).json(user);
+
+  } catch (error) {
+    console.log("googleLogin error", error);
+    return res.status(500).json({ message: "googleLogin error" });
+  }
+};
+
+// ========================= LOGOUT =========================
+export const logOut = async (req, res) => {
+  try {
+    res.clearCookie("token");
+    return res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    console.log("logout error", error);
+    return res.status(500).json({ message: "Logout error" });
+  }
+};
+
+// ========================= ADMIN LOGIN =========================
+export const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (
+      email === process.env.ADMIN_EMAIL &&
+      password === process.env.ADMIN_PASSWORD
+    ) {
+      const token = await genToken1(email);
+
+      // Configure cookie based on environment
+      const isProduction = process.env.NODE_ENV === 'production';
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'Strict',
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+      });
+
+      return res.status(200).json(token);
+    }
+
+    return res.status(400).json({ message: "Invalid credentials" });
+
+  } catch (error) {
+    console.log("AdminLogin error", error);
+    return res.status(500).json({ message: "AdminLogin error" });
+  }
+};

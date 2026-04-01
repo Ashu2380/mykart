@@ -5,6 +5,7 @@ import { authDataContext } from '../context/authContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import Invoice from '../component/Invoice'
+import { useNavigate } from 'react-router-dom'
 
 function Order() {
     let [orderData,setOrderData] = useState([])
@@ -16,6 +17,14 @@ function Order() {
     let [loading, setLoading] = useState(true)
     let {currency} = useContext(shopDataContext)
     let {serverUrl} = useContext(authDataContext)
+    let navigate = useNavigate()
+
+    const isWithinReturnWindow = (orderDate) => {
+        const orderTime = new Date(orderDate);
+        const currentTime = new Date();
+        const daysDiff = (currentTime - orderTime) / (1000 * 60 * 60 * 24);
+        return daysDiff <= 30; // 30 days return window
+    };
 
     const loadOrderData = async () => {
        try {
@@ -266,6 +275,17 @@ useEffect(()=>{
                           </svg>
                           Download Bill
                         </button>
+                        {item.status === 'Delivered' && isWithinReturnWindow(item.date) && (
+                          <button 
+                            className='flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-pink-600 text-white font-medium cursor-pointer hover:from-red-600 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5' 
+                            onClick={() => navigate('/returns')}
+                          >
+                            <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6' />
+                            </svg>
+                            Return
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

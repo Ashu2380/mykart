@@ -2,7 +2,8 @@ import React, { createContext } from 'react'
 
 export const authDataContext = createContext()
 function AuthContext({children}) {
-    let serverUrl = "http://localhost:8000"
+    // Use environment variable for server URL, fallback to localhost for development
+    let serverUrl = import.meta.env.VITE_SERVER_URL || "http://localhost:8000"
 
     let value = {
       serverUrl

@@ -1,67 +1,34 @@
-# Blockchain Wallet Payment Integration TODO
+# Blockchain Payment Integration TODO
+## Status: 🚀 In Progress
 
-## Status: ✅ Dependencies Installed | Next: Model Edit
+### ✅ Step 1: Create TODO.md [COMPLETED]
 
-### 1. [✅] Setup Dependencies & Config
-- [✅] Backend: axios, ethers, @emurgo/blockfrost-js ✅
-- [✅] Frontend: qrcode.react, lucide-react ✅
-- [✅] Created .env.blockchain.example ✅ Copy & configure!
+### ✅ Step 2: Update PaymentSettings.jsx
+- [x] Remove card/upi/netbanking options (keep only wallet)
+- [x] Wallet dropdown: Remove bitcoin, keep ethereum/cardano  
+- [x] Auto-connect wallet on type change
+- [x] Set wallet as default type
+- [x] Update UI titles to "Blockchain Wallet Settings"
 
-### 2. [ ] Backend Model Update (orderModel.js)
-- [ ] Add `cryptoTxHash` and `cryptoNetwork` fields
+### ⏳ Step 3: Update PlaceOrder.jsx
+- [ ] Hide/disable Razorpay/QR buttons (keep COD + Crypto)
+- [ ] Make Crypto default payment method
+- [ ] Test checkout flow
 
-### 3. [ ] Backend Controller Updates (orderController.js)
-- [ ] Add `generateCryptoOrder(network)`
-- [ ] Add `verifyCryptoPayment(orderId)`
+### ⏳ Step 4: Enhance CryptoPayment.jsx  
+- [ ] Auto-connect on modal open
+- [ ] Prominent balance display
+- [ ] Success feedback
 
-### 4. [ ] Backend Routes (orderRoutes.js)
-- [ ] POST `/crypto-order`
-- [ ] GET `/verify-crypto/:orderId`
+### ⏳ Step 5: Testing & Verification
+- [ ] Test PaymentSettings wallet auto-connect
+- [ ] Test PlaceOrder -> CryptoPayment flow
+- [ ] Verify backend order creation
+- [ ] Backend payment verification works
 
-### 5. [ ] Frontend Checkout Update (PlaceOrder.jsx)
-- [ ] Add ETH/ADA payment buttons
-- [ ] Crypto payment modal with QR/address/poll
+### ⏳ Step 6: Final Testing
+- [ ] Complete checkout with ETH/ADA
+- [ ] Order appears in /order page
+- [ ] attempt_completion
 
-### 6. [ ] Frontend Invoice Update (Invoice.jsx)
-- [ ] Display crypto details/tx link
-
-### 7. [ ] UI Polish
-- [ ] Footer.jsx: Add crypto logos
-
-### 8. [ ] Testing
-- [ ] Testnet tx verification
-
-
-### 2. [ ] Backend Model Update (orderModel.js)
-- [ ] Add `cryptoTxHash` and `cryptoNetwork` fields
-
-### 3. [ ] Backend Controller Updates (orderController.js)
-- [ ] Add `generateCryptoOrder(network)`
-- [ ] Add `verifyCryptoPayment(orderId)`
-
-### 4. [ ] Backend Routes (orderRoutes.js)
-- [ ] POST `/crypto-order`
-- [ ] GET `/verify-crypto/:orderId`
-
-### 5. [ ] Frontend Checkout Update (PlaceOrder.jsx)
-- [ ] Add ETH/ADA payment buttons
-- [ ] Crypto payment modal with QR/address/poll
-
-### 6. [ ] Frontend Invoice Update (Invoice.jsx)
-- [ ] Display crypto details/tx link
-
-### 7. [ ] UI Polish
-- [ ] Footer.jsx: Add crypto logos
-- [ ] Icons/components
-
-### 8. [ ] Testing
-- [ ] Testnet tx verification
-- [ ] E2E checkout flow
-- [ ] Admin view
-
-### 9. [ ] Production Prep
-- [ ] Mainnet config
-- [ ] Monitoring/alerts
-
-**Next: Dependencies → Model → Controller → Routes → Frontend**
-
+**Next Action:** Implement PaymentSettings.jsx changes

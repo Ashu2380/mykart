@@ -93,15 +93,26 @@ const getProductReviews = async (req, res) => {
         const totalReviews = await Review.countDocuments({ productId, status: 'approved' });
 
         // Get rating distribution
-        const ratingStats = await Review.aggregate([
-            { $match: { productId: new mongoose.Types.ObjectId(productId), status: 'approved' } },
-            {
-                $group: {
-                    _id: '$rating',
-                    count: { $sum: 1 }
-                }
+        // Safe ObjectId validation and rating stats
+        let ratingStats = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        try {
+            if (productId && mongoose.Types.ObjectId.isValid(productId)) {
+                ratingStats = await Review.aggregate([
+                    { $match: { 
+                        productId: new mongoose.Types.ObjectId(productId), 
+                        status: 'approved' 
+                    } },
+                    {
+                        $group: {
+                            _id: '$rating',
+                            count: { $sum: 1 }
+                        }
+                    }
+                ]);
             }
-        ]);
+        } catch (aggError) {
+            console.error('Rating aggregate error:', aggError);
+        }
 
         const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
         ratingStats.forEach(stat => {

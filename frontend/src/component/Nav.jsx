@@ -37,7 +37,7 @@
     <>
     <div className='nav-main'>
 
-        <div className='nav-logo'>
+        <div className='nav-logo cursor-pointer' onClick={() => navigate("/")}>
             <img src={logo} alt="" className='w-[30px]' />
             <h1 className='text-[25px] font-sans'>Mykart</h1>
         </div>
@@ -77,6 +77,8 @@
                         <li className='px-4 py-2 hover:bg-gray-100 cursor-pointer' onClick={()=>{navigate("/about");setShowMore(false)}}>About</li>
                         <li className='px-4 py-2 hover:bg-gray-100 cursor-pointer' onClick={()=>{navigate("/order");setShowMore(false)}}>My Orders</li>
                         <li className='px-4 py-2 hover:bg-gray-100 cursor-pointer' onClick={()=>{navigate("/referrals");setShowMore(false)}}>Refer & Earn</li>
+                        <li className='px-4 py-2 hover:bg-gray-100 cursor-pointer' onClick={()=>{navigate("/returns");setShowMore(false)}}>Returns & Refunds</li>
+                        <li className='px-4 py-2 hover:bg-gray-100 cursor-pointer' onClick={()=>{navigate("/account-settings");setShowMore(false)}}>Account Settings</li>
                     </ul>
                 </div>
             </div>

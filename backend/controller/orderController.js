@@ -2,6 +2,7 @@ import Order from "../model/orderModel.js";
 import User from "../model/userModel.js";
 import Notification from "../model/notificationModel.js";
 import { processReferralReward } from "./referralController.js";
+import { sendOrderStatusEmail } from "../utils/sendStatusEmail.js";
 import razorpay from 'razorpay'
 import dotenv from 'dotenv'
 dotenv.config()
@@ -148,6 +149,21 @@ export const placeOrder = async (req,res) => {
 
          await User.findByIdAndUpdate(userId,{cartData:{}})
 
+         // Send order confirmation email
+         try {
+             const user = await User.findById(userId);
+             if (user && user.email) {
+                 await sendOrderStatusEmail(user.email, 'Order Placed', {
+                     orderId: newOrder._id,
+                     customerName: user.name || 'Customer',
+                     items: items,
+                     amount: amount
+                 });
+             }
+         } catch (emailError) {
+             console.log("Order email error:", emailError);
+         }
+
          // Process referral rewards for first purchase
          try {
              await processReferralReward(userId, amount);
@@ -178,10 +194,10 @@ export const placeOrder = async (req,res) => {
          }
 
          return res.status(201).json({message:'Order Placed Successfully'})
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({message:'Order Place error'})
-    }
+     } catch (error) {
+         console.log(error)
+         res.status(500).json({message:'Order Place error'})
+     }
 
 }
 
@@ -233,6 +249,24 @@ export const verifyRazorpay = async (req,res) =>{
             await Order.findByIdAndUpdate(orderInfo.receipt,{payment:true});
             await User.findByIdAndUpdate(userId , {cartData:{}})
 
+            // Send order confirmation email
+            try {
+                const order = await Order.findById(orderInfo.receipt);
+                if (order) {
+                    const user = await User.findById(userId);
+                    if (user && user.email) {
+                        await sendOrderStatusEmail(user.email, 'Order Placed', {
+                            orderId: order._id,
+                            customerName: user.name || 'Customer',
+                            items: order.items,
+                            amount: order.amount
+                        });
+                    }
+                }
+            } catch (emailError) {
+                console.log("Order email error:", emailError);
+            }
+
             // Process referral rewards for first purchase
             try {
                 const order = await Order.findById(orderInfo.receipt);
@@ -257,8 +291,6 @@ export const verifyRazorpay = async (req,res) =>{
             })
     }
 }
-
-
 
 
 
@@ -300,10 +332,68 @@ export const updateStatus = async (req,res) => {
  try {
      const {orderId , status} = req.body
 
-     const updatedOrder = await Order.findByIdAndUpdate(orderId , { status }, { new: true }).populate('userId', 'name email')
+     console.log('=== UPDATE ORDER STATUS ===');
+     console.log('Order ID:', orderId);
+     console.log('New Status:', status);
+
+     const updatedOrder = await Order.findByIdAndUpdate(orderId , { status }, { new: true });
+     
+     console.log('Updated Order userId:', updatedOrder?.userId);
+
+     // Fetch user data manually since userId is stored as String in Order model
+     let userData = null;
+     let userEmail = null;
+     let customerName = null;
+     
+     // First get the FULL order data (with address) to use for fallback
+     const fullOrder = await Order.findById(orderId);
+     
+     if (fullOrder?.address?.email) {
+       console.log('Full order address email:', fullOrder.address.email);
+     }
+     
+     if (updatedOrder?.userId) {
+       try {
+         const User = (await import('../model/userModel.js')).default;
+         userData = await User.findById(updatedOrder.userId);
+         userEmail = userData?.email;
+         customerName = userData?.name;
+       } catch (err) {
+         console.log('Error fetching user:', err);
+       }
+     }
+     
+     // Fallback: use email from order address if user email is not available
+     if (!userEmail && fullOrder?.address?.email) {
+       userEmail = fullOrder.address.email;
+       customerName = fullOrder.address.firstName || 'Customer';
+       console.log('Using address email as fallback:', userEmail);
+     }
+
+     console.log('User Data:', customerName, userEmail);
+
+     // Send email notification to user
+     if (userEmail && userEmail.includes('@')) {
+         try {
+             console.log('Sending order status email from controller to:', userEmail, 'status:', status);
+             
+             await sendOrderStatusEmail(userEmail, status, {
+                 orderId: updatedOrder._id,
+                 customerName: customerName,
+                 items: updatedOrder.items,
+                 amount: updatedOrder.amount
+             });
+             console.log('Email sent successfully');
+         } catch (emailError) {
+             console.log("Email sending error:", emailError);
+             // Don't fail the status update if email fails
+         }
+     } else {
+         console.log('Skipping email - no valid email found');
+     }
 
      // Create status update notification for user
-     if (updatedOrder && updatedOrder.userId) {
+     if (updatedOrder && updatedOrder.userId && userData) {
          try {
              const statusMessages = {
                  'Shipped': 'Your order has been shipped and is on its way! ',
@@ -315,7 +405,7 @@ export const updateStatus = async (req,res) => {
              };
 
              const notification = new Notification({
-                 userId: updatedOrder.userId._id || updatedOrder.userId,
+                 userId: updatedOrder.userId,
                  type: 'order_update',
                  title: `Order ${status}!`,
                  message: statusMessages[status] || `Your order status has been updated to: ${status}`,
@@ -338,7 +428,7 @@ export const updateStatus = async (req,res) => {
  } catch (error) {
       return res.status(500).json({message:error.message
              })
- }
+  }
 }
 
 export const updatePaymentStatus = async (req,res) => {

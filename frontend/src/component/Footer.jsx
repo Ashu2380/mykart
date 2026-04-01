@@ -61,7 +61,7 @@ function Footer() {
             <div className='max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[30px]'>
                 {/* Company Info */}
                 <div className='flex flex-col items-start gap-[10px]'>
-                    <div className='flex items-center gap-[8px]'>
+                    <div className='flex items-center gap-[8px] cursor-pointer' onClick={() => window.location.href = '/'}>
                         <img src={logo} alt="" className='md:w-[40px] md:h-[40px] w-[35px] h-[35px] rounded-lg'/>
                         <p className='text-[22px] md:text-[24px] text-[#1e2223] font-bold'>Mykart</p>
                     </div>
@@ -184,10 +184,7 @@ function Footer() {
                         <div className='px-[12px] py-[6px] bg-white border border-gray-300 rounded text-[12px] font-medium text-gray-600'>Visa</div>
                         <div className='px-[12px] py-[6px] bg-white border border-gray-300 rounded text-[12px] font-medium text-gray-600'>Mastercard</div>
                         <div className='px-[12px] py-[6px] bg-white border border-gray-300 rounded text-[12px] font-medium text-gray-600'>UPI</div>
-                        <div className='px-[12px] py-[6px] bg-white border border-gray-300 rounded text-[12px] font-medium text-gray-600'>Paytm</div>
-                        <div className='px-[12px] py-[6px] bg-white border border-gray-300 rounded text-[12px] font-medium text-gray-600'>Google Pay</div>
-                        <div className='px-[12px] py-[6px] bg-white border border-gray-300 rounded text-[12px] font-medium text-gray-600'>PhonePe</div>
-                        <div className='px-[12px] py-[6px] bg-white border border-gray-300 rounded text-[12px] font-medium text-gray-600'>Amazon Pay</div>
+                        <div className='px-[12px] py-[6px] bg-white border border-gray-300 rounded text-[12px] font-medium text-gray-600'>Crypto</div>
                     </div>
                 </div>
             </div>

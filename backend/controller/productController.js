@@ -31,7 +31,7 @@ const getProductRecommendations = (query, products) => {
 
 export const addProduct = async (req,res) => {
     try {
-        let {name,description,price,category,subCategory,sizes,bestseller,discount} = req.body
+        let {name,description,price,category,subCategory,sizes,bestseller,discount,ram,rom} = req.body
 
         // Handle image uploads with proper checks
         let image1 = null, image2 = null, image3 = null, image4 = null;
@@ -59,7 +59,9 @@ export const addProduct = async (req,res) => {
             bestseller :bestseller === "true" ? true : false,
             discount :Number(discount) || 0,
             date :Date.now(),
-            isManual :true
+            isManual :true,
+            ram: ram || null,
+            rom: rom || null
         }
 
         // Only add image fields if they exist
@@ -605,7 +607,7 @@ function calculateRelevanceScore(product, uploadedImage, baseConfidence) {
 export const updateProduct = async (req,res) => {
     try {
         let {id} = req.params;
-        let {name,description,price,category,subCategory,sizes,bestseller,discount} = req.body
+        let {name,description,price,category,subCategory,sizes,bestseller,discount,ram,rom} = req.body
 
         const oldProduct = await Product.findById(id);
         if (!oldProduct) {
@@ -620,7 +622,9 @@ export const updateProduct = async (req,res) => {
             subCategory,
             sizes: JSON.parse(sizes),
             bestseller: bestseller === "true" ? true : false,
-            discount: Number(discount) || 0
+            discount: Number(discount) || 0,
+            ram: ram || null,
+            rom: rom || null
         }
 
         // Handle image updates if provided

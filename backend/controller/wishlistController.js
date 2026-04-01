@@ -7,6 +7,10 @@ export const addToWishlist = async (req, res) => {
         const { productId } = req.body;
         const userId = req.userId;
 
+        if (!productId) {
+            return res.status(400).json({ message: "Product ID is required" });
+        }
+
         // Check if product exists
         const product = await Product.findById(productId);
         if (!product) {
@@ -70,10 +74,20 @@ export const removeFromWishlist = async (req, res) => {
 export const getWishlist = async (req, res) => {
     try {
         const userId = req.userId;
+        console.log("getWishlist: Fetching for userId:", userId);
+        
+        if (!userId) {
+            return res.status(400).json({ message: "User ID not found" });
+        }
 
         const user = await User.findById(userId).populate('wishlist.productId');
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        
         const wishlistWithProducts = user.wishlist.map(item => ({
             ...item.toObject(),
+            productId: item.productId?._id || item.productId || item.productId,
             product: item.productId
         }));
 
